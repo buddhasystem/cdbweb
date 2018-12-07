@@ -31,13 +31,14 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    'info.apps.InfoConfig',
+#    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cdbweb',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +80,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'conditions',
-        'USER': 'adm_cond',
-        'PASSWORD': 'belle2',
+        'USER': '*',
+        'PASSWORD': '*',
         'HOST': '',
         'PORT': '',
     }
