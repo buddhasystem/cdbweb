@@ -3,7 +3,7 @@
 <!doctype html>
 <html>
   <head>
-    <title>CDB Web@{{ host }}</title>
+    <title>CDBweb@{{ host }}</title>
     <!-- link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" / -->
     <link rel="stylesheet" href="{% static 'paleblue/css/screen.css' %}" />
     
@@ -22,8 +22,11 @@
 
   
   <body>
-    <center><h2>CDB Web@{{ domain }}</h2></center>
+    <center><h2>CDBweb@{{ domain }} - {{ what }}</h2></center>
     {% include "linkbar.html" %}
     <hr/>
+    {% if table %}
+    {% render_table table %}
+    {% endif %}
   </body>
 </html>
