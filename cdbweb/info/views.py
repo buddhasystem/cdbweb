@@ -16,11 +16,9 @@ def index(request):
     navTable.set_site(domain)
     d = dict(domain=domain, host=host, hometable=navTable)
 
-    print('index')
     return render(request, template, d)
 
 
 # general request handler for summary type of a table
 def data_handler(request, what):
-    print(what)
     return HttpResponse(what)
