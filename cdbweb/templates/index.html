@@ -1,0 +1,29 @@
+{% load render_table from django_tables2 %}
+{% load static %}
+<!doctype html>
+<html>
+  <head>
+    <title>CDB Web@{{ host }}</title>
+    <!-- link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" / -->
+    <link rel="stylesheet" href="{% static 'paleblue/css/screen.css' %}" />
+    
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|Ubuntu" rel="stylesheet">
+    <style>
+      body {
+      font-family: 'Ubuntu', sans-serif;
+      }
+    </style>
+
+    {% if refresh %}
+    <meta http-equiv="refresh" content="{{ refresh }}" />
+    {% endif %}
+
+  </head>
+
+  
+  <body>
+    {% include "linkbar.html" %}
+    <hr/>
+    <!-- include "topnavbar.html" Moved to linkbar-->
+  </body>
+</html>

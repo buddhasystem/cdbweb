@@ -1,0 +1,12 @@
+{% load render_table from django_tables2 %}
+{% load static %}
+<center>
+<table width="80%">
+  <tr>
+{% if hometable %}
+<td align="right">
+  {% render_table hometable %}
+</td>
+{% endif %}
+</table>
+</center>
