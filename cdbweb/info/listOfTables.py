@@ -6,7 +6,7 @@ listOfTables = ['AppMessage',
                 'GlobalTagType',
                 'Payload',
                 'PayloadStatus',
-                'PayloadContent',
+                # 'PayloadContent', ???
                 'PayloadIov',
                 'PayloadIovRpt',
 ]

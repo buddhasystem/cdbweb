@@ -5,7 +5,7 @@ from django.db import models
 
 
 class AppMessage(models.Model):
-    app_message_id = models.AutoField(primary_key=True)
+    app_message_id = models.AutoField(primary_key=True, verbose_name="ID")
     code = models.CharField(unique=True, max_length=5)
     message = models.TextField()
     dtm_ins = models.DateTimeField()
@@ -17,7 +17,7 @@ class AppMessage(models.Model):
 
 
 class Basf2Module(models.Model):
-    basf2_module_id = models.AutoField(primary_key=True)
+    basf2_module_id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.TextField(unique=True)
     next_revision = models.IntegerField()
     description = models.TextField(blank=True, null=True)
@@ -31,7 +31,7 @@ class Basf2Module(models.Model):
 
 
 class GlobalTag(models.Model):
-    global_tag_id = models.AutoField(primary_key=True, verbose_name='Seq.')
+    global_tag_id = models.AutoField(primary_key=True,  verbose_name="ID")
     name = models.TextField(unique=True)
     is_default = models.BooleanField()
     description = models.TextField(blank=True, null=True)
@@ -52,7 +52,7 @@ class GlobalTag(models.Model):
 
 
 class GlobalTagPayload(models.Model):
-    global_tag_payload_id = models.AutoField(primary_key=True, verbose_name='Seq.')
+    global_tag_payload_id = models.AutoField(primary_key=True,  verbose_name="ID")
     
     global_tag_id = models.IntegerField(verbose_name='GT ID')
     # WAS auto-generated as: global_tag = models.ForeignKey(GlobalTag, models.DO_NOTHING)
@@ -70,7 +70,7 @@ class GlobalTagPayload(models.Model):
 
 
 class GlobalTagStatus(models.Model):
-    global_tag_status_id = models.AutoField(primary_key=True)
+    global_tag_status_id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.TextField(unique=True)
     description = models.TextField()
     dtm_ins = models.DateTimeField()
@@ -81,7 +81,7 @@ class GlobalTagStatus(models.Model):
         db_table = 'global_tag_status'
 
 class GlobalTagType(models.Model):
-    global_tag_type_id = models.AutoField(primary_key=True)
+    global_tag_type_id = models.AutoField(primary_key=True,  verbose_name="ID")
     name = models.TextField(unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     dtm_ins = models.DateTimeField()
@@ -92,7 +92,7 @@ class GlobalTagType(models.Model):
         db_table = 'global_tag_type'
 
 class Payload(models.Model):
-    payload_id = models.AutoField(primary_key=True, verbose_name='Seq.')
+    payload_id = models.AutoField(primary_key=True,  verbose_name="ID")
     
     basf2_module_id = models.IntegerField(verbose_name='BASF2 MODULE ID')
     # WAS auto-generated as: basf2_module = models.ForeignKey(Basf2Module, models.DO_NOTHING)
@@ -118,19 +118,22 @@ class Payload(models.Model):
         unique_together = (('payload_id', 'revision'), ('basf2_module_id', 'revision'),)
 
 
-class PayloadContent(models.Model):
-    payload_content_id = models.AutoField(primary_key=True)
-    payload = models.ForeignKey(Payload, models.DO_NOTHING, unique=True, blank=True, null=True)
-    content = models.BinaryField()
+# class PayloadContent(models.Model):
+#     payload_content_id = models.AutoField(primary_key=True)
+#     payload = models.ForeignKey(Payload, models.DO_NOTHING, unique=True, blank=True, null=True)
+#     content = models.BinaryField()
 
-    class Meta:
-        managed = False
-        db_table = 'payload_content'
+#     class Meta:
+#         managed = False
+#         db_table = 'payload_content'
 
 
 class PayloadIov(models.Model):
-    payload_iov_id = models.AutoField(primary_key=True)
-    global_tag_payload = models.ForeignKey(GlobalTagPayload, models.DO_NOTHING)
+    payload_iov_id = models.AutoField(primary_key=True, verbose_name="ID")
+    
+    global_tag_payload_id = models.IntegerField(verbose_name='GT Payload ID')
+    # WAS auto-generated as: global_tag_payload = models.ForeignKey(GlobalTagPayload, models.DO_NOTHING)
+    
     exp_start = models.IntegerField()
     run_start = models.IntegerField()
     exp_end = models.IntegerField()
@@ -142,7 +145,7 @@ class PayloadIov(models.Model):
     class Meta:
         managed = False
         db_table = 'payload_iov'
-        unique_together = (('global_tag_payload', 'exp_start', 'run_start', 'exp_end', 'run_end'),)
+        unique_together = (('global_tag_payload_id', 'exp_start', 'run_start', 'exp_end', 'run_end'),)
 
 
 class PayloadIovRpt(models.Model):
@@ -165,7 +168,7 @@ class PayloadIovRpt(models.Model):
         db_table = 'payload_iov_rpt'
 
 class PayloadStatus(models.Model):
-    payload_status_id = models.AutoField(primary_key=True)
+    payload_status_id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.TextField(unique=True)
     description = models.TextField()
     dtm_ins = models.DateTimeField()

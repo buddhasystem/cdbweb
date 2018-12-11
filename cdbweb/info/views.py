@@ -3,71 +3,14 @@ from django.shortcuts	import render
 from django.http	import HttpResponse
 
 # tables
-import	django_tables2	as tables
 from	django_tables2	import RequestConfig
 
 # local utility classes
 from utils.navbar	import TopTable
 
 # data
-from .models import *
-
-#########################################################
-class AppMessageTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = AppMessage
-#########################################################
-class Basf2ModuleTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = Basf2Module
-#########################################################
-class GlobalTagTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = GlobalTag
-#########################################################
-class GlobalTagPayloadTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = GlobalTagPayload
-#########################################################
-class GlobalTagStatusTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = GlobalTagStatus
-#########################################################
-class GlobalTagTypeTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = GlobalTagType
-#########################################################
-class PayloadTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = Payload
-#########################################################
-class PayloadStatusTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = PayloadStatus
-#########################################################
-class PayloadContentTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = PayloadContent
-#########################################################
-class PayloadIovTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = PayloadIov
-#########################################################
-class PayloadIovRptTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
-        model = PayloadIovRpt
-        
+from .models		import *
+from .cdbwebTables	import *
 #########################################################    
 #########################################################    
 #########################################################    
@@ -78,7 +21,7 @@ def index(request):
     host	= request.GET.get('host','')
     domain	= request.get_host()
 
-    navTable = TopTable(domain)
+    navTable = TopTable(domain, 'Home')
 
     d = dict(domain=domain, host=host, what='Home', hometable=navTable)
 
@@ -97,7 +40,7 @@ def data_handler(request, what):
     host	= request.GET.get('host','')
     domain	= request.get_host()
 
-    navTable = TopTable(domain)
+    navTable = TopTable(domain, what)
     table = eval(what+'Table')(objects)
     RequestConfig(request, paginate={'per_page': 25}).configure(table)
     

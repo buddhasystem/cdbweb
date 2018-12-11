@@ -6,13 +6,22 @@ from django.utils.html			import format_html
 from info.listOfTables import listOfTables
 
 # ---
-def NavBarData(domain):
+def NavBarData(domain, what):
     data = []
-    myDict = {'col0':mark_safe('<a href="http://'+domain+'/info">Home</a>')}
+    if(what=='Home'):
+        style = 'style="color:red"'
+    else:
+        style = ''
+    myDict = {'col0':mark_safe('<a href="http://'+domain+'/info"'+style+'>Home</a>')}
 
     i=1
     for t in listOfTables:
-        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/info/'+t+'">'+t+'</a>')
+        if(what==t):
+            style = 'style="color:red"'
+        else:
+            style=''
+
+        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/info/'+t+'"'+style+'>'+t+'</a>')
         i+=1
 
     data.append(myDict)
@@ -31,8 +40,8 @@ class NavTable(tables.Table):
         attrs	= {'class': 'paleblue'}
 
 # ---
-def TopTable(domain):
-    t = NavTable(NavBarData(domain), show_header = False)
+def TopTable(domain, what=None):
+    t = NavTable(NavBarData(domain, what), show_header = False)
     t.set_site(domain)
     return t
 

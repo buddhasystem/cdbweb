@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import AppMessage, Basf2Module, GlobalTag, GlobalTagType, Payload, PayloadContent, PayloadIov, PayloadIovRpt, PayloadStatus
+from .models import AppMessage, Basf2Module, GlobalTag, GlobalTagType, Payload, \
+ PayloadIov, PayloadIovRpt, PayloadStatus
 
 ############
 class AppMessageAdmin(admin.ModelAdmin):
@@ -62,19 +63,9 @@ class PayloadAdmin(admin.ModelAdmin):
 admin.site.register(Payload, PayloadAdmin)
 
 ############
-class PayloadContentAdmin(admin.ModelAdmin):
-    list_display = ('payload_content_id',
-                    'payload',
-                    'content')
-
-    empty_value_display = '-empty-'
-    
-admin.site.register(PayloadContent, PayloadContentAdmin)
-
-############
 class PayloadIovAdmin(admin.ModelAdmin):
     list_display = ('payload_iov_id',
-                    'global_tag_payload',
+                    'global_tag_payload_id',
                     'exp_start',
                     'run_start',
                     'exp_end',
