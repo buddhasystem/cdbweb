@@ -31,6 +31,9 @@ def index(request):
 
 # general request handler for summary type of a table
 def data_handler(request, what):
+
+    perpage	= request.GET.get('perpage','25')
+    
     objects = eval(what).objects.order_by('-pk') # newest on top
 
     n = len(objects)
@@ -42,9 +45,10 @@ def data_handler(request, what):
 
     navTable = TopTable(domain, what)
     table = eval(what+'Table')(objects)
-    RequestConfig(request, paginate={'per_page': 25}).configure(table)
     
+    RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
     #    table.set_site
+    
     d = dict(domain=domain, host=host, what=what, hometable=navTable, table=table)
 
     return render(request, template, d)
