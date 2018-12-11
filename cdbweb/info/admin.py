@@ -21,8 +21,8 @@ class GlobalTagAdmin(admin.ModelAdmin):
                     'name',
                     'is_default',
                     'description',
-                    'global_tag_status',
-                    'global_tag_type',
+                    'global_tag_status_id', # changed after model cleanup
+                    'global_tag_type_id', # ditto
                     'dtm_ins',
                     'dtm_mod',
                     'modified_by')
@@ -45,13 +45,13 @@ admin.site.register(GlobalTagType, GlobalTagTypeAdmin)
 ############
 class PayloadAdmin(admin.ModelAdmin):
     list_display = ('payload_id',
-                    'basf2_module',
+                    'basf2_module_id',
                     'revision',
                     'description',
                     'is_default',
                     'base_url',
                     'checksum',
-                    'payload_status',
+                    'payload_status_id',
                     'deleted',
                     'dtm_ins',
                     'dtm_mod',

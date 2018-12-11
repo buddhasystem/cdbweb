@@ -31,12 +31,17 @@ class Basf2Module(models.Model):
 
 
 class GlobalTag(models.Model):
-    global_tag_id = models.AutoField(primary_key=True)
+    global_tag_id = models.AutoField(primary_key=True, verbose_name='Seq.')
     name = models.TextField(unique=True)
     is_default = models.BooleanField()
     description = models.TextField(blank=True, null=True)
-    global_tag_status = models.ForeignKey('GlobalTagStatus', models.DO_NOTHING)
-    global_tag_type = models.ForeignKey('GlobalTagType', models.DO_NOTHING)
+    
+    global_tag_status_id = models.IntegerField(verbose_name='GT Status ID')
+    # WAS auto-generated as:   global_tag_status = models.ForeignKey('GlobalTagStatus', models.DO_NOTHING)
+    
+    global_tag_type_id = models.IntegerField(verbose_name='GT Type ID')
+    # WAS auto-generated as:    global_tag_type = models.ForeignKey('GlobalTagType', models.DO_NOTHING)
+    
     dtm_ins = models.DateTimeField()
     dtm_mod = models.DateTimeField(blank=True, null=True)
     modified_by = models.TextField()
@@ -47,16 +52,21 @@ class GlobalTag(models.Model):
 
 
 class GlobalTagPayload(models.Model):
-    global_tag_payload_id = models.AutoField(primary_key=True)
-    global_tag = models.ForeignKey(GlobalTag, models.DO_NOTHING)
-    payload = models.ForeignKey('Payload', models.DO_NOTHING)
+    global_tag_payload_id = models.AutoField(primary_key=True, verbose_name='Seq.')
+    
+    global_tag_id = models.IntegerField(verbose_name='GT ID')
+    # WAS auto-generated as: global_tag = models.ForeignKey(GlobalTag, models.DO_NOTHING)
+    
+    payload_id = models.IntegerField(verbose_name='Payload ID')
+    # WAS auto-generated as: payload = models.ForeignKey('Payload', models.DO_NOTHING)
+    
     dtm_ins = models.DateTimeField()
     dtm_mod = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'global_tag_payload'
-        unique_together = (('global_tag', 'payload'),)
+        unique_together = (('global_tag_id', 'payload_id'),)
 
 
 class GlobalTagStatus(models.Model):
@@ -82,15 +92,21 @@ class GlobalTagType(models.Model):
         db_table = 'global_tag_type'
 
 class Payload(models.Model):
-    payload_id = models.AutoField(primary_key=True)
-    basf2_module = models.ForeignKey(Basf2Module, models.DO_NOTHING)
+    payload_id = models.AutoField(primary_key=True, verbose_name='Seq.')
+    
+    basf2_module_id = models.IntegerField(verbose_name='BASF2 MODULE ID')
+    # WAS auto-generated as: basf2_module = models.ForeignKey(Basf2Module, models.DO_NOTHING)
+    
     revision = models.IntegerField()
     description = models.TextField(blank=True, null=True)
     is_default = models.BooleanField()
     base_url = models.TextField()
     payload_url = models.TextField()
     checksum = models.TextField()
-    payload_status = models.ForeignKey('PayloadStatus', models.DO_NOTHING)
+    
+    payload_status_id = models.IntegerField(verbose_name='Status ID')
+    # WAS auto-generated as: payload_status = models.ForeignKey('PayloadStatus', models.DO_NOTHING)
+    
     deleted = models.BooleanField()
     dtm_ins = models.DateTimeField()
     dtm_mod = models.DateTimeField(blank=True, null=True)
@@ -99,7 +115,7 @@ class Payload(models.Model):
     class Meta:
         managed = False
         db_table = 'payload'
-        unique_together = (('payload_id', 'revision'), ('basf2_module', 'revision'),)
+        unique_together = (('payload_id', 'revision'), ('basf2_module_id', 'revision'),)
 
 
 class PayloadContent(models.Model):

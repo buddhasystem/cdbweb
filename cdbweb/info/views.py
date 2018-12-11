@@ -48,6 +48,11 @@ class PayloadTable(tables.Table):
         attrs	= {'class': 'paleblue'}
         model = Payload
 #########################################################
+class PayloadStatusTable(tables.Table):
+    class Meta:
+        attrs	= {'class': 'paleblue'}
+        model = PayloadStatus
+#########################################################
 class PayloadContentTable(tables.Table):
     class Meta:
         attrs	= {'class': 'paleblue'}

@@ -9,7 +9,7 @@ urlpatterns = [
 ]
 
 for t in listOfTables:
-    u = '/'+t+'$'
+    u = t+'$'
     urlpatterns.append(url(u,views.data_handler,{'what':t},name=t))
 
     
