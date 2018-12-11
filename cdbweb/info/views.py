@@ -92,7 +92,7 @@ def data_handler(request, what):
 
     n = len(objects)
 
-    template = 'index.html'
+    template = 'cdbweb_general_table.html'
 
     host	= request.GET.get('host','')
     domain	= request.get_host()
@@ -101,9 +101,8 @@ def data_handler(request, what):
     table = eval(what+'Table')(objects)
     RequestConfig(request, paginate={'per_page': 25}).configure(table)
     
-#    table.set_site
+    #    table.set_site
     d = dict(domain=domain, host=host, what=what, hometable=navTable, table=table)
 
     return render(request, template, d)
 
-#    return HttpResponse(what+ str(n))
