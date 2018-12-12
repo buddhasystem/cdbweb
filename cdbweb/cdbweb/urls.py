@@ -17,8 +17,13 @@ from django.contrib	import admin
 from django.urls	import path
 from django.conf.urls	import include, url
 
+from info.urls import urlpatterns as infoUrls
+
 urlpatterns = [
-    url(r'info',		include('info.urls')),
+    path(r'', include(infoUrls)),
+    
     # The ADMIN
     path('admin/', admin.site.urls),
 ]
+
+# WAS:   url(r'info',		include('info.urls')),

@@ -21,9 +21,13 @@
   </head>
 
   <body>
-    CDBweb@{{ domain }}
-    <center><h2>{{ what }}</h2></center>
+    <div style="font-size:50%";>
+      <center>
+	CDBweb service running at {{ domain }}
+      </center>
+      </div>
     {% include "linkbar.html" %}
+    <center><h2>{{ what }}</h2></center>
     <hr/>
 
   {% block content %}

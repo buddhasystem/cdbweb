@@ -12,7 +12,7 @@ def NavBarData(domain, what):
         style = 'style="color:red"'
     else:
         style = ''
-    myDict = {'col0':mark_safe('<a href="http://'+domain+'/info"'+style+'>Home</a>')}
+    myDict = {'col0':mark_safe('<a href="http://'+domain+'/"'+style+'>Home</a>')}
 
     i=1
     for t in listOfTables:
@@ -21,7 +21,7 @@ def NavBarData(domain, what):
         else:
             style=''
 
-        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/info/'+t+'"'+style+'>'+t+'</a>')
+        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+style+'>'+t+'</a>')
         i+=1
 
     data.append(myDict)

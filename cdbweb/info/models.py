@@ -131,7 +131,7 @@ class Payload(models.Model):
 class PayloadIov(models.Model):
     payload_iov_id = models.AutoField(primary_key=True, verbose_name="ID")
     
-    global_tag_payload_id = models.IntegerField(verbose_name='GT Payload ID')
+    global_tag_payload_id = models.IntegerField(verbose_name='Global Tag Payload ID')
     # WAS auto-generated as: global_tag_payload = models.ForeignKey(GlobalTagPayload, models.DO_NOTHING)
     
     exp_start = models.IntegerField()

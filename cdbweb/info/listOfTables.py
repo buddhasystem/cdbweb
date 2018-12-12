@@ -1,12 +1,12 @@
-listOfTables = ['AppMessage',
-                'Basf2Module',
-                'GlobalTag',
-                'GlobalTagPayload',
-                'GlobalTagStatus',
-                'GlobalTagType',
-                'Payload',
-                'PayloadStatus',
-                # 'PayloadContent', ???
-                'PayloadIov',
-                'PayloadIovRpt',
+listOfTables = [
+    'Basf2Module',
+    'GlobalTag',
+    'GlobalTagPayload',
+    'Payload',
+    'PayloadIov',
+    'PayloadIovRpt',
+    'GlobalTagStatus',
+    'PayloadStatus',
+    'AppMessage',
+    'GlobalTagType',
 ]

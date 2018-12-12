@@ -1,6 +1,7 @@
 # core django
 from django.shortcuts	import render
 from django.http	import HttpResponse, HttpResponseRedirect
+from django.conf	import settings
 
 # tables
 from	django_tables2	import RequestConfig
@@ -22,8 +23,8 @@ PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','4
 #########################################################    
 # ---
 def makeQuery(page, q=''):
-    gUrl= '/info/'+page
-    qUrl= '/info/'+page+"?"
+    gUrl= '/'+page
+    qUrl= '/'+page+"?"
 
     if(q==''): return HttpResponseRedirect(gUrl)
     return HttpResponseRedirect(qUrl+q)
@@ -38,9 +39,10 @@ def index(request):
     host	= request.GET.get('host','')
     domain	= request.get_host()
 
-    navTable = TopTable(domain, 'Home')
+    navtable	= TopTable(domain, 'Home')
+    banner	= "Welcome to CDBweb! Please make your selection above..."
 
-    d = dict(domain=domain, host=host, what='Home', hometable=navTable)
+    d = dict(domain=domain, host=host, what=banner, navtable=navtable)
 
     return render(request, template, d)
 
@@ -109,18 +111,25 @@ def data_handler(request, what):
 
     host	= request.GET.get('host','')
     domain	= request.get_host()
+    settings.domain = domain
 
-    navTable = TopTable(domain, what)
+
+    navtable = TopTable(domain, what)
     table = eval(what+'Table')(objects)
     
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
     #    table.set_site
+
+    # We reserve space on top of the table for the selectors + the submit
+    # button, estimate how much is needed here (in percent of the width)
+    
     selwidth=10*(len(selectors)+1)
-    print(selwidth)
+    banner = what+': '+str(Nfound)+' items found'
+    
     d = dict(domain=domain,
              host=host,
-             what=what+': '+str(Nfound)+' items found',
-             hometable=navTable,
+             what=banner,
+             navtable=navtable,
              table=table,
              selectors=selectors,
              selwidth=selwidth,
