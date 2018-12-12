@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+# ---
+from local import DBUSER, DBPASS
+
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -82,8 +87,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'conditions',
-        'USER': '*',
-        'PASSWORD': '*',
+        'USER': DBUSER,
+        'PASSWORD': DBPASS,
         'HOST': '',
         'PORT': '',
     }

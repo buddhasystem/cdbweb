@@ -6,13 +6,11 @@
 <center>
 <form action="" method="post">
   {% csrf_token %}
-  <table>
+  <table width="{{ selwidth }}%">
     <tr>
       {% for sel in selectors %}
       <td>
-	<table>
-	  {{ sel }}
-	</table>
+	<table>{{ sel }}</table>
       </td>
       {% endfor %}
       <td>
@@ -23,6 +21,7 @@
 		
 </form>
 </center>
+<hr/>
 {% endif %}
 
     

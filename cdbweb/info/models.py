@@ -8,8 +8,8 @@ class AppMessage(models.Model):
     app_message_id = models.AutoField(primary_key=True, verbose_name="ID")
     code = models.CharField(unique=True, max_length=5)
     message = models.TextField()
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
     class Meta:
         managed = False
@@ -21,9 +21,9 @@ class Basf2Module(models.Model):
     name = models.TextField(unique=True)
     next_revision = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
-    modified_by = models.TextField()
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
+    modified_by = models.TextField(verbose_name='Modified by')
 
     class Meta:
         managed = False
@@ -33,7 +33,7 @@ class Basf2Module(models.Model):
 class GlobalTag(models.Model):
     global_tag_id = models.AutoField(primary_key=True,  verbose_name="ID")
     name = models.TextField(unique=True)
-    is_default = models.BooleanField()
+    is_default = models.BooleanField(verbose_name='Default?')
     description = models.TextField(blank=True, null=True)
     
     global_tag_status_id = models.IntegerField(verbose_name='GT Status ID')
@@ -42,9 +42,9 @@ class GlobalTag(models.Model):
     global_tag_type_id = models.IntegerField(verbose_name='GT Type ID')
     # WAS auto-generated as:    global_tag_type = models.ForeignKey('GlobalTagType', models.DO_NOTHING)
     
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
-    modified_by = models.TextField()
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
+    modified_by = models.TextField(verbose_name='Modified by')
 
     class Meta:
         managed = False
@@ -54,14 +54,14 @@ class GlobalTag(models.Model):
 class GlobalTagPayload(models.Model):
     global_tag_payload_id = models.AutoField(primary_key=True,  verbose_name="ID")
     
-    global_tag_id = models.IntegerField(verbose_name='GT ID')
+    global_tag_id = models.IntegerField(verbose_name='Global Tag ID')
     # WAS auto-generated as: global_tag = models.ForeignKey(GlobalTag, models.DO_NOTHING)
     
     payload_id = models.IntegerField(verbose_name='Payload ID')
     # WAS auto-generated as: payload = models.ForeignKey('Payload', models.DO_NOTHING)
     
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
     class Meta:
         managed = False
@@ -73,8 +73,8 @@ class GlobalTagStatus(models.Model):
     global_tag_status_id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.TextField(unique=True)
     description = models.TextField()
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
     class Meta:
         managed = False
@@ -84,8 +84,8 @@ class GlobalTagType(models.Model):
     global_tag_type_id = models.AutoField(primary_key=True,  verbose_name="ID")
     name = models.TextField(unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
     class Meta:
         managed = False
@@ -99,7 +99,7 @@ class Payload(models.Model):
     
     revision = models.IntegerField()
     description = models.TextField(blank=True, null=True)
-    is_default = models.BooleanField()
+    is_default = models.BooleanField(verbose_name='Default?')
     base_url = models.TextField()
     payload_url = models.TextField()
     checksum = models.TextField()
@@ -108,9 +108,9 @@ class Payload(models.Model):
     # WAS auto-generated as: payload_status = models.ForeignKey('PayloadStatus', models.DO_NOTHING)
     
     deleted = models.BooleanField()
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
-    modified_by = models.TextField()
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
+    modified_by = models.TextField(verbose_name='Modified by')
 
     class Meta:
         managed = False
@@ -138,9 +138,9 @@ class PayloadIov(models.Model):
     run_start = models.IntegerField()
     exp_end = models.IntegerField()
     run_end = models.IntegerField()
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
-    modified_by = models.TextField()
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
+    modified_by = models.TextField(verbose_name='Modified by')
 
     class Meta:
         managed = False
@@ -151,8 +151,8 @@ class PayloadIov(models.Model):
 class PayloadIovRpt(models.Model):
     payload_iov_rpt_id = models.AutoField(primary_key=True)
     global_tag_payload_id = models.IntegerField(blank=True, null=True)
-    dtm_ins = models.DateTimeField(blank=True, null=True)
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(blank=True, null=True, verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
     global_tag_id = models.IntegerField(blank=True, null=True)
     gt_name = models.TextField(blank=True, null=True)
     b2m_name = models.TextField(blank=True, null=True)
@@ -171,8 +171,8 @@ class PayloadStatus(models.Model):
     payload_status_id = models.AutoField(primary_key=True, verbose_name="ID")
     name = models.TextField(unique=True)
     description = models.TextField()
-    dtm_ins = models.DateTimeField()
-    dtm_mod = models.DateTimeField(blank=True, null=True)
+    dtm_ins = models.DateTimeField(verbose_name='Inserted')
+    dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
     class Meta:
         managed = False

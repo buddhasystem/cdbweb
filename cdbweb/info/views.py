@@ -17,7 +17,7 @@ from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
 
 #########################################################    
 
-PAGECHOICES	= [('25','25'),		('50','50'),	('100','100'),	('200','200'),	('400','400'),]
+PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'),]
 
 #########################################################    
 # ---
@@ -44,18 +44,23 @@ def index(request):
 
     return render(request, template, d)
 
-#########################################################
 
+#########################################################
 # general request handler for summary type of a table
 def data_handler(request, what):
-
     perpage	= request.GET.get('perpage','25')
-
+    gtid	= request.GET.get('gtid','')
+    pk		= request.GET.get('id','')
 
     if request.method == 'POST':
         q = ''
-        gtidSelector	= oneFieldGeneric(request.POST, label="GT ID", field="gtid", init='')
-        if gtidSelector.is_valid(): gtid=run1Selector.getval("gtid")
+        
+        idSelector	= oneFieldGeneric(request.POST, label="ID", field="id", init=pk)
+        if idSelector.is_valid(): pk=idSelector.getval("id")
+        if(pk!=''): q+= 'id='+pk+'&'
+        
+        gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid)
+        if gtidSelector.is_valid(): gtid=gtidSelector.getval("gtid")
         if(gtid!=''): q+= 'gtid='+gtid+'&'
         
         perPageSelector	= dropDownGeneric(request.POST,
@@ -63,22 +68,42 @@ def data_handler(request, what):
                                           label='# per page',
                                           choices = PAGECHOICES, tag='perpage')
         if perPageSelector.is_valid(): q += perPageSelector.handleDropSelector()
-        return makeQuery(what, q) # We have built a query and will come to same page/view with the query parameters
+        
+        # We have built a query and will come to same page/view with a GET query
+        return makeQuery(what, q)
     
+    ##################################################################
+    # The request was GET - populate the selectors
     
-    ############################################
-    # Populate the selectors
     selectors = []
 
-    perPageSelector = dropDownGeneric(initial={'perpage':perpage}, label='# per page', choices = PAGECHOICES, tag='perpage')
+    idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
+    selectors.append(idSelector)
+        
+    if(what=='GlobalTagPayload'):
+        gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
+        selectors.append(gtidSelector)
+    
+    perPageSelector = dropDownGeneric(initial	= {'perpage':perpage},
+                                      label	= 'items per page',
+                                      choices	= PAGECHOICES,
+                                      tag	= 'perpage')
     selectors.append(perPageSelector)
-    gtidSelector = oneFieldGeneric(label="GT ID", field="gtid", init='')
-    selectors.append(gtidSelector)
-    
-    objects = eval(what).objects.order_by('-pk') # newest on top
 
-    
-    n = len(objects)
+    objects = None
+
+    if(pk!=''):
+        objects = eval(what).objects.filter(pk=pk)
+    else:
+        if(gtid!=''):
+            objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk') # newest on top
+        else:
+            objects = eval(what).objects.order_by('-pk') # newest on top
+
+    if objects is not None:
+        Nfound = len(objects)
+    else:
+        Nfound=0
 
     template = 'cdbweb_general_table.html'
 
@@ -90,8 +115,16 @@ def data_handler(request, what):
     
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
     #    table.set_site
-    
-    d = dict(domain=domain, host=host, what=what, hometable=navTable, table=table, selectors=selectors)
+    selwidth=10*(len(selectors)+1)
+    print(selwidth)
+    d = dict(domain=domain,
+             host=host,
+             what=what+': '+str(Nfound)+' items found',
+             hometable=navTable,
+             table=table,
+             selectors=selectors,
+             selwidth=selwidth,
+    )
 
     return render(request, template, d)
 
