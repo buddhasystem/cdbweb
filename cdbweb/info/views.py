@@ -156,6 +156,16 @@ def data_handler(request, what):
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
             
+            objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
+            Nobj	= len(objects)
+
+            aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
+            aux_table	= PayloadIovRptTable(objects)
+            RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+
+            tableDict	= {'title':aux_title, 'table':aux_table}
+            aux_tables.append(tableDict)
+            
         if what=='Payload': # list gt gt payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)

@@ -33,6 +33,9 @@ class CdbWebTable(tables.Table):
     def render_payload_id(self, value):
         return makelink('Payload', 'id',	value)
     
+    def render_payload_iov_id(self, value):
+        return makelink('PayloadIov', 'id',	value)
+    
     def render_basf2_module_id(self, value):
         return makelink('Basf2Module', 'id',	value)
 
@@ -92,6 +95,9 @@ class PayloadIovTable(CdbWebTable):
         model = PayloadIov
 #########################################################
 class PayloadIovRptTable(CdbWebTable):
+    def render_payload_iov_rpt_id(self, value):
+        return self.render_id(value)
+
     class Meta(CdbWebTable.Meta):
         model = PayloadIovRpt
         
