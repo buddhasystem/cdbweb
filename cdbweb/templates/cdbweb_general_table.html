@@ -31,12 +31,18 @@
     </center>
     {% endif %}
     
-    {% if aux_table %}
+    {% if aux_tables %}
     <hr/>
-    <center><h3>{{ aux_title }}</h3></center>
-
     <center>
-      {% render_table aux_table %}
+      <table width="100%"><tr>
+	  {% for t in aux_tables %}
+	  <td align="center">
+	    <h3>{{ t.title }}</h3>
+	    {% render_table t.table %}
+	  </td>
+	  {% endfor %}
+    </tr></table>
     </center>
+
     {% endif %}
 {% endblock %}

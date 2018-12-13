@@ -118,29 +118,64 @@ def data_handler(request, what):
     objects = None
 
     if(pk!=''): # takes precedence
-        aux_table = None
-        aux_title = None
-        
-        theObject = eval(what).objects.get(pk=pk)
+        aux_tables = []
+        theObject  = None
+
+        try:
+            theObject = eval(what).objects.get(pk=pk)
+        except:
+            banner='No '+what+' database entries were found using your selection criteria'
+            # *******> TEMPLATE <*******
+            template = 'cdbweb_general_table_empty.html'
+            d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
+            return render(request, template, d)
+
+            
         table = eval(what+'Table')([theObject,])
         banner=what+' '+str(pk)+' detail'
 
         if what=='GlobalTag': # list gt payloads
             objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
-            aux_table	= GlobalTagPayloadTable(objects)
+
             aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)
+            aux_table	= GlobalTagPayloadTable(objects)
+            RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+            
+            tableDict	= {'title':aux_title, 'table':aux_table}
+            aux_tables.append(tableDict)
+
+        if what=='GlobalTagPayload': # list gt payloadIovs
+            objects	= PayloadIov.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
+            Nobj	= len(objects)
+
+            aux_title	= 'Found '+str(Nobj)+' "PayloadIov" items for the Global Tag Payload '+str(pk)
+            aux_table	= PayloadIovTable(objects)
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
 
-        d = dict(domain=	domain,
-                 host=		host,
-                 what=		banner,
-                 navtable=	navtable,
-                 aux_table=	aux_table,
-                 aux_title=	aux_title,
-                 table=		table,
-                 selectors=	selectors,
-                 selwidth=	selwidth,
+            tableDict	= {'title':aux_title, 'table':aux_table}
+            aux_tables.append(tableDict)
+            
+        if what=='Payload': # list gt gt payloads
+            objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
+            Nobj	= len(objects)
+
+            aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Payload '+str(pk)
+            aux_table	= GlobalTagPayloadTable(objects)
+            RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+
+            tableDict	= {'title':aux_title, 'table':aux_table}
+            aux_tables.append(tableDict)
+            
+
+        d = dict(domain		=	domain,
+                 host		=	host,
+                 what		=	banner,
+                 navtable	=	navtable,
+                 table		=	table,
+                 aux_tables	=	aux_tables,
+                 selectors	=	selectors,
+                 selwidth	=	selwidth,
         )
         
         # *******> TEMPLATE <*******
