@@ -13,6 +13,12 @@ def makelink(what, key, value):
 
 
 #########################################################
+# Base abstract class for all the "general" tables in
+# CDBweb. Due to the original naming convention where
+# each pk has a different name in each table (!) we
+# need to overload the id renderer where needed.
+
+
 class CdbWebTable(tables.Table):
     def render_id(self, value):
         thisItemName = self.Meta.model.__name__
@@ -21,63 +27,65 @@ class CdbWebTable(tables.Table):
     def render_global_tag_id(self, value):
         return makelink('GlobalTag', 'gtid',	value)
     
+    def render_payload_id(self, value):
+        return makelink('Payload', 'id',	value)
+    
+    def render_basf2_module_id(self, value):
+        return makelink('Basf2Module', 'id',	value)
+
     class Meta:
         attrs	= {'class': 'paleblue'}
-        abstract=True
+        abstract=True # <------
 #-------------------------------------------------------
 
 
 #########################################################
-
 class AppMessageTable(CdbWebTable):
     class Meta(CdbWebTable.Meta):
         model = AppMessage
 #########################################################
 class Basf2ModuleTable(CdbWebTable):
-    def basf2_module_id(self, value):
+    def render_basf2_module_id(self, value):
         return self.render_id(value)
+
     class Meta(CdbWebTable.Meta):
         model = Basf2Module
 #########################################################
 class GlobalTagTable(CdbWebTable):
     def render_global_tag_id(self, value):
         return self.render_id(value)
+
     class Meta(CdbWebTable.Meta):
         model = GlobalTag
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
     def render_global_tag_payload_id(self, value):
         return self.render_id(value)
+
     class Meta(CdbWebTable.Meta):
         model = GlobalTagPayload
 #########################################################
-class GlobalTagStatusTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class GlobalTagStatusTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = GlobalTagStatus
 #########################################################
-class GlobalTagTypeTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class GlobalTagTypeTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = GlobalTagType
 #########################################################
-class PayloadTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class PayloadTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = Payload
 #########################################################
-class PayloadStatusTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class PayloadStatusTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = PayloadStatus
 #########################################################
-class PayloadIovTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class PayloadIovTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = PayloadIov
 #########################################################
-class PayloadIovRptTable(tables.Table):
-    class Meta:
-        attrs	= {'class': 'paleblue'}
+class PayloadIovRptTable(CdbWebTable):
+    class Meta(CdbWebTable.Meta):
         model = PayloadIovRpt
         

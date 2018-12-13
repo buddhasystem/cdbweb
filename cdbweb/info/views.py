@@ -54,6 +54,9 @@ def data_handler(request, what):
     gtid	= request.GET.get('gtid','')
     pk		= request.GET.get('id','')
 
+    ##################################################################
+    ####################      POST      ##############################
+    ##################################################################
     if request.method == 'POST':
         q = ''
         
@@ -75,9 +78,17 @@ def data_handler(request, what):
         return makeQuery(what, q)
     
     ##################################################################
-    # The request was GET - populate the selectors
+    ########################    GET    ###############################
+    ##################################################################
+    # prepare the top nav bar and other attributes no matter what...
     
-    selectors = []
+    host	= request.GET.get('host','')
+    domain	= request.get_host()
+    settings.domain = domain # replaces  table.set_site below
+    navtable = TopTable(domain, what)
+
+
+    selectors = [] # The request was GET - populate the selectors
 
     idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
     selectors.append(idSelector)
@@ -91,49 +102,79 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
+    selwidth=10*(len(selectors)+1)
+    # --- END building selectors
 
     objects = None
 
-    if(pk!=''):
-        objects = eval(what).objects.filter(pk=pk)
+    if(pk!=''): # takes precedence
+        aux_table = None
+        aux_title = None
+        
+        theObject = eval(what).objects.get(pk=pk)
+        table = eval(what+'Table')([theObject,])
+        banner=what+' '+str(pk)+' detail'
+
+        if what=='GlobalTag': # list gt payloads
+            objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
+            Nobj	= len(objects)
+            aux_table	= GlobalTagPayloadTable(objects)
+            aux_title	= 'Found '+str(Nobj)+' Global Tag Payload items for the Global Tag '+str(pk)
+            RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+
+        d = dict(domain=	domain,
+                 host=		host,
+                 what=		banner,
+                 navtable=	navtable,
+                 aux_table=	aux_table,
+                 aux_title=	aux_title,
+                 table=		table,
+                 selectors=	selectors,
+                 selwidth=	selwidth,
+        )
+        
+        # *******> TEMPLATE <*******
+        template = 'cdbweb_general_table.html'
+        return render(request, template, d)
+
     else:
         if(gtid!=''):
             objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk') # newest on top
         else:
             objects = eval(what).objects.order_by('-pk') # newest on top
 
-    if objects is not None:
+    if objects is not None and len(objects)!=0:
         Nfound = len(objects)
     else:
         Nfound=0
+        banner='No '+what+' database entries were found using your selection criteria'
+        # *******> TEMPLATE <*******
+        template = 'cdbweb_general_table_empty.html'
+        d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
+        return render(request, template, d)
 
-    template = 'cdbweb_general_table.html'
-
-    host	= request.GET.get('host','')
-    domain	= request.get_host()
-    settings.domain = domain
-
-
-    navtable = TopTable(domain, what)
+    # General case:
     table = eval(what+'Table')(objects)
     
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
-    #    table.set_site
+
 
     # We reserve space on top of the table for the selectors + the submit
-    # button, estimate how much is needed here (in percent of the width)
+    # button, estimate how much is needed here (in percent of the page width)
     
-    selwidth=10*(len(selectors)+1)
     banner = what+': '+str(Nfound)+' items found'
     
-    d = dict(domain=domain,
-             host=host,
-             what=banner,
-             navtable=navtable,
-             table=table,
-             selectors=selectors,
-             selwidth=selwidth,
+    d = dict(domain=	domain,
+             host=	host,
+             what=	banner,
+             navtable=	navtable,
+             table=	table,
+             selectors=	selectors,
+             selwidth=	selwidth,
     )
+
+    # *******> TEMPLATE <*******
+    template = 'cdbweb_general_table.html'
 
     return render(request, template, d)
 

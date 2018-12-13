@@ -30,4 +30,13 @@
       {% render_table table %}
     </center>
     {% endif %}
+    
+    {% if aux_table %}
+    <hr/>
+    <center><h3>{{ aux_title }}</h3></center>
+
+    <center>
+      {% render_table aux_table %}
+    </center>
+    {% endif %}
 {% endblock %}
