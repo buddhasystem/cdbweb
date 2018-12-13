@@ -51,7 +51,8 @@ def index(request):
 # general request handler for summary type of a table
 def data_handler(request, what):
     perpage	= request.GET.get('perpage','25')
-    gtid	= request.GET.get('gtid','')
+    gtid	= request.GET.get('gtid','')	# GT ID
+    gtpid	= request.GET.get('gtpid','')	# GT payload ID
     pk		= request.GET.get('id','')
 
     ##################################################################
@@ -67,6 +68,10 @@ def data_handler(request, what):
         gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid)
         if gtidSelector.is_valid(): gtid=gtidSelector.getval("gtid")
         if(gtid!=''): q+= 'gtid='+gtid+'&'
+        
+        gtpidSelector	= oneFieldGeneric(request.POST, label="Global Tag Payload ID", field="gtpid", init=gtpid)
+        if gtpidSelector.is_valid(): gtpid=gtpidSelector.getval("gtpid")
+        if(gtpid!=''): q+= 'gtpid='+gtpid+'&'
         
         perPageSelector	= dropDownGeneric(request.POST,
                                           initial={'perpage':perpage},
@@ -96,6 +101,11 @@ def data_handler(request, what):
     if(what=='GlobalTagPayload'):
         gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
+
+    # Keep for later...
+    # if(what=='Payload'):
+    #     gtpidSelector = oneFieldGeneric(label="Global Tag Payload ID", field="gtpid", init=gtpid)
+    #     selectors.append(gtpidSelector)
     
     perPageSelector = dropDownGeneric(initial	= {'perpage':perpage},
                                       label	= 'items per page',
@@ -119,7 +129,7 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
             aux_table	= GlobalTagPayloadTable(objects)
-            aux_title	= 'Found '+str(Nobj)+' Global Tag Payload items for the Global Tag '+str(pk)
+            aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
 
         d = dict(domain=	domain,
@@ -140,6 +150,8 @@ def data_handler(request, what):
     else:
         if(gtid!=''):
             objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk') # newest on top
+        elif(gtpid!=''):
+            objects = eval(what).objects.filter(global_tag_payload_id=gtpid).order_by('-pk') # newest on top
         else:
             objects = eval(what).objects.order_by('-pk') # newest on top
 

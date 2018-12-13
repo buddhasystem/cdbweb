@@ -27,6 +27,9 @@ class CdbWebTable(tables.Table):
     def render_global_tag_id(self, value):
         return makelink('GlobalTag', 'gtid',	value)
     
+    def render_global_tag_payload_id(self, value):
+        return makelink('GlobalTagPayload', 'id',	value)
+    
     def render_payload_id(self, value):
         return makelink('Payload', 'id',	value)
     
@@ -82,6 +85,9 @@ class PayloadStatusTable(CdbWebTable):
         model = PayloadStatus
 #########################################################
 class PayloadIovTable(CdbWebTable):
+    def render_payload_iov_id(self, value):
+        return self.render_id(value)
+
     class Meta(CdbWebTable.Meta):
         model = PayloadIov
 #########################################################
