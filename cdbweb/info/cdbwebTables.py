@@ -58,9 +58,34 @@ class Basf2ModuleTable(CdbWebTable):
         model = Basf2Module
 #########################################################
 class GlobalTagTable(CdbWebTable):
+    numberOfGlobalTagPayloads	= tables.Column(verbose_name='# of GT Payloads', empty_values=())
+    basf2modules		= tables.Column(verbose_name='Distinct Basf2 Modules', empty_values=())
+    
     def render_global_tag_id(self, value):
         return self.render_id(value)
 
+    def render_basf2modules(self, record):
+        the_payloads = GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id).values_list('payload_id')
+        if(len(the_payloads)==0):
+            return 'Not Found'
+        
+        the_modules	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
+        module_names	= list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct())
+
+    
+        separator = ','
+        f =  separator.join(module_names)
+        rendered_value = str(len(module_names))+": "+f
+        return rendered_value
+
+        
+    def render_numberOfGlobalTagPayloads(self, record):
+        the_global_tag_payloads	= GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id)
+        if(len(the_global_tag_payloads)==0):
+           return 'Not Found'
+
+        return len(the_global_tag_payloads)
+        
     class Meta(CdbWebTable.Meta):
         model = GlobalTag
 #########################################################
