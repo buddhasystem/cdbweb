@@ -11,6 +11,10 @@ def makelink(what, key, value):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, value))
 
+def makeIDlink(what, id_value, value):
+    return mark_safe('<a href="http://%s%s?id=%s">%s</a>'
+                     % (settings.domain, reverse(what), id_value,  value))
+
 
 #########################################################
 # Base abstract class for all the "general" tables in
@@ -23,6 +27,10 @@ class CdbWebTable(tables.Table):
     def render_id(self, value):
         thisItemName = self.Meta.model.__name__
         return makelink(thisItemName,	'id',	value)
+    
+    def render_as_id(self, id_value, value):
+        thisItemName = self.Meta.model.__name__
+        return makeIDlink(thisItemName, id_value,value)
     
     def render_global_tag_id(self, value):
         return makelink('GlobalTag', 'gtid',	value)
@@ -58,34 +66,43 @@ class Basf2ModuleTable(CdbWebTable):
         model = Basf2Module
 #########################################################
 class GlobalTagTable(CdbWebTable):
-    numberOfGlobalTagPayloads	= tables.Column(verbose_name='# of GT Payloads', empty_values=())
-    basf2modules		= tables.Column(verbose_name='Distinct Basf2 Modules', empty_values=())
+    numberOfGlobalTagPayloads	= tables.Column(verbose_name='# GT Payloads', empty_values=())
+    
+    basf2modules		= tables.Column(verbose_name='Distinct Basf2 Modules',
+                                                empty_values=(),
+                                                attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
+    )
     
     def render_global_tag_id(self, value):
         return self.render_id(value)
 
     def render_basf2modules(self, record):
         the_payloads = GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id).values_list('payload_id')
-        if(len(the_payloads)==0):
-            return 'Not Found'
         
         the_modules	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
         module_names	= list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct())
 
-    
         separator = ','
-        f =  separator.join(module_names)
-        rendered_value = str(len(module_names))+": "+f
-        return rendered_value
+        joined =  separator.join(module_names)
+        
+        id_link = self.render_as_id(record.global_tag_id, str(len(module_names)))
+        
+        info = id_link+":"+joined
+        
+        info = info[:100] + (info[100:] and '...')
+        rendered_value = info
+        return mark_safe('<div style="max-width: 700px;">'+rendered_value+"</div>")
+    
 
         
     def render_numberOfGlobalTagPayloads(self, record):
         the_global_tag_payloads	= GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id)
-        if(len(the_global_tag_payloads)==0):
-           return 'Not Found'
-
         return len(the_global_tag_payloads)
-        
+
+    def render_description(self,value):
+        return mark_safe('<div style="max-width: 200px;">'+value+"</div>")
+
+    
     class Meta(CdbWebTable.Meta):
         model = GlobalTag
 #########################################################
