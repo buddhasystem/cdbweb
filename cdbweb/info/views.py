@@ -51,28 +51,44 @@ def index(request):
 # general request handler for summary type of a table
 def data_handler(request, what):
     perpage	= request.GET.get('perpage','25')
-    gtid	= request.GET.get('gtid','')	# GT ID
-    gtpid	= request.GET.get('gtpid','')	# GT payload ID
+    gtid	= request.GET.get('gtid','')		# GT ID
+    gtpid	= request.GET.get('gtpid','')		# GT payload ID
     pk		= request.GET.get('id','')
+    name	= request.GET.get('name','')
+    modifiedby	= request.GET.get('modifiedby','')
 
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
     if request.method == 'POST':
         q = ''
-        
+
+        # General ID selector
         idSelector	= oneFieldGeneric(request.POST, label="ID", field="id", init=pk)
         if idSelector.is_valid(): pk=idSelector.getval("id")
         if(pk!=''): q+= 'id='+pk+'&'
-        
+
+        # Global Tag ID
         gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid)
         if gtidSelector.is_valid(): gtid=gtidSelector.getval("gtid")
         if(gtid!=''): q+= 'gtid='+gtid+'&'
         
+        # Global Tag Payload ID
         gtpidSelector	= oneFieldGeneric(request.POST, label="Global Tag Payload ID", field="gtpid", init=gtpid)
         if gtpidSelector.is_valid(): gtpid=gtpidSelector.getval("gtpid")
         if(gtpid!=''): q+= 'gtpid='+gtpid+'&'
+
+        # General name selector
+        nameSelector	= oneFieldGeneric(request.POST, label="Name", field="name", init=name)
+        if nameSelector.is_valid(): name=nameSelector.getval("name")
+        if(name!=''): q+= 'name='+name+'&'
         
+        # "Modified by" selector
+        modifiedBySelector	= oneFieldGeneric(request.POST, label="Modified by", field="modifiedby", init=modifiedby)
+        if modifiedBySelector.is_valid(): modifiedby=modifiedBySelector.getval("modifiedby")
+        if(modifiedby!=''): q+= 'modifiedby='+modifiedby+'&'
+        
+        # --- entries per page
         perPageSelector	= dropDownGeneric(request.POST,
                                           initial={'perpage':perpage},
                                           label='# per page',
@@ -98,6 +114,13 @@ def data_handler(request, what):
     idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
     selectors.append(idSelector)
         
+    if(what=='GlobalTag'):
+        nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
+        selectors.append(nameSelector)
+
+        modifiedBySelector = oneFieldGeneric(label="Modified by", field="modifiedby", init=modifiedby)
+        selectors.append(modifiedBySelector)
+
     if(what=='GlobalTagPayload'):
         gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
@@ -112,13 +135,16 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
-    selwidth=10*(len(selectors)+1)
+    selwidth=15*(len(selectors)+1)
     # --- END building selectors
 
     objects = None
-
+    
+    # *******> TEMPLATE <*******
+    template = 'cdbweb_general_table.html'
+    aux_tables = []
+    
     if(pk!=''): # takes precedence
-        aux_tables = []
         theObject  = None
 
         try:
@@ -188,15 +214,17 @@ def data_handler(request, what):
                  selwidth	=	selwidth,
         )
         
-        # *******> TEMPLATE <*******
-        template = 'cdbweb_general_table.html'
         return render(request, template, d)
 
     else:
         if(gtid!=''):
-            objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk') # newest on top
+            objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk')
         elif(gtpid!=''):
-            objects = eval(what).objects.filter(global_tag_payload_id=gtpid).order_by('-pk') # newest on top
+            objects = eval(what).objects.filter(global_tag_payload_id=gtpid).order_by('-pk')
+        elif(name!=''):
+            objects = eval(what).objects.filter(name__icontains=name).order_by('-pk')
+        elif(modifiedby!=''):
+            objects = eval(what).objects.filter(modified_by=modifiedby).order_by('-pk')
         else:
             objects = eval(what).objects.order_by('-pk') # newest on top
 
