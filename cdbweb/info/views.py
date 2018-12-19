@@ -114,6 +114,10 @@ def data_handler(request, what):
     idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
     selectors.append(idSelector)
         
+    if(what=='Basf2Module'):
+        nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
+        selectors.append(nameSelector)
+
     if(what=='GlobalTag'):
         nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
         selectors.append(nameSelector)
