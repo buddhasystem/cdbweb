@@ -136,8 +136,14 @@ class GlobalTagTypeTable(CdbWebTable):
         model = GlobalTagType
 #########################################################
 class PayloadTable(CdbWebTable):
+    def render_basf2_module_id(self, value):
+        basf2link = makelink('Basf2Module', 'id', value)
+        basf2name = Basf2Module.objects.get(pk=value).name
+        return mark_safe(basf2link+': '+basf2name)
+    
     class Meta(CdbWebTable.Meta):
         model = Payload
+        exclude = ('modified_by', 'description', 'base_url', )
 #########################################################
 class PayloadStatusTable(CdbWebTable):
     class Meta(CdbWebTable.Meta):

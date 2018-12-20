@@ -94,17 +94,17 @@ class GlobalTagType(models.Model):
 class Payload(models.Model):
     payload_id = models.AutoField(primary_key=True,  verbose_name="ID")
     
-    basf2_module_id = models.IntegerField(verbose_name='BASF2 MODULE ID')
+    basf2_module_id = models.IntegerField(verbose_name='BASF2 Module ID/Name')
     # WAS auto-generated as: basf2_module = models.ForeignKey(Basf2Module, models.DO_NOTHING)
     
-    revision = models.IntegerField()
+    revision = models.IntegerField(verbose_name="Rev.")
     description = models.TextField(blank=True, null=True)
     is_default = models.BooleanField(verbose_name='Default?')
     base_url = models.TextField()
     payload_url = models.TextField()
     checksum = models.TextField()
     
-    payload_status_id = models.IntegerField(verbose_name='Status ID')
+    payload_status_id = models.IntegerField(verbose_name='Status')
     # WAS auto-generated as: payload_status = models.ForeignKey('PayloadStatus', models.DO_NOTHING)
     
     deleted = models.BooleanField()
