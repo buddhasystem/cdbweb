@@ -155,6 +155,8 @@ class PayloadIovTable(CdbWebTable):
 
     class Meta(CdbWebTable.Meta):
         model = PayloadIov
+        exclude = ('modified_by', )
+        
 #########################################################
 class PayloadIovRptTable(CdbWebTable):
     def render_payload_iov_rpt_id(self, value):

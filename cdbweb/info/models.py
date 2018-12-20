@@ -2,7 +2,8 @@
 # but not in the initialization SQL script
 
 from django.db import models
-
+from django.utils.safestring		import mark_safe
+from django.utils.html			import format_html
 
 class AppMessage(models.Model):
     app_message_id = models.AutoField(primary_key=True, verbose_name="ID")
@@ -121,7 +122,7 @@ class Payload(models.Model):
 class PayloadIov(models.Model):
     payload_iov_id = models.AutoField(primary_key=True, verbose_name="ID")
     
-    global_tag_payload_id = models.IntegerField(verbose_name='Global Tag Payload ID')
+    global_tag_payload_id = models.IntegerField(verbose_name='GT Payload ID')
     # WAS auto-generated as: global_tag_payload = models.ForeignKey(GlobalTagPayload, models.DO_NOTHING)
     
     exp_start = models.IntegerField()
