@@ -6,6 +6,7 @@ from .listOfTables import listOfTables
 
 urlpatterns = [
     url(r'^$',		views.index,					name='index'),
+    url(r'^iovcheck$',	views.iovcheck,					name='iovcheck'),
 ]
 
 for t in listOfTables:

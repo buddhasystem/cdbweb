@@ -46,6 +46,9 @@ def index(request):
 
     return render(request, template, d)
 
+#########################################################    
+def iovcheck(request):
+    return HttpResponse('Under Construction')
 
 #########################################################
 # general request handler for summary type of a table

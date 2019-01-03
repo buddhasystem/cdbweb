@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import AppMessage, Basf2Module, GlobalTag, GlobalTagType, Payload, \
- PayloadIov, PayloadIovRpt, PayloadStatus
+from .models import AppMessage, Basf2Module, GlobalTag, GlobalTagPayload, \
+    GlobalTagType, Payload, PayloadIov, PayloadIovRpt, PayloadStatus
 
 ############
 class AppMessageAdmin(admin.ModelAdmin):
@@ -30,6 +30,18 @@ class GlobalTagAdmin(admin.ModelAdmin):
     empty_value_display = '-empty-'
     
 admin.site.register(GlobalTag, GlobalTagAdmin)
+
+############
+class GlobalTagPayloadAdmin(admin.ModelAdmin):
+    list_display = ('global_tag_payload_id',
+                    'global_tag_id',
+                    'payload_id',
+                    'dtm_ins',
+                    'dtm_mod',
+    )
+    empty_value_display = '-empty-'
+    
+admin.site.register(GlobalTagPayload, GlobalTagPayloadAdmin)
 
 ############
 class GlobalTagTypeAdmin(admin.ModelAdmin):
