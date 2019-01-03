@@ -1,0 +1,102 @@
+{% load render_table from django_tables2 %}
+{% load static from staticfiles%}
+<!doctype html>
+<html>
+  <head>
+    <title>CDBweb </title>
+    <!-- THIS IS TEMP, until we plant it on Apache -->
+    <!-- link rel="stylesheet" href="{% static 'django_tables2/themes/paleblue/css/screen.css' %}" / -->
+    <link rel="stylesheet" href="{% static 'paleblue/css/screen.css' %}" />
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart', 'bar']});
+      google.charts.setOnLoadCallback(drawStuff);
+
+      function drawStuff() {
+      {% for row in rows %}  
+      {% for p in row %}
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date/Time');     //    data.addColumn('timeofday', 'Date/Time');
+      data.addColumn('number', '{{ p.main }}'); //'Lifetime' etc);
+      
+      {% if p.extra %}
+      data.addColumn('number', '{{ p.extra }}');
+      {% endif %}  
+
+      data.addRows([{{ p.timeseries }}]);
+
+      var options = {
+      title: '{{ p.panel }}',
+      legend: {position:'bottom'},      // legend: {position:'none'},
+      height: 400, width: 400, timeZone:0, seriesType: 'bars',
+      
+      series: {1: {type: 'line'}},
+      
+      vAxis: {
+      title: '{{ p.vAxis }}', // Example: 'Electron Lifetime (ms)'
+      {% if vMinmax %}
+      viewWindow: {max:{{ vMinmax.0 }}, min:{{ vMinmax.1 }}},
+      {% endif %}
+     
+      },
+      
+      hAxis: {title: 'Date/Time'}};
+
+      // --mxp-- experimenting with combo
+      var chart = new google.visualization.ComboChart(document.getElementById('{{ p.panel }}'));
+      
+      chart.draw(data, google.charts.Bar.convertOptions(options));
+
+      {% endfor %}
+      {% endfor %}
+      };
+//    var chart = new google.charts.Bar(document.getElementById('{{ p.panel }}'));
+    </script>
+  </head>
+
+  
+  <body>
+    {% include "linkbar.html" %}
+
+    <center><b>Back to Home Page: </b>
+      {{ dqmHome }}
+    </center>
+
+    <center>
+      <h2>protoDUNE DQM{{ pageName }}</h2>
+      <h2>{{ message }}</h2>
+    </center>
+<center>
+
+
+	    <!-- div -->
+	    {% block frm %}
+	    {% if selectors %}
+	      <form action="" method="post">
+		{% csrf_token %}
+		<table>
+		  <tr>
+		    {% for sel in selectors %}
+		    <td>
+		      <table>
+			{{ sel }}
+		      </table>
+		    </td>
+		    {% endfor %}
+		    <td>
+		      <input type="submit" value="Submit" />
+		    </td>
+		  </tr>
+		</table>
+		
+	      </form>
+	      {% endif %}
+	      {% endblock %}
+	      <!-- /div -->
+
+              {% block content %}{% endblock %}
+
+</center>	      
+    <hr/>  
+  </body>
+</html>
