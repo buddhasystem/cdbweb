@@ -48,7 +48,21 @@ def index(request):
 
 #########################################################    
 def iovcheck(request):
-    return HttpResponse('Under Construction')
+    template = 'cdbweb_iov_chart.html'
+    
+    host	= request.GET.get('host','')
+    domain	= request.get_host()
+    settings.domain = domain # replaces  table.set_site below
+    navtable	= TopTable(domain, 'test')
+    
+    d = dict(domain=	domain,
+             host=	host,
+             what=	'test',
+             navtable=	navtable,
+    )
+
+    return render(request, template, d)
+
 
 #########################################################
 # general request handler for summary type of a table
