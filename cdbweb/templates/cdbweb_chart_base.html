@@ -22,14 +22,15 @@
       data.addColumn('number', 'n3');
 
 //      data.addRows([[1,{v:2,f:'ff'}],[3,{v:6,f:'ddd'}],[0,1]]);
-      data.addRows([['foo', 1,2,0],['moo', 3,6,0], ['goo', 2,2,1]]);
+      data.addRows([['foo', 1,0,1],['moo', 1,0,3], ['goo', 1,0,2]]);
       
       new google.visualization.BarChart(document.getElementById('mydiv')).draw(
       data,
-         {width:600, height:400,
-          isStacked: true, legend: {position:'none'},
+      {width:600, height:400,
+      isStacked: true,
+      legend: {position:'none'},
       series: [{color: 'transparent'},{color: 'red'},{color: 'yellow'}],
-      // series: [{color: 'transparent'},{},{color: 'transparent'},{}],
+      // series: [{color: 'transparent'},{color: 'red'},{color: 'transparent'},{color: 'red'},{color: 'transparent'},{color: 'red'}],
           hAxis: {
             viewWindow: {
               max: 10,
