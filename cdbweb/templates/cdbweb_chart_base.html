@@ -20,16 +20,17 @@
       data.addColumn('number', 'n1');
       data.addColumn('number', 'n2');
       data.addColumn('number', 'n3');
+      data.addColumn('number', 'n4');
 
 //      data.addRows([[1,{v:2,f:'ff'}],[3,{v:6,f:'ddd'}],[0,1]]);
-      data.addRows([['foo', 1,0,1],['moo', 1,0,3], ['goo', 1,0,2]]);
+      data.addRows([['foo', 1,1,1,3],['moo', 1,1,3,2], ['goo', 1,2,2,1]]);
       
       new google.visualization.BarChart(document.getElementById('mydiv')).draw(
       data,
       {width:600, height:400,
       isStacked: true,
       legend: {position:'none'},
-      series: [{color: 'transparent'},{color: 'red'},{color: 'yellow'}],
+      series: [{color: 'transparent'},{color: 'red'},{color: 'transparent'},{color: 'yellow'}],
       // series: [{color: 'transparent'},{color: 'red'},{color: 'transparent'},{color: 'red'},{color: 'transparent'},{color: 'red'}],
           hAxis: {
             viewWindow: {
