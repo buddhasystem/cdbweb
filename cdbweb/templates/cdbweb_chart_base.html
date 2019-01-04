@@ -15,20 +15,25 @@
       function drawStuff() {
 
       var data = new google.visualization.DataTable();
+
+      data.addColumn('string', 'Assignment');
       data.addColumn('number', 'n1');
       data.addColumn('number', 'n2');
+      data.addColumn('number', 'n3');
 
-      data.addRows([[1,2],[3,4]]);
+//      data.addRows([[1,{v:2,f:'ff'}],[3,{v:6,f:'ddd'}],[0,1]]);
+      data.addRows([['foo', 1,2,0],['moo', 3,6,0], ['goo', 2,2,1]]);
       
       new google.visualization.BarChart(document.getElementById('mydiv')).draw(
       data,
          {width:600, height:400,
-          isStacked: true,
-          series: [{color: 'transparent'},{},{color: 'transparent'},{}],
+          isStacked: true, legend: {position:'none'},
+      series: [{color: 'transparent'},{color: 'red'},{color: 'yellow'}],
+      // series: [{color: 'transparent'},{},{color: 'transparent'},{}],
           hAxis: {
             viewWindow: {
-              max: 0,
-              min: 10,
+              max: 10,
+              min: 0,
             },
             baseline: 0,
             baselineColor: 'red',
@@ -43,13 +48,15 @@
   <body>
     {% include "linkbar.html" %}
 
-    <center><b>Back to Home Page: </b>
+    <!-- center><b>Back to Home Page: </b>
       {{ dqmHome }}
-    </center>
-    <div id="mydiv"></div>
+    </center -->
     <center>
       <h2>CDBweb{{ pageName }}</h2>
       <h2>{{ message }}</h2>
+    </center>
+    <center>
+      <div id="mydiv"></div>
     </center>
 <center>
 
