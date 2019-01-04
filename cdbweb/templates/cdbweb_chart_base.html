@@ -13,44 +13,29 @@
       google.charts.setOnLoadCallback(drawStuff);
 
       function drawStuff() {
-      {% for row in rows %}  
-      {% for p in row %}
+
       var data = new google.visualization.DataTable();
-      data.addColumn('datetime', 'Date/Time');     //    data.addColumn('timeofday', 'Date/Time');
-      data.addColumn('number', '{{ p.main }}'); //'Lifetime' etc);
-      
-      {% if p.extra %}
-      data.addColumn('number', '{{ p.extra }}');
-      {% endif %}  
+      data.addColumn('number', 'n1');
+      data.addColumn('number', 'n2');
 
-      data.addRows([{{ p.timeseries }}]);
-
-      var options = {
-      title: '{{ p.panel }}',
-      legend: {position:'bottom'},      // legend: {position:'none'},
-      height: 400, width: 400, timeZone:0, seriesType: 'bars',
+      data.addRows([[1,2],[3,4]]);
       
-      series: {1: {type: 'line'}},
-      
-      vAxis: {
-      title: '{{ p.vAxis }}', // Example: 'Electron Lifetime (ms)'
-      {% if vMinmax %}
-      viewWindow: {max:{{ vMinmax.0 }}, min:{{ vMinmax.1 }}},
-      {% endif %}
-     
-      },
-      
-      hAxis: {title: 'Date/Time'}};
-
-      // --mxp-- experimenting with combo
-      var chart = new google.visualization.ComboChart(document.getElementById('{{ p.panel }}'));
-      
-      chart.draw(data, google.charts.Bar.convertOptions(options));
-
-      {% endfor %}
-      {% endfor %}
+      new google.visualization.BarChart(document.getElementById('mydiv')).draw(
+      data,
+         {width:600, height:400,
+          isStacked: true,
+          series: [{color: 'transparent'},{},{color: 'transparent'},{}],
+          hAxis: {
+            viewWindow: {
+              max: 0,
+              min: 10,
+            },
+            baseline: 0,
+            baselineColor: 'red',
+          },
+         }
+        );
       };
-//    var chart = new google.charts.Bar(document.getElementById('{{ p.panel }}'));
     </script>
   </head>
 
@@ -61,9 +46,9 @@
     <center><b>Back to Home Page: </b>
       {{ dqmHome }}
     </center>
-
+    <div id="mydiv"></div>
     <center>
-      <h2>protoDUNE DQM{{ pageName }}</h2>
+      <h2>CDBweb{{ pageName }}</h2>
       <h2>{{ message }}</h2>
     </center>
 <center>
