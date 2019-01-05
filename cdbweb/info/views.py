@@ -138,14 +138,14 @@ def data_handler(request, what):
     selectors.append(idSelector)
         
     if(what=='Basf2Module'):
-        nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
+        nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
 
     if(what=='GlobalTag'):
-        nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
+        nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
 
-        modifiedBySelector = oneFieldGeneric(label="Modified by", field="modifiedby", init=modifiedby)
+        modifiedBySelector = oneFieldGeneric(label="Modified by",	field="modifiedby", init=modifiedby)
         selectors.append(modifiedBySelector)
 
         if(pk!=''):
