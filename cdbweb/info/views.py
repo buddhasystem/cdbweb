@@ -148,8 +148,9 @@ def data_handler(request, what):
         modifiedBySelector = oneFieldGeneric(label="Modified by", field="modifiedby", init=modifiedby)
         selectors.append(modifiedBySelector)
 
-        basf2Selector = oneFieldGeneric(label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
-        selectors.append(basf2Selector)
+        if(pk!=''):
+            basf2Selector = oneFieldGeneric(label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
+            selectors.append(basf2Selector)
 
     if(what=='GlobalTagPayload'):
         gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
