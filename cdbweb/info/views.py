@@ -194,12 +194,22 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            selectedPayloads = []
+            comment = ''
             if(basf2!=''):
-                the_payloads = objects.values_list('payload_id')
-                # print(the_payloads)
-
-            aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)
+                the_payloads = objects.values_list('payload_id', flat=True)
+                # print('Total pl:', len(the_payloads))
+                
+                selected_basf2 = Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
+                # print('Selected basf2:', len(selected_basf2))
+                
+                selected_payloads = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
+                # print('-----------------------------\n', selected_payloads)
+                
+                objects = objects.filter(payload_id__in=selected_payloads)
+                # print('Selected pl:', len(objects))
+                comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern '+basf2
+                                                                                                                                   
+            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+comment
             aux_table	= GlobalTagPayloadTable(objects)
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
             
