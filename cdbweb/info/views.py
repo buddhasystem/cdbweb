@@ -72,6 +72,7 @@ def data_handler(request, what):
     gtpid	= request.GET.get('gtpid','')		# GT payload ID
     pk		= request.GET.get('id','')
     name	= request.GET.get('name','')
+    basf2	= request.GET.get('basf2','')
     modifiedby	= request.GET.get('modifiedby','')
 
     ##################################################################
@@ -99,6 +100,11 @@ def data_handler(request, what):
         nameSelector	= oneFieldGeneric(request.POST, label="Name", field="name", init=name)
         if nameSelector.is_valid(): name=nameSelector.getval("name")
         if(name!=''): q+= 'name='+name+'&'
+        
+        # Basf2Module selector
+        basf2Selector	= oneFieldGeneric(request.POST, label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
+        if basf2Selector.is_valid(): basf2=basf2Selector.getval("basf2")
+        if(basf2!=''): q+= 'basf2='+basf2+'&'
         
         # "Modified by" selector
         modifiedBySelector	= oneFieldGeneric(request.POST, label="Modified by", field="modifiedby", init=modifiedby)
@@ -142,6 +148,9 @@ def data_handler(request, what):
         modifiedBySelector = oneFieldGeneric(label="Modified by", field="modifiedby", init=modifiedby)
         selectors.append(modifiedBySelector)
 
+        basf2Selector = oneFieldGeneric(label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
+        selectors.append(basf2Selector)
+
     if(what=='GlobalTagPayload'):
         gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
@@ -156,7 +165,7 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
-    selwidth=15*(len(selectors)+1)
+    selwidth=12*(len(selectors)+1)
     # --- END building selectors
 
     objects = None
@@ -184,6 +193,11 @@ def data_handler(request, what):
         if what=='GlobalTag': # list gt payloads
             objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
+
+            selectedPayloads = []
+            if(basf2!=''):
+                the_payloads = objects.values_list('payload_id')
+                # print(the_payloads)
 
             aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)
             aux_table	= GlobalTagPayloadTable(objects)
