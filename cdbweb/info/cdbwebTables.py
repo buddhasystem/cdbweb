@@ -107,11 +107,16 @@ class GlobalTagTable(CdbWebTable):
         model = GlobalTag
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
+    gtName	= tables.Column(verbose_name='Global Tag Name', empty_values=())
     basf2module	= tables.Column(verbose_name='Basf2Module', empty_values=())
     
     def render_global_tag_payload_id(self, value):
         return self.render_id(value)
 
+    def render_gtName(self, record):
+        theGt = GlobalTag.objects.get(global_tag_id=record.global_tag_id)
+        return theGt.name
+        
     def render_basf2module(self, record):
         
         the_payloads	= Payload.objects.filter(payload_id=record.payload_id)
@@ -125,6 +130,7 @@ class GlobalTagPayloadTable(CdbWebTable):
         return m.name
 
     class Meta(CdbWebTable.Meta):
+        sequence = ('global_tag_payload_id', 'global_tag_id', 'gtName', 'payload_id', 'basf2module', '...')
         model = GlobalTagPayload
 #########################################################
 class GlobalTagStatusTable(CdbWebTable):
@@ -155,6 +161,7 @@ class PayloadIovTable(CdbWebTable):
 
     class Meta(CdbWebTable.Meta):
         model = PayloadIov
+        sequence = ('payload_iov_id', 'global_tag_payload_id', 'exp_start', 'exp_end', '...')
         exclude = ('modified_by', )
         
 #########################################################
