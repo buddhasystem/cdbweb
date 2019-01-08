@@ -191,7 +191,7 @@ def data_handler(request, what):
         table = eval(what+'Table')([theObject,])
         banner=what+' '+str(pk)+' detail'
 
-        if what=='GlobalTag': # list gt payloads
+        if what=='GlobalTag': # list Global Tag payloads
             objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
@@ -210,8 +210,10 @@ def data_handler(request, what):
                 # print('Selected pl:', len(objects))
                 comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern '+basf2
                                                                                                                                    
-            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+comment
+            theGt = GlobalTag.objects.get(global_tag_id=pk)
+            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag "'+theGt.name+'", ID: '+str(pk)+comment
             aux_table	= GlobalTagPayloadTable(objects)
+            aux_table.exclude = ('global_tag_id', 'gtName')
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
             
             tableDict	= {'title':aux_title, 'table':aux_table}
