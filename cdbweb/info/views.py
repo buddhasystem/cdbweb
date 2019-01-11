@@ -188,8 +188,11 @@ def data_handler(request, what):
             selectors.append(basf2Selector)
 
     if(what=='GlobalTagPayload'):
-        gtidSelector = oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
+        gtidSelector	= oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
+
+        nameSelector	= oneFieldGeneric(label="GT Name (Can be partial)", field="name", init=name)
+        selectors.append(nameSelector)
 
     # Keep for later...
     # if(what=='Payload'):
@@ -304,7 +307,14 @@ def data_handler(request, what):
         objects = eval(what).objects.order_by('-pk') # newest on top
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
         if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
-        if(name!=''):	objects = objects.filter(name__icontains=name)
+        if(name!=''):
+            if(what!='GlobalTagPayload'):
+                objects = objects.filter(name__icontains=name)
+            else:
+                gts = GlobalTag.objects.filter(name__icontains=name).values_list('global_tag_id', flat=True)
+                objects = objects.filter(global_tag_id__in=gts)
+
+        
         if(status!='All' and status!=''):
             gtStatus = GlobalTagStatus.objects.filter(name=status)[0]
             objects = objects.filter(global_tag_status_id=gtStatus.pk)
