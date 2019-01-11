@@ -37,15 +37,15 @@ class GlobalTag(models.Model):
     is_default = models.BooleanField(verbose_name='Default?')
     description = models.TextField(blank=True, null=True)
     
-    global_tag_status_id = models.IntegerField(verbose_name='GT Status ID')
+    global_tag_status_id = models.IntegerField(verbose_name='Status')
     # WAS auto-generated as:   global_tag_status = models.ForeignKey('GlobalTagStatus', models.DO_NOTHING)
     
-    global_tag_type_id = models.IntegerField(verbose_name='GT Type ID')
+    global_tag_type_id = models.IntegerField(verbose_name='Type')
     # WAS auto-generated as:    global_tag_type = models.ForeignKey('GlobalTagType', models.DO_NOTHING)
     
     dtm_ins = models.DateTimeField(verbose_name='Inserted')
     dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
-    modified_by = models.TextField(verbose_name='Modified by')
+    modified_by = models.TextField(verbose_name='Mod. by')
 
     class Meta:
         managed = False

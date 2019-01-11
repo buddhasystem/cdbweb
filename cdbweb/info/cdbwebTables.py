@@ -76,6 +76,14 @@ class GlobalTagTable(CdbWebTable):
     def render_global_tag_id(self, value):
         return self.render_id(value)
 
+    def render_global_tag_status_id(self, value):
+        gts = GlobalTagStatus.objects.get(pk=value)
+        return gts.name
+
+    def render_global_tag_type_id(self, value):
+        gts = GlobalTagType.objects.get(pk=value)
+        return gts.name
+
     def render_basf2modules(self, record):
         the_payloads = GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id).values_list('payload_id')
         

@@ -19,6 +19,8 @@ from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
 #########################################################    
 
 PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'),]
+GTSTATUSCHOICES = [('All','All'), ('NEW','New'), ('PUBLISHED','Published'), ('INVALID','Invalid'),]
+GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
 
 #########################################################    
 # ---
@@ -67,13 +69,17 @@ def iovcheck(request):
 #########################################################
 # general request handler for summary type of a table
 def data_handler(request, what):
-    perpage	= request.GET.get('perpage','25')
-    gtid	= request.GET.get('gtid','')		# GT ID
-    gtpid	= request.GET.get('gtpid','')		# GT payload ID
-    pk		= request.GET.get('id','')
-    name	= request.GET.get('name','')
-    basf2	= request.GET.get('basf2','')
-    modifiedby	= request.GET.get('modifiedby','')
+    rg = request.GET
+    
+    perpage	= rg.get('perpage','25')
+    gtid	= rg.get('gtid','')		# GT ID
+    gtpid	= rg.get('gtpid','')		# GT payload ID
+    pk		= rg.get('id','')
+    name	= rg.get('name','')
+    status	= rg.get('status','All')
+    gttype	= rg.get('gttype','All')
+    basf2	= rg.get('basf2','')
+    modifiedby	= rg.get('modifiedby','')
 
     ##################################################################
     ####################      POST      ##############################
@@ -100,6 +106,22 @@ def data_handler(request, what):
         nameSelector	= oneFieldGeneric(request.POST, label="Name", field="name", init=name)
         if nameSelector.is_valid(): name=nameSelector.getval("name")
         if(name!=''): q+= 'name='+name+'&'
+
+        # gt status selector
+        statusSelector = dropDownGeneric(request.POST,
+                                         initial={'status':status},
+                                         label	= 'Status',
+                                         choices= GTSTATUSCHOICES,
+                                         tag	= 'status')
+        if statusSelector.is_valid(): q+=statusSelector.handleDropSelector()
+        
+        # gt type selector
+        typeSelector = dropDownGeneric(request.POST,
+                                       initial	={'gttype':gttype},
+                                       label	= 'Type',
+                                       choices	= GTTYPECHOICES,
+                                       tag	= 'gttype')
+        if typeSelector.is_valid(): q+=typeSelector.handleDropSelector()
         
         # Basf2Module selector
         basf2Selector	= oneFieldGeneric(request.POST, label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
@@ -126,7 +148,7 @@ def data_handler(request, what):
     ##################################################################
     # prepare the top nav bar and other attributes no matter what...
     
-    host	= request.GET.get('host','')
+    host	= rg.get('host','')
     domain	= request.get_host()
     settings.domain = domain # replaces  table.set_site below
     navtable = TopTable(domain, what)
@@ -144,7 +166,20 @@ def data_handler(request, what):
     if(what=='GlobalTag'):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
+        
+        statusSelector = dropDownGeneric(initial= {'status':status},
+                                         label	= 'Status',
+                                         choices= GTSTATUSCHOICES,
+                                         tag	= 'status')
+        selectors.append(statusSelector)
 
+        typeSelector = dropDownGeneric(initial	={'gttype':gttype},
+                                       label	= 'Type',
+                                       choices	= GTTYPECHOICES,
+                                       tag	= 'gttype')
+        selectors.append(typeSelector)
+
+        
         modifiedBySelector = oneFieldGeneric(label="Modified by",	field="modifiedby", init=modifiedby)
         selectors.append(modifiedBySelector)
 
@@ -167,6 +202,7 @@ def data_handler(request, what):
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
     selwidth=12*(len(selectors)+1)
+    if(selwidth>100): selwidth=100
     # --- END building selectors
 
     objects = None
@@ -265,16 +301,20 @@ def data_handler(request, what):
         return render(request, template, d)
 
     else:
-        if(gtid!=''):
-            objects = eval(what).objects.filter(global_tag_id=gtid).order_by('-pk')
-        elif(gtpid!=''):
-            objects = eval(what).objects.filter(global_tag_payload_id=gtpid).order_by('-pk')
-        elif(name!=''):
-            objects = eval(what).objects.filter(name__icontains=name).order_by('-pk')
-        elif(modifiedby!=''):
-            objects = eval(what).objects.filter(modified_by=modifiedby).order_by('-pk')
+        objects = eval(what).objects.order_by('-pk') # newest on top
+        if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
+        if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
+        if(name!=''):	objects = objects.filter(name__icontains=name)
+        if(status!='All' and status!=''):
+            gtStatus = GlobalTagStatus.objects.filter(name=status)[0]
+            objects = objects.filter(global_tag_status_id=gtStatus.pk)
+        if(gttype!='All' and gttype!=''):
+            gtType = GlobalTagType.objects.filter(name=gttype)[0]
+            objects = objects.filter(global_tag_type_id=gtType.pk)
+        if(modifiedby!=''):
+            objects = objects.filter(modified_by=modifiedby)
         else:
-            objects = eval(what).objects.order_by('-pk') # newest on top
+            pass
 
     if objects is not None and len(objects)!=0:
         Nfound = len(objects)
