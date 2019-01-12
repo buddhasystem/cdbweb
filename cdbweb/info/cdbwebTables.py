@@ -6,7 +6,9 @@ from django.conf	import settings
 
 from .models		import *
 
+import operator
 
+#########################################################
 def makelink(what, key, value):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, value))
@@ -15,6 +17,16 @@ def makeIDlink(what, id_value, value):
     return mark_safe('<a href="http://%s%s?id=%s">%s</a>'
                      % (settings.domain, reverse(what), id_value,  value))
 
+def numberOfModules(gt):
+    print(gt.global_tag_id)
+    the_payloads	= GlobalTagPayload.objects.filter(global_tag_id=gt.global_tag_id).values_list('payload_id')
+    the_modules		= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
+
+
+    howMany		= len(list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct()))
+    
+    print(gt.global_tag_id, howMany)
+    return howMany
 
 #########################################################
 # Base abstract class for all the "general" tables in
@@ -73,9 +85,9 @@ class GlobalTagTable(CdbWebTable):
     )
 
     def order_numberOfGlobalTagPayloads(self, QuerySet, is_descending):
-#        QuerySet = QuerySet.annotate(
-#            length=Length('first_name')
-#        ).order_by(('-' if is_descending else '') + 'length')
+        # ordered = sorted(QuerySet, key=numberOfModules)
+        # for x in ordered:
+        #    print(x, x.global_tag_id, numberOfModules(x))
         return (QuerySet, True)
 
     def order_basf2modules(self, QuerySet, is_descending):
