@@ -67,11 +67,20 @@ class Basf2ModuleTable(CdbWebTable):
 #########################################################
 class GlobalTagTable(CdbWebTable):
     numberOfGlobalTagPayloads	= tables.Column(verbose_name='# GT Payloads', empty_values=())
-    
-    basf2modules		= tables.Column(verbose_name='Distinct Basf2 Modules',
+    basf2modules		= tables.Column(verbose_name='# Modules',
                                                 empty_values=(),
                                                 attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
     )
+
+    def order_numberOfGlobalTagPayloads(self, QuerySet, is_descending):
+#        QuerySet = QuerySet.annotate(
+#            length=Length('first_name')
+#        ).order_by(('-' if is_descending else '') + 'length')
+        return (QuerySet, True)
+
+    def order_basf2modules(self, QuerySet, is_descending):
+        return (QuerySet, True)
+
     
     def render_global_tag_id(self, value):
         return self.render_id(value)
@@ -86,18 +95,19 @@ class GlobalTagTable(CdbWebTable):
 
     def render_basf2modules(self, record):
         the_payloads = GlobalTagPayload.objects.filter(global_tag_id=record.global_tag_id).values_list('payload_id')
-        
+
+        # -mxp- Decided to remove the partial list of names after a discussion with Benedict
         the_modules	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
         module_names	= list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct())
-
-        separator = ','
-        joined =  separator.join(module_names)
+        # separator = ','
+        # joined =  separator.join(module_names)
         
         id_link = self.render_as_id(record.global_tag_id, str(len(module_names)))
         
-        info = id_link+":"+joined
+        info = id_link # +":"+joined    ; see comment above
         
-        info = info[:100] + (info[100:] and '...')
+        # info = info[:100] + (info[100:] and '...') ; see comment above
+        
         rendered_value = info
         return mark_safe('<div style="max-width: 700px;">'+rendered_value+"</div>")
     

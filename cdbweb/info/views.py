@@ -22,6 +22,8 @@ PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','4
 GTSTATUSCHOICES = [('All','All'), ('NEW','New'), ('PUBLISHED','Published'), ('INVALID','Invalid'),]
 GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
 
+EXCLUDE_ID = {'GlobalTagPayload':('global_tag_payload_id',)}
+
 #########################################################    
 # ---
 def makeQuery(page, q=''):
@@ -228,6 +230,13 @@ def data_handler(request, what):
 
             
         table = eval(what+'Table')([theObject,])
+        RequestConfig(request).configure(table)
+
+        try:
+            table.exclude = EXCLUDE_ID[what]
+        except:
+            pass
+        
         banner=what+' '+str(pk)+' detail'
 
         if what=='GlobalTag': # list Global Tag payloads
@@ -264,20 +273,22 @@ def data_handler(request, what):
 
             aux_title	= 'Found '+str(Nobj)+' "PayloadIov" items for the Global Tag Payload '+str(pk)
             aux_table	= PayloadIovTable(objects)
+            aux_table.exclude = ('global_tag_payload_id',)
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
 
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
             
-            objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
-            Nobj	= len(objects)
+            # objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
+            # Nobj	= len(objects)
 
-            aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
-            aux_table	= PayloadIovRptTable(objects)
-            RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+            # aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
+            # aux_table	= PayloadIovRptTable(objects)
+            # aux_table.exclude = ('global_tag_payload_id', 'payload_id', 'global_tag_id', 'gt_name', 'b2m_name',)
+            # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
 
-            tableDict	= {'title':aux_title, 'table':aux_table}
-            aux_tables.append(tableDict)
+            # tableDict	= {'title':aux_title, 'table':aux_table}
+            # aux_tables.append(tableDict)
             
         if what=='Payload': # list gt gt payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
@@ -285,12 +296,13 @@ def data_handler(request, what):
 
             aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Payload '+str(pk)
             aux_table	= GlobalTagPayloadTable(objects)
+            aux_table.exclude = ('payload_id', )
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
 
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
             
-
+           
         d = dict(domain		=	domain,
                  host		=	host,
                  what		=	banner,
