@@ -200,7 +200,11 @@ def data_handler(request, what):
     # if(what=='Payload'):
     #     gtpidSelector = oneFieldGeneric(label="Global Tag Payload ID", field="gtpid", init=gtpid)
     #     selectors.append(gtpidSelector)
-    
+
+    if(what=='Payload' and pk==''):
+        basf2Selector = oneFieldGeneric(label="Basf2Module name (can be partial)", field="basf2", init=basf2)
+        selectors.append(basf2Selector)
+
     perPageSelector = dropDownGeneric(initial	= {'perpage':perpage},
                                       label	= 'items per page',
                                       choices	= PAGECHOICES,
@@ -293,7 +297,7 @@ def data_handler(request, what):
         if what=='Payload': # list gt gt payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
-
+            
             aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Payload '+str(pk)
             aux_table	= GlobalTagPayloadTable(objects)
             aux_table.exclude = ('payload_id', )
@@ -326,6 +330,12 @@ def data_handler(request, what):
                 gts = GlobalTag.objects.filter(name__icontains=name).values_list('global_tag_id', flat=True)
                 objects = objects.filter(global_tag_id__in=gts)
 
+        if(basf2!='' and what=='Payload'):
+            selected_basf2 = Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
+            print('Selected basf2:', len(selected_basf2))
+                
+            selected_payloads = Payload.objects.filter(basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
+            objects = objects.filter(payload_id__in=selected_payloads)
         
         if(status!='All' and status!=''):
             gtStatus = GlobalTagStatus.objects.filter(name=status)[0]
