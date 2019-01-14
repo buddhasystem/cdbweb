@@ -176,9 +176,22 @@ class PayloadTable(CdbWebTable):
         basf2link = makelink('Basf2Module', 'id', value)
         basf2name = Basf2Module.objects.get(pk=value).name
         return mark_safe(basf2link+': '+basf2name)
-    
+
+    def render_payload_status_id(self, value):
+        return PayloadStatus.objects.get(pk=value).name
+        
     class Meta(CdbWebTable.Meta):
         model = Payload
+        sequence = (
+            'payload_id',
+            'basf2_module_id',
+            'revision', 'is_default',
+            'deleted', 'payload_url',
+            'payload_status_id',
+            'dtm_ins',
+            'dtm_mod',
+            '...')
+        
         exclude = ('modified_by', 'description', 'base_url', )
 #########################################################
 class PayloadStatusTable(CdbWebTable):

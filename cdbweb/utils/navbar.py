@@ -26,8 +26,8 @@ def NavBarData(domain, what):
         myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+style+'>'+t+'</a>')
         i+=1
 
-    myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/iovcheck"'+style+'>iovcheck</a>')
-    i+=1
+    #myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/iovcheck"'+style+'>iovcheck</a>')
+    #i+=1
 
     data.append(myDict)
 
@@ -35,7 +35,7 @@ def NavBarData(domain, what):
 
 # ---
 class NavTable(tables.Table):
-    N = len(listOfTables)+2 # a bit hacky, quick dev only
+    N = len(listOfTables)+1 # a bit hacky, quick dev only
     for i in range(N):
         locals()['col'+str(i)] = tables.Column()
     

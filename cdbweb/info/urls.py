@@ -2,14 +2,14 @@
 from django.conf.urls import include, url
 
 from . import views
-from .listOfTables import listOfTables
+from .listOfTables import listOfLinks
 
 urlpatterns = [
     url(r'^$',		views.index,					name='index'),
     url(r'^iovcheck$',	views.iovcheck,					name='iovcheck'),
 ]
 
-for t in listOfTables:
+for t in listOfLinks:
     u = t+'$'
     urlpatterns.append(url(u,views.data_handler,{'what':t},name=t))
 
