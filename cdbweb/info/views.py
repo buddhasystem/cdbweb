@@ -165,7 +165,7 @@ def data_handler(request, what):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
 
-    if(what=='GlobalTag'):
+    if(what=='GlobalTag' and pk==''):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
         
@@ -185,17 +185,21 @@ def data_handler(request, what):
         modifiedBySelector = oneFieldGeneric(label="Modified by",	field="modifiedby", init=modifiedby)
         selectors.append(modifiedBySelector)
 
-        if(pk!=''):
+    if(what=='GlobalTag' and pk!=''):
             basf2Selector = oneFieldGeneric(label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
             selectors.append(basf2Selector)
 
-    if(what=='GlobalTagPayload'):
+    if(what=='GlobalTagPayload') and pk=='':
         gtidSelector	= oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
 
         nameSelector	= oneFieldGeneric(label="GT Name (Can be partial)", field="name", init=name)
         selectors.append(nameSelector)
 
+        basf2Selector = oneFieldGeneric(label="Basf2Module name (can be partial)", field="basf2", init=basf2)
+        selectors.append(basf2Selector)
+
+        
     # Keep for later...
     # if(what=='Payload'):
     #     gtpidSelector = oneFieldGeneric(label="Global Tag Payload ID", field="gtpid", init=gtpid)
@@ -330,12 +334,10 @@ def data_handler(request, what):
                 gts = GlobalTag.objects.filter(name__icontains=name).values_list('global_tag_id', flat=True)
                 objects = objects.filter(global_tag_id__in=gts)
 
-        if(basf2!='' and what=='Payload'):
-            selected_basf2 = Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
-            print('Selected basf2:', len(selected_basf2))
-                
-            selected_payloads = Payload.objects.filter(basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
-            objects = objects.filter(payload_id__in=selected_payloads)
+        if(basf2!='' and (what=='Payload' or what=='GlobalTagPayload')):
+            selected_basf2	= Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
+            selected_payloads	= Payload.objects.filter(basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
+            objects		= objects.filter(payload_id__in=selected_payloads)
         
         if(status!='All' and status!=''):
             gtStatus = GlobalTagStatus.objects.filter(name=status)[0]
