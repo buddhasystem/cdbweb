@@ -17,7 +17,10 @@ then finalized by hand to address the issue of foreign keys etc.
 
 ## Test service
 
-Current testing platform for CDBweb is a VM running RH7.6
+Current testing platform for CDBweb is a VM running RH7.6.
+
+Work in progress.
+
 
 
 
