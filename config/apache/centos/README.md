@@ -1,13 +1,19 @@
 # Configuration files specific to Apache 2.4 on CentOS
+
+Confoguration files in this directory are kept as examples
+helpful in confguring the CDBweb service, coming from
+a separate web application. They are not
+currently useable "as is".
+
 At the time of writing, all is kept in one directory.
 These files can be used to overwrite the defaults in
 the standard Apache installation.
 
-See:
+For example:
 ```
-[mxp@neutdqm p3s]$ ls /etc/httpd/
+$ ls /etc/httpd/
 conf  conf.d  conf.modules.d  logs  modules  run
-[mxp@neutdqm p3s]$ ls /etc/httpd/conf.d/
+$ ls /etc/httpd/conf.d/
 autoindex.conf  django.conf  php.conf  README  userdir.conf  welcome.conf
 ```
 

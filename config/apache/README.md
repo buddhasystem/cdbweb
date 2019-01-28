@@ -1,10 +1,8 @@
-# Apache Configuration for protoDUNE DQM
+# Apache Configuration for CDBweb
+
 There are differences in Apache deployment detail
 and layout of configuration files on defferent flavor
-of Linux. Main focus of these (simple) configuration
-file is to properly deploy Django and serve static
-content, in the context of the protoDUNE Data Quality
-Management system.
+of Linux.
 
 # Permissions for wsgi.py and other components
 In addition to granting permissions in the Apache configuration file, correct permissions
