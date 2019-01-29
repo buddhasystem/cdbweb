@@ -11,15 +11,15 @@ to have better functionality and be more user-friendly.
 
 ## Technology
 CDBweb is a Django Web app for the conditions database. At the time of
-writing, it runs on Django 2.1 an Python 3.5. Since the database already
+writing, it runs on Django 2.1 an Python 3.5/3.6. Since the database already
 existed, we used DB introspection to create Django models which were
 then finalized by hand to address the issue of foreign keys etc.
 
 ## Test service
+Current testing platform for CDBweb is a VM running RH7.6:
+??.sdcc.bnl
 
-Current testing platform for CDBweb is a VM running RH7.6.
 
-Work in progress.
 
 
 
