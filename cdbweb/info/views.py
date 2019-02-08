@@ -247,8 +247,8 @@ def data_handler(request, what):
         
         banner=what+' '+str(pk)+' detail'
 
-        if what=='GlobalTag': # list Global Tag payloads
-            objects	= GlobalTagPayload.objects.filter(global_tag_id=pk).order_by('-pk') # newest on top
+        if what=='GlobalTag': # list Global Tags
+            objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
             comment = ''
