@@ -99,6 +99,9 @@ DATABASES = {
 }
 
 
+#DATABASE_ROUTERS = ['routers.AuthRouter', 'routers.PrimaryRouter']
+
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
