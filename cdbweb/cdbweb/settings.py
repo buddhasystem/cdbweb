@@ -99,7 +99,7 @@ DATABASES = {
 }
 
 
-#DATABASE_ROUTERS = ['routers.AuthRouter', 'routers.PrimaryRouter']
+DATABASE_ROUTERS = ['routers.AuthRouter.AuthRouter.AuthRouter','routers.PrimaryRouter.PrimaryRouter.PrimaryRouter',]
 
 
 # DATABASES = {
