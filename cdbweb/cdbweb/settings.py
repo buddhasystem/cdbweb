@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 # ---
-from local import DBUSER, DBPASS
+from local import DBUSER, DBPASS, STATUS
 
 
 
@@ -92,14 +92,14 @@ DATABASES = {
         'HOST': '',
         'PORT': '',
     },
-    'auth_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+#    'auth_db': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
 }
 
 
-DATABASE_ROUTERS = ['routers.AuthRouter.AuthRouter.AuthRouter','routers.PrimaryRouter.PrimaryRouter.PrimaryRouter',]
+# DATABASE_ROUTERS = ['routers.AuthRouter.AuthRouter.AuthRouter','routers.PrimaryRouter.PrimaryRouter.PrimaryRouter',]
 
 
 # DATABASES = {

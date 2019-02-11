@@ -48,6 +48,13 @@ def index(request):
 
     d = dict(domain=domain, host=host, what=banner, navtable=navtable)
 
+    try:
+        if(settings.STATUS=='maintenance'):
+            template = 'maintenance.html'
+            return render(request, template, d)
+    except:
+        pass
+        
     return render(request, template, d)
 
 #########################################################    
