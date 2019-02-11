@@ -17,7 +17,16 @@ then finalized by hand to address the issue of foreign keys etc.
 
 ## Test service
 Current testing platform for CDBweb is a VM running RH7.6:
-??.sdcc.bnl
+??.sdcc.bnl.gov (contact the developer for the exact name)
+
+## Databases
+The 'default' database is used to connect to the actual CDB back-end.
+A separate 'auth_db' is used to carry out Django internal operations.
+This requires separate migrations e.g.
+
+```
+$ ./manage.py migrate --database=users
+```
 
 
 
