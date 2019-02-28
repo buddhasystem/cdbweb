@@ -60,7 +60,7 @@ class CdbWebTable(tables.Table):
         return makelink('Basf2Module', 'id',	value)
 
     class Meta:
-        attrs	= {'class': 'paleblue'}
+        attrs	= {'class': 'paleblue','width':'110%'}
         abstract=True # <------
 #-------------------------------------------------------
 
@@ -74,6 +74,9 @@ class Basf2ModuleTable(CdbWebTable):
     def render_basf2_module_id(self, value):
         return self.render_id(value)
 
+    def render_name(self, record):
+        return makeIDlink('Basf2Module', record.basf2_module_id, record.name)
+    
     class Meta(CdbWebTable.Meta):
         model = Basf2Module
 #########################################################
@@ -99,7 +102,6 @@ class GlobalTagTable(CdbWebTable):
 
     def render_name(self, record):
         return makeIDlink('GlobalTag', record.global_tag_id, record.name)
-        # return record.name+'!'
 
     def render_global_tag_status_id(self, value):
         gts = GlobalTagStatus.objects.get(pk=value)
@@ -149,7 +151,8 @@ class GlobalTagPayloadTable(CdbWebTable):
 
     def render_gtName(self, record):
         theGt = GlobalTag.objects.get(global_tag_id=record.global_tag_id)
-        return theGt.name
+        return makeIDlink('GlobalTag', record.global_tag_id, theGt.name)
+#        return theGt.name
         
     def render_basf2module(self, record):
         
