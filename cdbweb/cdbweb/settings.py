@@ -13,7 +13,12 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 # ---
-from local import DBUSER, DBPASS, STATUS, SNAPSHOT
+from local import DBUSER, DBPASS, STATUS
+
+try:
+    from local import SNAPSHOT
+except:
+    pass
 
 
 
