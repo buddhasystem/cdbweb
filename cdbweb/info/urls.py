@@ -6,6 +6,7 @@ from .listOfTables import listOfLinks
 
 urlpatterns = [
     url(r'^$',		views.index,					name='index'),
+    url(r'^test$',	views.test,					name='test'),
     url(r'^iovcheck$',	views.iovcheck,					name='iovcheck'),
 ]
 

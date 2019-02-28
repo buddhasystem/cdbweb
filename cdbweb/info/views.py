@@ -64,6 +64,23 @@ def index(request):
     return render(request, template, d)
 
 #########################################################    
+def test(request):
+    template = 'cdbweb_base.html'
+    
+    host	= request.GET.get('host','')
+    domain	= request.get_host()
+    settings.domain = domain # replaces  table.set_site below
+    navtable	= TopTable(domain, 'test')
+    
+    d = dict(domain=	domain,
+             host=	host,
+             what=	'test',
+             navtable=	navtable,
+    )
+
+    return render(request, template, d)
+
+#########################################################    
 def iovcheck(request):
     template = 'cdbweb_iov_chart.html'
     

@@ -97,6 +97,10 @@ class GlobalTagTable(CdbWebTable):
     def render_global_tag_id(self, value):
         return self.render_id(value)
 
+    def render_name(self, record):
+        return makeIDlink('GlobalTag', record.global_tag_id, record.name)
+        # return record.name+'!'
+
     def render_global_tag_status_id(self, value):
         gts = GlobalTagStatus.objects.get(pk=value)
         return gts.name
