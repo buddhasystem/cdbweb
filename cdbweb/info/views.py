@@ -54,6 +54,12 @@ def index(request):
             return render(request, template, d)
     except:
         pass
+
+    try:
+        d['snapshot']=settings.SNAPSHOT
+        d['what']='Welcome to CDBweb! This test service reflects the DB snapshot taken on '+settings.SNAPSHOT+'.'
+    except:
+        pass
         
     return render(request, template, d)
 
@@ -387,6 +393,10 @@ def data_handler(request, what):
              selwidth=	selwidth,
     )
 
+    try:
+        d['snapshot']=settings.SNAPSHOT
+    except:
+        pass
     # *******> TEMPLATE <*******
     template = 'cdbweb_general_table.html'
 

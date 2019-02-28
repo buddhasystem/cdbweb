@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 # ---
-from local import DBUSER, DBPASS, STATUS
+from local import DBUSER, DBPASS, STATUS, SNAPSHOT
 
 
 
