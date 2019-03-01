@@ -164,7 +164,7 @@ class GlobalTagPayloadTable(CdbWebTable):
         the_modules	= Basf2Module.objects.filter(basf2_module_id=p.basf2_module_id)
         m = the_modules[0]
         
-        return m.name
+        return makeIDlink('Basf2Module', p.basf2_module_id, m.name)
 
     class Meta(CdbWebTable.Meta):
         sequence = ('global_tag_payload_id', 'global_tag_id', 'gtName', 'payload_id', 'basf2module', '...')
@@ -182,7 +182,7 @@ class PayloadTable(CdbWebTable):
     def render_basf2_module_id(self, value):
         basf2link = makelink('Basf2Module', 'id', value)
         basf2name = Basf2Module.objects.get(pk=value).name
-        return mark_safe(basf2link+': '+basf2name)
+        return mark_safe(basf2link+': '+makeIDlink('Basf2Module', value, basf2name))
 
     def render_payload_status_id(self, value):
         return PayloadStatus.objects.get(pk=value).name
