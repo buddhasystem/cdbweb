@@ -351,6 +351,11 @@ def data_handler(request, what):
                  selwidth	=	selwidth,
         )
         
+        try:
+            d['snapshot']=settings.SNAPSHOT
+        except:
+            pass
+        
         return render(request, template, d)
 
     else:
