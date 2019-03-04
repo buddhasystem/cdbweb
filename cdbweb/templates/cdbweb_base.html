@@ -44,8 +44,12 @@
       </center>
       <!-- /div -->
       <hr/>
-    {% include "linkbar.html" %}
-    <center><h3>{{ what }}</h3></center>
+      {% include "linkbar.html" %}
+      <center><h3>{{ what }}</h3></center>
+      {% if status %}
+      <center>{{ status }}</center>
+      {% endif %}
+      
     <hr/>
 
   {% block content %}

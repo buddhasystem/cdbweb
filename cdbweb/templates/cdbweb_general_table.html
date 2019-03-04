@@ -28,13 +28,18 @@
 {% endif %}
 <!---   SELECTORS     --->
 
-    
+
+<!--- MAIN TABLE --->
     {% if table %}
     <center>
       {% render_table table %}
     </center>
     {% endif %}
+
+<!--- MAIN TABLE --->
+
     
+<!--- AUX TABLES --->
     {% if aux_tables %}
     <hr/>
     <center>
@@ -49,4 +54,5 @@
     </center>
 
     {% endif %}
+<!--- AUX TABLES --->    
 {% endblock %}

@@ -2,6 +2,7 @@
 from django.shortcuts	import render
 from django.http	import HttpResponse, HttpResponseRedirect
 from django.conf	import settings
+from django.utils.html	import format_html
 
 # tables
 from	django_tables2	import RequestConfig
@@ -18,7 +19,7 @@ from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
 
 #########################################################    
 
-PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'),]
+PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'), ('800','800'),]
 GTSTATUSCHOICES = [('All','All'), ('NEW','New'), ('PUBLISHED','Published'), ('INVALID','Invalid'),]
 GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
 
@@ -156,7 +157,9 @@ def data_handler(request, what):
         if typeSelector.is_valid(): q+=typeSelector.handleDropSelector()
         
         # Basf2Module selector
-        basf2Selector	= oneFieldGeneric(request.POST, label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
+        basf2Selector	= oneFieldGeneric(request.POST, label='Basf2Module ("Global Tag Payload filter", can be partial)',
+                                          field="basf2", init=basf2)
+        
         if basf2Selector.is_valid(): basf2=basf2Selector.getval("basf2")
         if(basf2!=''): q+= 'basf2='+basf2+'&'
         
@@ -216,7 +219,8 @@ def data_handler(request, what):
         selectors.append(modifiedBySelector)
 
     if(what=='GlobalTag' and pk!=''):
-            basf2Selector = oneFieldGeneric(label="Basf2Module (gt payload filter, can be partial)", field="basf2", init=basf2)
+            basf2Selector = oneFieldGeneric(label='Basf2Module ("Global Tag Payload" filter, can be partial)',
+                                            field="basf2", init=basf2)
             selectors.append(basf2Selector)
 
     if(what=='GlobalTagPayload') and pk=='':
@@ -244,16 +248,20 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
-    selwidth=12*(len(selectors)+1)
+    selwidth=15*(len(selectors)+1)
     if(selwidth>100): selwidth=100
     # --- END building selectors
-
-    objects = None
+    #################################################################################################
+    
+    objects	= None
+    status	= None
     
     # *******> TEMPLATE <*******
     template = 'cdbweb_general_table.html'
     aux_tables = []
-    
+
+
+    ### PRIMARY KEY ON OBJECTS
     if(pk!=''): # takes precedence
         theObject  = None
 
@@ -275,12 +283,32 @@ def data_handler(request, what):
         except:
             pass
         
-        banner=what+' '+str(pk)+' detail'
+        banner=what+' '+str(pk)
 
+
+
+        ### GLOBAL TAG
         if what=='GlobalTag': # list Global Tags
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
+            # validate
+            listOfLengths = []
+            for gtp in objects:
+                # print(gtp.pk)
+                pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk') # newest on top
+                listOfLengths.append(len(pIoVs))
+                #for piov in pIoVs:
+                #    print('>',piov.pk)
+            # print(listOfLengths)
+            shouldHaveLengthOne = list(set(listOfLengths))
+            # print(shouldHaveLengthOne)
+
+            if(len(shouldHaveLengthOne)==1):
+                status = format_html('Passed IoV validation 1: same number of IoVs for all Payloads')
+            else:
+                status = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads')
+                
             comment = ''
             if(basf2!=''):
                 the_payloads = objects.values_list('payload_id', flat=True)
@@ -294,10 +322,10 @@ def data_handler(request, what):
                 
                 objects = objects.filter(payload_id__in=selected_payloads)
                 # print('Selected pl:', len(objects))
-                comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern '+basf2
+                comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern "'+basf2+'"'
                                                                                                                                    
             theGt = GlobalTag.objects.get(global_tag_id=pk)
-            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag "'+theGt.name+'", ID: '+str(pk)+comment
+            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
             aux_table	= GlobalTagPayloadTable(objects)
             aux_table.exclude = ('global_tag_id', 'gtName')
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
@@ -305,6 +333,7 @@ def data_handler(request, what):
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
 
+        ### GLOBAL TAG PAYLOAD
         if what=='GlobalTagPayload': # list gt payloadIovs
             objects	= PayloadIov.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
@@ -327,7 +356,9 @@ def data_handler(request, what):
 
             # tableDict	= {'title':aux_title, 'table':aux_table}
             # aux_tables.append(tableDict)
-            
+
+
+        ### PAYLOAD
         if what=='Payload': # list gt gt payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
@@ -344,6 +375,7 @@ def data_handler(request, what):
         d = dict(domain		=	domain,
                  host		=	host,
                  what		=	banner,
+                 status		=	status,
                  navtable	=	navtable,
                  table		=	table,
                  aux_tables	=	aux_tables,
@@ -358,6 +390,7 @@ def data_handler(request, what):
         
         return render(request, template, d)
 
+    ### SELECTION OTHER THAN PRIMARY KEY
     else:
         objects = eval(what).objects.order_by('-pk') # newest on top
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
@@ -385,6 +418,8 @@ def data_handler(request, what):
         else:
             pass
 
+
+    ### TAKE STOCK OF WHAT'S BEEN FOUND
     if objects is not None and len(objects)!=0:
         Nfound = len(objects)
     else:
@@ -395,7 +430,7 @@ def data_handler(request, what):
         d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
         return render(request, template, d)
 
-    # General case:
+    # AUTO-CREATE APPROPRIATE TABLE
     table = eval(what+'Table')(objects)
     
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
