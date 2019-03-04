@@ -143,16 +143,23 @@ class GlobalTagTable(CdbWebTable):
         model = GlobalTag
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
-    gtName	= tables.Column(verbose_name='Global Tag Name', empty_values=())
+    gtName	= tables.Column(verbose_name='Global Tag ID and Name', empty_values=())
     basf2module	= tables.Column(verbose_name='Basf2Module', empty_values=())
+    nIoVs	= tables.Column(verbose_name='# of IoVs', empty_values=())
     
     def render_global_tag_payload_id(self, value):
         return self.render_id(value)
 
     def render_gtName(self, record):
         theGt = GlobalTag.objects.get(global_tag_id=record.global_tag_id)
-        return makeIDlink('GlobalTag', record.global_tag_id, theGt.name)
-#        return theGt.name
+        return makeIDlink('GlobalTag', record.global_tag_id, str(record.global_tag_id)+': '+theGt.name)
+    
+    def render_nIoVs(self, record):
+        # theGt = GlobalTag.objects.get(global_tag_id=record.global_tag_id)
+        pIoVs = PayloadIov.objects.filter(global_tag_payload_id=record.pk).order_by('-pk')
+        # listOfLengths.append(len(pIoVs))
+
+        return str(len(pIoVs))
         
     def render_basf2module(self, record):
         
@@ -167,7 +174,8 @@ class GlobalTagPayloadTable(CdbWebTable):
         return makeIDlink('Basf2Module', p.basf2_module_id, m.name)
 
     class Meta(CdbWebTable.Meta):
-        sequence = ('global_tag_payload_id', 'global_tag_id', 'gtName', 'payload_id', 'basf2module', '...')
+        exclude = ('global_tag_id', )
+        sequence = ('global_tag_payload_id', 'gtName', 'payload_id', 'basf2module', '...')
         model = GlobalTagPayload
 #########################################################
 class GlobalTagStatusTable(CdbWebTable):

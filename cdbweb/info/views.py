@@ -254,7 +254,7 @@ def data_handler(request, what):
     #################################################################################################
     
     objects	= None
-    status	= None
+    itemStatus	= None
     
     # *******> TEMPLATE <*******
     template = 'cdbweb_general_table.html'
@@ -302,12 +302,11 @@ def data_handler(request, what):
                 #    print('>',piov.pk)
             # print(listOfLengths)
             shouldHaveLengthOne = list(set(listOfLengths))
-            # print(shouldHaveLengthOne)
 
             if(len(shouldHaveLengthOne)==1):
-                status = format_html('Passed IoV validation 1: same number of IoVs for all Payloads')
+                itemStatus = format_html('Passed IoV validation 1: same number of IoVs for all Payloads')
             else:
-                status = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads')
+                itemStatus = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads')
                 
             comment = ''
             if(basf2!=''):
@@ -375,7 +374,7 @@ def data_handler(request, what):
         d = dict(domain		=	domain,
                  host		=	host,
                  what		=	banner,
-                 status		=	status,
+                 status		=	itemStatus,
                  navtable	=	navtable,
                  table		=	table,
                  aux_tables	=	aux_tables,
