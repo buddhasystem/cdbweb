@@ -292,22 +292,45 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            # validate
-            listOfLengths = []
-            for gtp in objects:
-                # print(gtp.pk)
-                pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk') # newest on top
-                listOfLengths.append(len(pIoVs))
-                #for piov in pIoVs:
-                #    print('>',piov.pk)
-            # print(listOfLengths)
-            shouldHaveLengthOne = list(set(listOfLengths))
+            # validation 1: count IoVs for each global payload tag and make sure the count is same
+            # validation 2: compare tuples
 
-            if(len(shouldHaveLengthOne)==1):
-                itemStatus = format_html('Passed IoV validation 1: same number of IoVs for all Payloads')
+            validation1, validation2 = True, True
+            
+            listOfLengths	= []
+            listOfTuples	= []
+
+            referenceSet = None
+            for gtp in objects:
+                pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk')
+                listOfLengths.append(len(pIoVs))
+                for piov in pIoVs:
+                    listOfTuples.append((piov.exp_start, piov.exp_end, piov.run_start, piov.run_end))
+
+                currentSet = set(listOfTuples)
+                if referenceSet is None:
+                    referenceSet = currentSet
+                else:
+                    if bool(referenceSet.difference(currentSet)): validation2 = False
+                    
+            validation1 = (len(list(set(listOfLengths))) == 1)
+
+            if(validation1):
+                itemStatus = 'Passed IoV validation 1: same number of IoVs for all Payloads.'
+                if(validation2):
+                    itemStatus+=' Passed IoV validation 2: same set of IoVs for all Payloads.'
+                # itemStatus = format_html(itemStatus)
             else:
-                itemStatus = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads')
-                
+                itemStatus = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads.')
+
+#
+            
+#            for piov in pIoVs:
+#                onePiovList = []
+#                onePiovList.append([piov.exp_start, piov.exp_end, piov.run_start, piov.run_end])
+#                print('>>', onePiovList)
+
+            
             comment = ''
             if(basf2!=''):
                 the_payloads = objects.values_list('payload_id', flat=True)
