@@ -60,7 +60,8 @@ def index(request):
         d['snapshot']=settings.SNAPSHOT
         d['what']='Welcome to CDBweb! This test service reflects the DB snapshot taken on '+settings.SNAPSHOT+'.'
     except:
-        pass
+        d['what']='Welcome to CDBweb!'
+
         
     return render(request, template, d)
 
@@ -497,27 +498,40 @@ def gtcompare(request):
     #modifiedby	= rg.get('modifiedby','')
 
 
-    template = 'index.html'
+    template	= 'gtcompare.html'
 
     host	= request.GET.get('host','')
     domain	= request.get_host()
+    
+    gtid1		= request.GET.get('gtid1','')
+    gtid2		= request.GET.get('gtid2','')
 
-    navtable	= TopTable(domain, 'Home')
-    banner	= "Welcome to CDBweb! Please make your selection above..."
+    gtname1		= request.GET.get('gtname1','')
+    gtname2		= request.GET.get('gtname2','')
 
-    d = dict(domain=domain, host=host, what=banner, navtable=navtable)
-
-    try:
-        if(settings.STATUS=='maintenance'):
-            template = 'maintenance.html'
+    gt1, gt2 = None, None
+    
+    if(gtid1=='' or gtid2==''): # try names
+        if(gtname1=='' or gtname2==''): # try names
+            what='Global Tag comparison failed: one or more of the tags is undefined'
+            d = dict(domain=domain, host=host, what=what, navtable=navtable)
             return render(request, template, d)
-    except:
-        pass
+        else:
+            gt1 = GlobalTag.objects.using('default').filter(name=gtname1)[0]
+            gt2 = GlobalTag.objects.using('default').filter(name=gtname2)[0]
 
-    try:
-        d['snapshot']=settings.SNAPSHOT
-        d['what']='Welcome to CDBweb! This test service reflects the DB snapshot taken on '+settings.SNAPSHOT+'.'
-    except:
-        pass
+            gtid1=gt1.global_tag_id
+            gtid2=gt2.global_tag_id
+    else:
+        gt1 = GlobalTag.objects.using('default').get(global_tag_id=gtid1)
+        gt2 = GlobalTag.objects.using('default').get(global_tag_id=gtid2)
+        gtname1=gt1.name
+        gtname2=gt2.name
+
+    what	= 'Comparison of Global Tags - '+gtid1+': '+gtname1+' and '+gtid2+': '+gtname2
+
         
+    navtable	= TopTable(domain, 'Home')
+
+    d = dict(domain=domain, host=host, what=what, navtable=navtable)
     return render(request, template, d)
