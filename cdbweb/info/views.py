@@ -547,12 +547,26 @@ def gtcompare(request):
 
     # Populate selectors
     selectors = [] # The request was GET - populate the selectors
+    what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
 
     
-    if(gtid1=='' or gtid2==''): # try names
+    if(gtid1=='' or gtid2==''): # some IDs missing, try names
+        
         if(gtname1=='' or gtname2==''): # try names
-            what='Global Tag comparison failed: one or more of the tags is undefined'
-            d = dict(domain=domain, host=host, what=what, navtable=navtable)
+
+            gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init='')
+            selectors.append(gtSelector1)
+    
+            gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init='')
+            selectors.append(gtSelector2)
+        
+            selwidth=30*(len(selectors)+1)
+            if(selwidth>100): selwidth=100
+            
+            d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
+	             selectors=selectors,		selwidth=selwidth
+            )
+            
             return render(request, template, d)
         else:
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
@@ -566,7 +580,9 @@ def gtcompare(request):
 
             gtid1=gt1.global_tag_id
             gtid2=gt2.global_tag_id
-    else:
+            
+    else: # proceed with search on IDs
+        
         gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtid1)
         selectors.append(gtSelector1)
     
@@ -587,7 +603,6 @@ def gtcompare(request):
     RequestConfig(request).configure(table1)
     RequestConfig(request).configure(table2)
         
-    what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
     
     th1=format_html(str(gtid1)+': "'+gtname1+'"</br>'+gt1.description)
     th2=format_html(str(gtid2)+': "'+gtname2+'"</br>'+gt2.description)
