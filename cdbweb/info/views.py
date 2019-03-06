@@ -503,6 +503,7 @@ def gtcompare(request):
     host	= request.GET.get('host','')
     domain	= request.get_host()
     settings.domain = domain
+    navtable	= TopTable(domain, 'Home')
     
     gtid1		= request.GET.get('gtid1','')
     gtid2		= request.GET.get('gtid2','')
@@ -542,12 +543,24 @@ def gtcompare(request):
     
     th1=str(gtid1)+': "'+gtname1+'"'
     th2=str(gtid2)+': "'+gtname2+'"'
-        
-    navtable	= TopTable(domain, 'Home')
 
-    d = dict(domain=domain, host=host, what=what, navtable=navtable,
-             th1=th1, th2=th2,
-             table1=table1, table2=table2)
+
+    gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
+    gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
+
+    aux_table1	= GlobalTagPayloadTable(gtp1)
+    aux_table1.exclude = ('global_tag_id', 'gtName')
+    RequestConfig(request).configure(aux_table1)
+
+    aux_table2	= GlobalTagPayloadTable(gtp2)
+    aux_table2.exclude = ('global_tag_id', 'gtName')
+    RequestConfig(request).configure(aux_table2)
+
+    d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
+             th1=th1,			th2=th2,
+             table1=table1,		table2=table2,
+             aux_table1=aux_table1,	aux_table2=aux_table2
+    )
 
     
     return render(request, template, d)
