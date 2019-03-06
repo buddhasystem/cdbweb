@@ -531,18 +531,18 @@ def gtcompare(request):
         gtname2=gt2.name
 
     table1 = GlobalTagTable([gt1,])
-    table2 = GlobalTagTable([gt1,])
+    table2 = GlobalTagTable([gt2,])
     
-    table1.exclude = ('global_tag_id', 'name',)
-    table2.exclude = ('global_tag_id', 'name',)
+    table1.exclude = ('global_tag_id', 'name', 'description',)
+    table2.exclude = ('global_tag_id', 'name', 'description',)
     
     RequestConfig(request).configure(table1)
     RequestConfig(request).configure(table2)
         
     what	= 'Comparison of Global Tags'
     
-    th1=str(gtid1)+': "'+gtname1+'"'
-    th2=str(gtid2)+': "'+gtname2+'"'
+    th1=format_html(str(gtid1)+': "'+gtname1+'"</br>'+gt1.description)
+    th2=format_html(str(gtid2)+': "'+gtname2+'"</br>'+gt2.description)
 
 
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
