@@ -316,12 +316,12 @@ def data_handler(request, what):
             validation1 = (len(list(set(listOfLengths))) == 1)
 
             if(validation1):
-                itemStatus = 'Passed IoV validation 1: same number of IoVs for all Payloads.'
+                itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.'
                 if(validation2):
-                    itemStatus+=' Passed IoV validation 2: same set of IoVs for all Payloads.'
+                    itemStatus+=' Diagnostic 2: same set of IoVs for all Payloads.'
                 # itemStatus = format_html(itemStatus)
             else:
-                itemStatus = format_html('Failed IoV validation 1: found different number of IoVs for some Payloads.')
+                itemStatus = format_html('Diagnostic 1: different number of IoVs for some Payloads.')
 
 #
             
@@ -481,3 +481,43 @@ def data_handler(request, what):
 
     return render(request, template, d)
 
+#########################################################
+#
+def gtcompare(request):
+    # rg = request.GET
+    
+    #perpage	= rg.get('perpage','25')
+    #gtid	= rg.get('gtid','')		# GT ID
+    #gtpid	= rg.get('gtpid','')		# GT payload ID
+    #pk		= rg.get('id','')
+    #name	= rg.get('name','')
+    #status	= rg.get('status','All')
+    #gttype	= rg.get('gttype','All')
+    #basf2	= rg.get('basf2','')
+    #modifiedby	= rg.get('modifiedby','')
+
+
+    template = 'index.html'
+
+    host	= request.GET.get('host','')
+    domain	= request.get_host()
+
+    navtable	= TopTable(domain, 'Home')
+    banner	= "Welcome to CDBweb! Please make your selection above..."
+
+    d = dict(domain=domain, host=host, what=banner, navtable=navtable)
+
+    try:
+        if(settings.STATUS=='maintenance'):
+            template = 'maintenance.html'
+            return render(request, template, d)
+    except:
+        pass
+
+    try:
+        d['snapshot']=settings.SNAPSHOT
+        d['what']='Welcome to CDBweb! This test service reflects the DB snapshot taken on '+settings.SNAPSHOT+'.'
+    except:
+        pass
+        
+    return render(request, template, d)
