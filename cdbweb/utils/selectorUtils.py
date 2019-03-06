@@ -82,7 +82,7 @@ class oneFieldGeneric(forms.Form):
        super(oneFieldGeneric, self).__init__(*args, **kwargs)
 
        widgetSize = '10'
-       if(self.field in ('run', 'subrun', 'dl')): widgetSize = widgetSizes[self.field] 
+       if('idname' in self.field): widgetSize = 40
        
        self.fields[self.field] = forms.CharField(required=False, initial=self.init, label=self.label, widget=forms.TextInput(attrs={'size': widgetSize}) )
 

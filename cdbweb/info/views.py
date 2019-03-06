@@ -485,6 +485,9 @@ def data_handler(request, what):
 #########################################################
 #
 def gtcompare(request):
+    domain	= request.get_host()
+    settings.domain = domain
+    
     # rg = request.GET
     
     #perpage	= rg.get('perpage','25')
@@ -500,9 +503,36 @@ def gtcompare(request):
 
     template	= 'gtcompare.html'
 
+    ##################################################################
+    ####################      POST      ##############################
+    ##################################################################
+    if request.method == 'POST':
+        q = ''
+
+        # ---
+        # General ID selectors
+        gtSelector1 = oneFieldGeneric(request.POST, label="ID/NAME 1", field="idname1", init='')
+        if gtSelector1.is_valid():
+            idname1=gtSelector1.getval("idname1")
+            if(idname1!=''):
+                if(idname1.isdigit()):
+                    q+= 'gtid1='+idname1+'&'
+                else:
+                    q+= 'gtname1='+idname1+'&'
+
+        gtSelector2 = oneFieldGeneric(request.POST, label="ID/NAME 2", field="idname2", init='')
+        if gtSelector2.is_valid():
+            idname2=gtSelector2.getval("idname2")
+            if(idname2!=''):
+                if(idname2.isdigit()):
+                    q+= 'gtid2='+idname2+'&'
+                else:
+                    q+= 'gtname2='+idname2+'&'
+
+        # We have built a query and will come to same page/view with a GET query
+        return makeQuery('gtcompare', q)
+    #
     host	= request.GET.get('host','')
-    domain	= request.get_host()
-    settings.domain = domain
     navtable	= TopTable(domain, 'Home')
     
     gtid1		= request.GET.get('gtid1','')
@@ -512,6 +542,12 @@ def gtcompare(request):
     gtname2		= request.GET.get('gtname2','')
 
     gt1, gt2 = None, None
+
+
+
+    # Populate selectors
+    selectors = [] # The request was GET - populate the selectors
+
     
     if(gtid1=='' or gtid2==''): # try names
         if(gtname1=='' or gtname2==''): # try names
@@ -519,12 +555,24 @@ def gtcompare(request):
             d = dict(domain=domain, host=host, what=what, navtable=navtable)
             return render(request, template, d)
         else:
+            gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
+            selectors.append(gtSelector1)
+    
+            gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtname2)
+            selectors.append(gtSelector2)
+        
             gt1 = GlobalTag.objects.using('default').filter(name=gtname1)[0]
             gt2 = GlobalTag.objects.using('default').filter(name=gtname2)[0]
 
             gtid1=gt1.global_tag_id
             gtid2=gt2.global_tag_id
     else:
+        gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtid1)
+        selectors.append(gtSelector1)
+    
+        gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtid2)
+        selectors.append(gtSelector2)
+        
         gt1 = GlobalTag.objects.using('default').get(global_tag_id=gtid1)
         gt2 = GlobalTag.objects.using('default').get(global_tag_id=gtid2)
         gtname1=gt1.name
@@ -539,7 +587,7 @@ def gtcompare(request):
     RequestConfig(request).configure(table1)
     RequestConfig(request).configure(table2)
         
-    what	= 'Comparison of Global Tags'
+    what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
     
     th1=format_html(str(gtid1)+': "'+gtname1+'"</br>'+gt1.description)
     th2=format_html(str(gtid2)+': "'+gtname2+'"</br>'+gt2.description)
@@ -556,7 +604,11 @@ def gtcompare(request):
     aux_table2.exclude = ('global_tag_id', 'gtName')
     RequestConfig(request).configure(aux_table2)
 
+    selwidth=30*(len(selectors)+1)
+    if(selwidth>100): selwidth=100
+    
     d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
+	     selectors=selectors,	selwidth=selwidth,
              th1=th1,			th2=th2,
              table1=table1,		table2=table2,
              aux_table1=aux_table1,	aux_table2=aux_table2
