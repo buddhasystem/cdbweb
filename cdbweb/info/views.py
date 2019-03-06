@@ -528,7 +528,7 @@ def gtcompare(request):
         gtname1=gt1.name
         gtname2=gt2.name
 
-    what	= 'Comparison of Global Tags - '+gtid1+': '+gtname1+' and '+gtid2+': '+gtname2
+    what	= 'Comparison of Global Tags - '+str(gtid1)+': '+gtname1+' and '+str(gtid2)+': '+gtname2
 
         
     navtable	= TopTable(domain, 'Home')
