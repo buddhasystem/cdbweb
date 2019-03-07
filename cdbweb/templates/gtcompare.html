@@ -1,0 +1,79 @@
+{% extends 'cdbweb_base.html' %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<!---   SELECTORS     --->
+{% if selectors %}
+<center>
+<form action="" method="post">
+  {% csrf_token %}
+  <table width="{{ selwidth }}%">
+    <tr>
+      {% for sel in selectors %}
+      <td>
+	<table>{{ sel }}</table>
+      </td>
+      {% endfor %}
+      <td>
+	<input type="submit" value="Submit" />
+      </td>
+    </tr>
+  </table>
+		
+</form>
+</center>
+<hr/>
+{% endif %}
+<!---   SELECTORS     --->
+
+
+{% if table1 and table2 %}
+<table border="1" width="100%">
+  <tr>
+    <th>{{ th1 }}</th>
+    <th>{{ th2 }}</th>
+  </tr>
+  
+  <tr>
+    <td>
+      {% render_table table1 %}
+    </td>
+
+    <td>
+      {% render_table table2 %}
+    </td>
+  </tr>
+  
+  <tr>
+    <td align="center">
+      Global Tag Payloads
+    </td>
+
+    <td align="center">
+      Global Tag Payloads
+    </td>
+
+  </tr>
+  
+  <tr>
+    {% if aux_table1 %}
+    <td align="center">
+      {% render_table aux_table1 %}
+    </td>
+    {% endif %}
+
+    {% if aux_table2 %}
+    <td align="center">
+      {% render_table aux_table2 %}
+    </td>
+    {% endif %}
+  </tr>
+  
+</table>
+<p/>
+<center>
+  Click on the Global Tag Payload ID to get detailed information on the IoVs
+</center>
+{% endif %}
+{% endblock %}
