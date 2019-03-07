@@ -249,8 +249,11 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
+    
     selwidth=15*(len(selectors)+1)
-    if(selwidth>100): selwidth=100
+    if(selwidth>100):
+        selwidth=100
+    
     # --- END building selectors
     #################################################################################################
     
@@ -486,7 +489,7 @@ def data_handler(request, what):
 #
 def gtcompare(request):
     domain		= request.get_host()
-    navtable		= TopTable(domain, 'Home')
+    navtable		= TopTable(domain, 'Global Tag Comparison')
     
     settings.domain	= domain
     
@@ -563,8 +566,10 @@ def gtcompare(request):
             gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init='')
             selectors.append(gtSelector2)
         
-            selwidth=30*(len(selectors)+1)
-            if(selwidth>100): selwidth=100
+            # selwidth=30*(len(selectors)+1)
+            # if(selwidth>100):
+
+            selwidth=100
             
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
 	             selectors=selectors,		selwidth=selwidth
@@ -616,12 +621,15 @@ def gtcompare(request):
             pass
 
 
-    selwidth=30*(len(selectors)+1)
-    if(selwidth>100): selwidth=100
+    # disables in the template, comment this out for now
+    # selwidth=30*(len(selectors)+1)
+    # if(selwidth>100):
+    
+    selwidth=100
     
     if(gt1 is None or gt2 is None):
-        what+=' Last query did not produce valid results.'
-        d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
+        error='Check values: last query did not produce valid results.'
+        d = dict(domain=domain,	host=host, what=what, error=error, navtable=navtable,
 	         selectors=selectors,	selwidth=selwidth
         )
 

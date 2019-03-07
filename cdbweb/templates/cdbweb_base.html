@@ -46,6 +46,14 @@
       <hr/>
       {% include "linkbar.html" %}
       <center><h3>{{ what }}</h3></center>
+      {% if error %}
+      <center>
+	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
+	{{ error }}
+	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
+      </center>
+      {% endif %}
+      
       {% if status %}
       <center>{{ status }}</center>
       {% endif %}

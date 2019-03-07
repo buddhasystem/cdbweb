@@ -28,6 +28,10 @@ def NavBarData(domain, what):
         myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+style+'>'+t+'</a>')
         i+=1
 
+    if(what=='Global Tag Comparison'):
+        style = 'style="color:red"'
+    else:
+        style = ''
     myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/gtcompare"'+style+'>Global Tag Comparison</a>')
     i+=1
 

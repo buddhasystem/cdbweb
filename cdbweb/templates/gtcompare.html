@@ -8,18 +8,18 @@
 <center>
 <form action="" method="post">
   {% csrf_token %}
-  <table width="{{ selwidth }}%">
+  <table width="100%"> <!-- {{ selwidth }} -->
     <tr>
       {% for sel in selectors %}
-      <td>
+      <td align="center">
 	<table>{{ sel }}</table>
       </td>
       {% endfor %}
-      <td>
-	<input type="submit" value="Submit" />
-      </td>
+      <!-- td -->
+      <!-- /td -->
     </tr>
   </table>
+  <center><input type="submit" value="Submit" /></center>
 		
 </form>
 </center>
@@ -36,7 +36,10 @@
 <table border="1" width="100%">
   <tr><th>{{ th1 }}</th><th>{{ th2 }}</th></tr>
   
-  <tr><td>{{ desc1 }}</td><td>{{ desc2 }}</td></tr>
+  <tr>
+    <td align="center"><div style="font-size:75%";>{{ desc1 }}</div></td>
+    <td align="center"><div style="font-size:75%";>{{ desc2 }}</div></td>
+  </tr>
   
   <tr><td>{% render_table table1 %}</td><td>{% render_table table2 %}</td></tr>
   
