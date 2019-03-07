@@ -59,6 +59,10 @@ class CdbWebTable(tables.Table):
     def render_basf2_module_id(self, value):
         return makelink('Basf2Module', 'id',	value)
 
+    def render_modified_by(self, value):
+        thisItemName = self.Meta.model.__name__
+        return makelink(thisItemName,	'modifiedby',	value)
+    
     class Meta:
         attrs	= {'class': 'paleblue','width':'110%'}
         abstract=True # <------
