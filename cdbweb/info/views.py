@@ -650,8 +650,8 @@ def gtcompare(request):
     RequestConfig(request).configure(table2)
         
     
-    th1		= str(gtid1)+': "'+gtname1
-    th2		= str(gtid2)+': "'+gtname2
+    th1		= str(gtid1)+': "'+gtname1+'"'
+    th2		= str(gtid2)+': "'+gtname2+'"'
 
     desc1	= gt1.description
     desc2	= gt2.description
