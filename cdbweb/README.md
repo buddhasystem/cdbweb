@@ -10,3 +10,6 @@ pg_restore -d myDB -U user DUMP_FILE_NAME
 psql -U user -d myDB
 
 -f file
+
+## Restart the service
+sudo systemctl restart httpd.service

@@ -28,6 +28,13 @@
 <!---   SELECTORS     --->
 
 
+{% if gtTable %}
+<center>
+  <h3>Global Tags</h3>
+  {% render_table gtTable %}
+</center>
+{% endif %}
+
 {% if table1 and table2 %}
 <table border="1" width="100%">
   <tr>

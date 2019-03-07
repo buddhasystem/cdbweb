@@ -565,6 +565,18 @@ def gtcompare(request):
 	             selectors=selectors,		selwidth=selwidth
             )
             
+            try:
+                d['snapshot']=settings.SNAPSHOT
+            except:
+                pass
+
+            # CREATE the global tag table
+            allGts = GlobalTag.objects.order_by('-pk') # newest on top
+            gtTable = GlobalTagTable(allGts)
+            RequestConfig(request, paginate={'per_page': 25}).configure(gtTable)
+
+            d['gtTable'] = gtTable
+            
             return render(request, template, d)
         else:
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
@@ -608,6 +620,10 @@ def gtcompare(request):
 	         selectors=selectors,	selwidth=selwidth
         )
 
+        try:
+            d['snapshot']=settings.SNAPSHOT
+        except:
+            pass
         return render(request, template, d)
     #---
        
@@ -643,5 +659,9 @@ def gtcompare(request):
              aux_table1=aux_table1,	aux_table2=aux_table2
     )
 
+    try:
+        d['snapshot']=settings.SNAPSHOT
+    except:
+        pass
     
     return render(request, template, d)
