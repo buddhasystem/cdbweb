@@ -485,8 +485,10 @@ def data_handler(request, what):
 #########################################################
 #
 def gtcompare(request):
-    domain	= request.get_host()
-    settings.domain = domain
+    domain		= request.get_host()
+    navtable		= TopTable(domain, 'Home')
+    
+    settings.domain	= domain
     
     # rg = request.GET
     
@@ -531,15 +533,18 @@ def gtcompare(request):
 
         # We have built a query and will come to same page/view with a GET query
         return makeQuery('gtcompare', q)
-    #
-    host	= request.GET.get('host','')
-    navtable	= TopTable(domain, 'Home')
-    
-    gtid1		= request.GET.get('gtid1','')
-    gtid2		= request.GET.get('gtid2','')
 
-    gtname1		= request.GET.get('gtname1','')
-    gtname2		= request.GET.get('gtname2','')
+    ##################################################################
+    ####################      GET       ##############################
+    ##################################################################
+
+    host	= request.GET.get('host','')
+    
+    gtid1	= request.GET.get('gtid1','')
+    gtid2	= request.GET.get('gtid2','')
+
+    gtname1	= request.GET.get('gtname1','')
+    gtname2	= request.GET.get('gtname2','')
 
     gt1, gt2 = None, None
 
@@ -637,8 +642,11 @@ def gtcompare(request):
     RequestConfig(request).configure(table2)
         
     
-    th1=format_html(str(gtid1)+': "'+gtname1+'"</br>'+gt1.description)
-    th2=format_html(str(gtid2)+': "'+gtname2+'"</br>'+gt2.description)
+    th1		= str(gtid1)+': "'+gtname1
+    th2		= str(gtid2)+': "'+gtname2
+
+    desc1	= gt1.description
+    desc2	= gt2.description
 
 
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
@@ -652,11 +660,12 @@ def gtcompare(request):
     aux_table2.exclude = ('global_tag_id', 'gtName')
     RequestConfig(request).configure(aux_table2)
 
-    d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
-	     selectors=selectors,	selwidth=selwidth,
-             th1=th1,			th2=th2,
-             table1=table1,		table2=table2,
-             aux_table1=aux_table1,	aux_table2=aux_table2
+    d = dict(domain=domain, host=host, what=what, navtable=navtable,
+	     selectors	= selectors,	selwidth=selwidth,
+             th1	= th1,		th2	= th2,
+             desc1	= desc1,	desc2	= desc2,
+             table1	= table1,	table2	= table2,
+             aux_table1	= aux_table1,	aux_table2=aux_table2
     )
 
     try:

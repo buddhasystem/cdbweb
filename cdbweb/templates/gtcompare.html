@@ -29,51 +29,26 @@
 
 
 {% if gtTable %}
-<center>
-  <h3>Global Tags</h3>
-  {% render_table gtTable %}
-</center>
+<center> <h3>Global Tags</h3>{% render_table gtTable %}</center>
 {% endif %}
 
 {% if table1 and table2 %}
 <table border="1" width="100%">
-  <tr>
-    <th>{{ th1 }}</th>
-    <th>{{ th2 }}</th>
-  </tr>
+  <tr><th>{{ th1 }}</th><th>{{ th2 }}</th></tr>
   
-  <tr>
-    <td>
-      {% render_table table1 %}
-    </td>
-
-    <td>
-      {% render_table table2 %}
-    </td>
-  </tr>
+  <tr><td>{{ desc1 }}</td><td>{{ desc2 }}</td></tr>
   
-  <tr>
-    <td align="center">
-      Global Tag Payloads
-    </td>
-
-    <td align="center">
-      Global Tag Payloads
-    </td>
-
-  </tr>
+  <tr><td>{% render_table table1 %}</td><td>{% render_table table2 %}</td></tr>
+  
+  <tr><td align="center">Global Tag Payloads</td><td align="center">Global Tag Payloads</td> </tr>
   
   <tr>
     {% if aux_table1 %}
-    <td align="center">
-      {% render_table aux_table1 %}
-    </td>
+    <td align="center">{% render_table aux_table1 %}</td>
     {% endif %}
 
     {% if aux_table2 %}
-    <td align="center">
-      {% render_table aux_table2 %}
-    </td>
+    <td align="center">{% render_table aux_table2 %}</td>
     {% endif %}
   </tr>
   
