@@ -1,0 +1,16 @@
+drop table app_message;
+drop table basf2_module;
+drop table global_tag;
+drop table global_tag_payload;
+drop table global_tag_payload_20180302_save;
+drop table global_tag_status;
+drop table global_tag_type;
+drop table gtp_save;
+drop table gtp_save_20170317;
+drop table payload;
+drop table payload_20180302_save;
+drop table payload_iov;
+drop table payload_iov_20180302_save;
+drop table payload_iov_rpt;
+drop table payload_iov_rpt_20180302_save;
+drop table payload_status;
