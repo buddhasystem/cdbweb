@@ -13,3 +13,7 @@ psql -U user -d myDB
 
 ## Restart the service
 sudo systemctl restart httpd.service
+
+## Pulling files from the RACF ftp server
+scp user@rftpexp.rhic.bnl.gov:foo foo
+
