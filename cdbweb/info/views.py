@@ -660,12 +660,14 @@ def gtcompare(request):
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
     gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
 
+    gtp_exclude = ('global_tag_id', 'gtName', 'dtm_ins', 'dtm_mod',)
+
     aux_table1	= GlobalTagPayloadTable(gtp1)
-    aux_table1.exclude = ('global_tag_id', 'gtName')
+    aux_table1.exclude = gtp_exclude
     RequestConfig(request).configure(aux_table1)
 
     aux_table2	= GlobalTagPayloadTable(gtp2)
-    aux_table2.exclude = ('global_tag_id', 'gtName')
+    aux_table2.exclude = gtp_exclude
     RequestConfig(request).configure(aux_table2)
 
     d = dict(domain=domain, host=host, what=what, navtable=navtable,
