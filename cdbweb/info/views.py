@@ -543,8 +543,6 @@ def gtcompare(request):
 
     gt1, gt2 = None, None
 
-
-
     # Populate selectors
     selectors = [] # The request was GET - populate the selectors
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
@@ -574,12 +572,15 @@ def gtcompare(request):
     
             gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtname2)
             selectors.append(gtSelector2)
-        
-            gt1 = GlobalTag.objects.using('default').filter(name=gtname1)[0]
-            gt2 = GlobalTag.objects.using('default').filter(name=gtname2)[0]
 
-            gtid1=gt1.global_tag_id
-            gtid2=gt2.global_tag_id
+            try:
+                gt1 = GlobalTag.objects.using('default').filter(name=gtname1)[0]
+                gt2 = GlobalTag.objects.using('default').filter(name=gtname2)[0]
+                gtid1=gt1.global_tag_id
+                gtid2=gt2.global_tag_id
+            except:
+                pass
+
             
     else: # proceed with search on IDs
         
@@ -588,12 +589,28 @@ def gtcompare(request):
     
         gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtid2)
         selectors.append(gtSelector2)
-        
-        gt1 = GlobalTag.objects.using('default').get(global_tag_id=gtid1)
-        gt2 = GlobalTag.objects.using('default').get(global_tag_id=gtid2)
-        gtname1=gt1.name
-        gtname2=gt2.name
 
+        try:
+            gt1 = GlobalTag.objects.using('default').get(global_tag_id=gtid1)
+            gt2 = GlobalTag.objects.using('default').get(global_tag_id=gtid2)
+            gtname1=gt1.name
+            gtname2=gt2.name
+        except:
+            pass
+
+
+    selwidth=30*(len(selectors)+1)
+    if(selwidth>100): selwidth=100
+    
+    if(gt1 is None or gt2 is None):
+        what+=' Last query did not produce valid results.'
+        d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
+	         selectors=selectors,	selwidth=selwidth
+        )
+
+        return render(request, template, d)
+    #---
+       
     table1 = GlobalTagTable([gt1,])
     table2 = GlobalTagTable([gt2,])
     
@@ -619,9 +636,6 @@ def gtcompare(request):
     aux_table2.exclude = ('global_tag_id', 'gtName')
     RequestConfig(request).configure(aux_table2)
 
-    selwidth=30*(len(selectors)+1)
-    if(selwidth>100): selwidth=100
-    
     d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
 	     selectors=selectors,	selwidth=selwidth,
              th1=th1,			th2=th2,
