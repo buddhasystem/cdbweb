@@ -323,16 +323,8 @@ def data_handler(request, what):
                 itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.'
                 if(validation2):
                     itemStatus+=' Diagnostic 2: same set of IoVs for all Payloads.'
-                # itemStatus = format_html(itemStatus)
             else:
                 itemStatus = format_html('Diagnostic 1: different number of IoVs for some Payloads.')
-
-#
-            
-#            for piov in pIoVs:
-#                onePiovList = []
-#                onePiovList.append([piov.exp_start, piov.exp_end, piov.run_start, piov.run_end])
-#                print('>>', onePiovList)
 
             
             comment = ''
@@ -485,7 +477,14 @@ def data_handler(request, what):
 
     return render(request, template, d)
 
-#########################################################
+
+
+
+######################################################### . . . . . . . . . . . . .
+######################################################### . . . . . . . . . . . . .
+####################  GTCOMPARE  ######################## . . . . . . . . . . . . .
+######################################################### . . . . . . . . . . . . .
+######################################################### . . . . . . . . . . . . .
 #
 def gtcompare(request):
     domain		= request.get_host()
@@ -493,30 +492,16 @@ def gtcompare(request):
     
     settings.domain	= domain
     
-    # rg = request.GET
-    
-    #perpage	= rg.get('perpage','25')
-    #gtid	= rg.get('gtid','')		# GT ID
-    #gtpid	= rg.get('gtpid','')		# GT payload ID
-    #pk		= rg.get('id','')
-    #name	= rg.get('name','')
-    #status	= rg.get('status','All')
-    #gttype	= rg.get('gttype','All')
-    #basf2	= rg.get('basf2','')
-    #modifiedby	= rg.get('modifiedby','')
-
-
-    template	= 'gtcompare.html'
+    template		= 'gtcompare.html'
 
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
     if request.method == 'POST':
-        q = ''
+        q = '' # placeholder for potential query
 
-        # ---
-        # General ID selectors
-        gtSelector1 = oneFieldGeneric(request.POST, label="ID/NAME 1", field="idname1", init='')
+        # Generic ID selectors
+        gtSelector1 = oneFieldGeneric(request.POST, label="Id/Name 1", field="idname1", init='')
         if gtSelector1.is_valid():
             idname1=gtSelector1.getval("idname1")
             if(idname1!=''):
@@ -525,7 +510,7 @@ def gtcompare(request):
                 else:
                     q+= 'gtname1='+idname1+'&'
 
-        gtSelector2 = oneFieldGeneric(request.POST, label="ID/NAME 2", field="idname2", init='')
+        gtSelector2 = oneFieldGeneric(request.POST, label="Id/Name 2", field="idname2", init='')
         if gtSelector2.is_valid():
             idname2=gtSelector2.getval("idname2")
             if(idname2!=''):
@@ -551,8 +536,8 @@ def gtcompare(request):
 
     gt1, gt2 = None, None
 
-    # Populate selectors
-    selectors = [] # The request was GET - populate the selectors
+    # --- Populate the selector section!
+    selectors	= []
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
 
     
