@@ -34,7 +34,38 @@ def makeQuery(page, q=''):
     if(q==''): return HttpResponseRedirect(gUrl)
     return HttpResponseRedirect(qUrl+q)
 
+#########################################################    
+# ---
+def gtValidation(allGtps):
+    itemStatus = None
+    
+    # validation 1: count IoVs for each global payload tag and make sure the count is same
+    # validation 2: compare tuples
 
+    validation1, validation2, listOfLengths, listOfTuples, referenceSet = True, True, [], [], None
+
+    for gtp in allGtps:
+        pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk')
+        listOfLengths.append(len(pIoVs))
+        for piov in pIoVs:
+            listOfTuples.append((piov.exp_start, piov.exp_end, piov.run_start, piov.run_end))
+        currentSet = set(listOfTuples)
+        
+        if referenceSet is None:
+            referenceSet = currentSet
+        else:
+            if bool(referenceSet.difference(currentSet)): validation2 = False
+                    
+    validation1 = (len(list(set(listOfLengths))) == 1)
+
+    if(validation1):
+        itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.'
+        if(validation2):
+            itemStatus+=' Diagnostic 2: same set of IoVs for all Payloads.'
+    else:
+        itemStatus = format_html('Diagnostic 1: different number of IoVs for some Payloads.')
+            
+    return itemStatus
 
 #########################################################    
 def index(request):
@@ -265,8 +296,8 @@ def data_handler(request, what):
     aux_tables = []
 
 
-    ### PRIMARY KEY ON OBJECTS
-    if(pk!=''): # takes precedence
+    ### PRIMARY KEY ON OBJECTS TAKES PRECEDENCE
+    if(pk!=''):
         theObject  = None
 
         try:
@@ -276,9 +307,10 @@ def data_handler(request, what):
             # *******> TEMPLATE <*******
             template = 'cdbweb_general_table_empty.html'
             d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
-            return render(request, template, d)
+            return render(request, template, d) # bail if the item was not found...
 
-            
+
+        # create a table for that one object
         table = eval(what+'Table')([theObject,])
         RequestConfig(request).configure(table)
 
@@ -289,57 +321,24 @@ def data_handler(request, what):
         
         banner=what+' '+str(pk)
 
-
-
+        ##########################################################################
+        #      Now fetch related items depending on the primary object type:
+        ##########################################################################
         ### GLOBAL TAG
-        if what=='GlobalTag': # list Global Tags
+        if what=='GlobalTag': # list Global Tag Payloads
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            # validation 1: count IoVs for each global payload tag and make sure the count is same
-            # validation 2: compare tuples
-
-            validation1, validation2 = True, True
-            
-            listOfLengths	= []
-            listOfTuples	= []
-
-            referenceSet = None
-            for gtp in objects:
-                pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk')
-                listOfLengths.append(len(pIoVs))
-                for piov in pIoVs:
-                    listOfTuples.append((piov.exp_start, piov.exp_end, piov.run_start, piov.run_end))
-
-                currentSet = set(listOfTuples)
-                if referenceSet is None:
-                    referenceSet = currentSet
-                else:
-                    if bool(referenceSet.difference(currentSet)): validation2 = False
-                    
-            validation1 = (len(list(set(listOfLengths))) == 1)
-
-            if(validation1):
-                itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.'
-                if(validation2):
-                    itemStatus+=' Diagnostic 2: same set of IoVs for all Payloads.'
-            else:
-                itemStatus = format_html('Diagnostic 1: different number of IoVs for some Payloads.')
-
+            itemStatus = gtValidation(objects)
             
             comment = ''
-            if(basf2!=''):
-                the_payloads = objects.values_list('payload_id', flat=True)
-                # print('Total pl:', len(the_payloads))
-                
-                selected_basf2 = Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
-                # print('Selected basf2:', len(selected_basf2))
-                
-                selected_payloads = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
-                # print('-----------------------------\n', selected_payloads)
+            if(basf2!=''): # selection for auxiliary tables
+                the_payloads		= objects.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
+                selected_basf2		= Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
+                # JOIN
+                selected_payloads	= Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
                 
                 objects = objects.filter(payload_id__in=selected_payloads)
-                # print('Selected pl:', len(objects))
                 comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern "'+basf2+'"'
                                                                                                                                    
             theGt = GlobalTag.objects.get(global_tag_id=pk)
@@ -351,6 +350,7 @@ def data_handler(request, what):
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
 
+        ##########################################################################
         ### GLOBAL TAG PAYLOAD
         if what=='GlobalTagPayload': # list gt payloadIovs
             objects	= PayloadIov.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
@@ -363,7 +363,8 @@ def data_handler(request, what):
 
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
-            
+
+            # Deferred:
             # objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
             # Nobj	= len(objects)
 
@@ -376,6 +377,7 @@ def data_handler(request, what):
             # aux_tables.append(tableDict)
 
 
+        ##########################################################################
         ### PAYLOAD
         if what=='Payload': # list gt gt payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
@@ -408,7 +410,9 @@ def data_handler(request, what):
         
         return render(request, template, d)
 
-    ### SELECTION OTHER THAN PRIMARY KEY
+    ##########################################################################
+    ##################SELECTION OTHER THAN PRIMARY KEY########################
+    ##########################################################################
     else:
         objects = eval(what).objects.order_by('-pk') # newest on top
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
