@@ -21,15 +21,16 @@ Current testing platform for CDBweb is a VM running RH7.6:
 
 ## Databases
 The 'default' database is used to connect to the actual CDB back-end.
-A separate 'auth_db' is used to carry out Django internal operations.
-This requires separate migrations e.g.
+At present, a feature called ``database routers'' has been added to the
+application, and so a separate 'auth_db' is used to carry out Django
+internal operations. This requires separate migrations e.g.
 
 ```
 $ ./manage.py migrate --database=users
 ```
 
+and also requires explicit reference to the database when managing users:
 
-
-
-
-
+```
+./manage.py createsuperuser --database=auth_db
+```
