@@ -13,13 +13,18 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 # ---
-from local import DBUSER, DBPASS, STATUS
+from local import DBUSER, DBPASS
 
 try:
     from local import SNAPSHOT
 except:
     pass
 
+
+try:
+    from local import STATUS
+except:
+    pass
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
