@@ -6,42 +6,30 @@ from django.utils.html			import format_html
 
 from info.listOfTables import listOfTables
 
+
+styles = ('','style="color:red"')
+
 # ---
 def NavBarData(domain, what):
-
-    
     data = []
-    if(what=='Home'):
-        style = 'style="color:red"'
-    else:
-        style = ''
         
-    myDict = {'col0':mark_safe('<a href="http://'+domain+'/"'+style+'>Home</a>')}
+    myDict = {'col0':mark_safe('<a href="http://'+domain+'/"'+styles[what=='Home']+'>Home</a>')}
 
     i=1
     for t in listOfTables:
-        if(what==t):
-            style = 'style="color:red"'
-        else:
-            style=''
-
-        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+style+'>'+t+'</a>')
+        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+styles[what==t]+'>'+t+'</a>')
         i+=1
 
-    if(what=='Global Tag Comparison'):
-        style = 'style="color:red"'
-    else:
-        style = ''
-    myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/gtcompare"'+style+'>Global Tag Comparison</a>')
+    gtc='Global Tag Comparison'
+    myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/gtcompare"'+styles[what==gtc]+'>Global Tag Comparison</a>')
     i+=1
 
     data.append(myDict)
-
     return data
 
 # ---
 class NavTable(tables.Table):
-    N = len(listOfTables)+2 # a bit hacky, quick dev only. Adding Home and GTcompare.
+    N = len(listOfTables)+2 # Adding count for non-table entries Home and GTcompare.
     for i in range(N):
         locals()['col'+str(i)] = tables.Column()
     
@@ -52,7 +40,8 @@ class NavTable(tables.Table):
 
 # ---
 def TopTable(domain, what=None):
-    t = NavTable(NavBarData(domain, what), show_header = False)
+    content = NavBarData(domain, what)
+    t = NavTable(content, show_header = False)
     t.set_site(domain)
     return t
 

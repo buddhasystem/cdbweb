@@ -17,6 +17,7 @@ from .cdbwebTables	import *
 
 from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
 
+
 #########################################################    
 
 PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'), ('800','800'),]
@@ -24,6 +25,8 @@ GTSTATUSCHOICES = [('All','All'), ('NEW','New'), ('PUBLISHED','Published'), ('IN
 GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
 
 EXCLUDE_ID = {'GlobalTagPayload':('global_tag_payload_id',)}
+
+COMPARISON_PROMPT = format_html('<--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->')
 
 #########################################################    
 # ---
@@ -364,19 +367,6 @@ def data_handler(request, what):
             tableDict	= {'title':aux_title, 'table':aux_table}
             aux_tables.append(tableDict)
 
-            # Deferred:
-            # objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
-            # Nobj	= len(objects)
-
-            # aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
-            # aux_table	= PayloadIovRptTable(objects)
-            # aux_table.exclude = ('global_tag_payload_id', 'payload_id', 'global_tag_id', 'gt_name', 'b2m_name',)
-            # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
-
-            # tableDict	= {'title':aux_title, 'table':aux_table}
-            # aux_tables.append(tableDict)
-
-
         ##########################################################################
         ### PAYLOAD
         if what=='Payload': # list gt gt payloads
@@ -551,6 +541,8 @@ def gtcompare(request):
 
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init='')
             selectors.append(gtSelector1)
+
+            selectors.append(COMPARISON_PROMPT)
     
             gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init='')
             selectors.append(gtSelector2)
@@ -581,6 +573,8 @@ def gtcompare(request):
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
             selectors.append(gtSelector1)
     
+            selectors.append(COMPARISON_PROMPT)
+            
             gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtname2)
             selectors.append(gtSelector2)
 
@@ -597,6 +591,8 @@ def gtcompare(request):
         
         gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtid1)
         selectors.append(gtSelector1)
+
+        selectors.append(COMPARISON_PROMPT)
     
         gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtid2)
         selectors.append(gtSelector2)
@@ -673,3 +669,19 @@ def gtcompare(request):
         pass
     
     return render(request, template, d)
+
+
+#################################################################################################
+# DeferredRPT
+# objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
+# Nobj	= len(objects)
+
+# aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
+# aux_table	= PayloadIovRptTable(objects)
+# aux_table.exclude = ('global_tag_payload_id', 'payload_id', 'global_tag_id', 'gt_name', 'b2m_name',)
+# RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+
+# tableDict	= {'title':aux_title, 'table':aux_table}
+# aux_tables.append(tableDict)
+
+
