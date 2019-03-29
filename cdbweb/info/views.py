@@ -26,7 +26,7 @@ GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
 
 EXCLUDE_ID = {'GlobalTagPayload':('global_tag_payload_id',)}
 
-COMPARISON_PROMPT = format_html('<--&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->')
+COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
 
 #########################################################    
 # ---
