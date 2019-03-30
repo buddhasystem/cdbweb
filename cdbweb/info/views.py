@@ -20,9 +20,9 @@ from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
 
 #########################################################    
 
-PAGECHOICES = [('25','25'), ('50','50'), ('100','100'), ('200','200'), ('400','400'), ('800','800'),]
-GTSTATUSCHOICES = [('All','All'), ('NEW','New'), ('PUBLISHED','Published'), ('INVALID','Invalid'),]
-GTTYPECHOICES = [('All','All'), ('RELEASE','Release'), ('DEV','Dev'),]
+PAGECHOICES	= [('25','25'),('50','50'),('100','100'),('200','200'),('400','400'),('800','800'),]
+GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVALID','Invalid'),]
+GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 
 EXCLUDE_ID = {'GlobalTagPayload':('global_tag_payload_id',)}
 
@@ -47,7 +47,7 @@ def gtValidation(allGtps):
 
     validation1, validation2, listOfLengths, listOfTuples, referenceSet = True, True, [], [], None
 
-    for gtp in allGtps:
+    for gtp in allGtps: # iterate over individual global tag payloads
         pIoVs = PayloadIov.objects.filter(global_tag_payload_id=gtp.pk).order_by('-pk')
         listOfLengths.append(len(pIoVs))
         for piov in pIoVs:
@@ -306,14 +306,12 @@ def data_handler(request, what):
         try:
             theObject = eval(what).objects.get(pk=pk)
         except:
-            banner='No '+what+' database entries were found using your selection criteria'
-            # *******> TEMPLATE <*******
-            template = 'cdbweb_general_table_empty.html'
-            d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
-            return render(request, template, d) # bail if the item was not found...
+            banner	= 'No '+what+' database entries were found using your selection criteria'
+            template	= 'cdbweb_general_table_empty.html' # custom template for empty set
+            d		= dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
+            return render(request, template, d)
 
-
-        # create a table for that one object
+        # create a table for the object fetched by the primary key
         table = eval(what+'Table')([theObject,])
         RequestConfig(request).configure(table)
 
@@ -332,7 +330,7 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            itemStatus = gtValidation(objects)
+            itemStatus = gtValidation(objects) # global tag payloads
             
             comment = ''
             if(basf2!=''): # selection for auxiliary tables
@@ -420,13 +418,13 @@ def data_handler(request, what):
             objects		= objects.filter(payload_id__in=selected_payloads)
         
         if(status!='All' and status!=''):
-            gtStatus = GlobalTagStatus.objects.filter(name=status)[0]
-            objects = objects.filter(global_tag_status_id=gtStatus.pk)
+            gtStatus	= GlobalTagStatus.objects.filter(name=status)[0]
+            objects	= objects.filter(global_tag_status_id=gtStatus.pk)
         if(gttype!='All' and gttype!=''):
-            gtType = GlobalTagType.objects.filter(name=gttype)[0]
-            objects = objects.filter(global_tag_type_id=gtType.pk)
+            gtType	= GlobalTagType.objects.filter(name=gttype)[0]
+            objects	= objects.filter(global_tag_type_id=gtType.pk)
         if(modifiedby!=''):
-            objects = objects.filter(modified_by=modifiedby)
+            objects	= objects.filter(modified_by=modifiedby)
         else:
             pass
 
@@ -435,10 +433,9 @@ def data_handler(request, what):
     if objects is not None and len(objects)!=0:
         Nfound = len(objects)
     else:
-        Nfound=0
-        banner='No '+what+' database entries were found using your selection criteria'
-        # *******> TEMPLATE <*******
-        template = 'cdbweb_general_table_empty.html'
+        Nfound	= 0
+        banner	= 'No '+what+' database entries were found using your selection criteria'
+        template= 'cdbweb_general_table_empty.html'
         d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
         return render(request, template, d)
 
@@ -470,7 +467,6 @@ def data_handler(request, what):
     template = 'cdbweb_general_table.html'
 
     return render(request, template, d)
-
 
 
 
