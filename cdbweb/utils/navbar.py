@@ -1,4 +1,3 @@
-3
 # custom imports
 import	django_tables2 as tables
 from django.utils.safestring		import mark_safe
@@ -9,7 +8,7 @@ from info.listOfTables import listOfTables
 
 styles = ('','style="color:red"')
 
-# ---
+####
 def NavBarData(domain, what):
     data = []
         
@@ -27,7 +26,7 @@ def NavBarData(domain, what):
     data.append(myDict)
     return data
 
-# ---
+####
 class NavTable(tables.Table):
     N = len(listOfTables)+2 # Adding count for non-table entries Home and GTcompare.
     for i in range(N):
@@ -38,7 +37,7 @@ class NavTable(tables.Table):
     class Meta:
         attrs	= {'class': 'paleblue'}
 
-# ---
+####
 def TopTable(domain, what=None):
     content = NavBarData(domain, what)
     t = NavTable(content, show_header = False)

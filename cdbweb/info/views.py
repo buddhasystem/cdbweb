@@ -62,13 +62,61 @@ def gtValidation(allGtps):
     validation1 = (len(list(set(listOfLengths))) == 1)
 
     if(validation1):
-        itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.'
+        itemStatus = 'Diagnostic 1: same number of IoVs for all Payloads.<br/>'
         if(validation2):
-            itemStatus+=' Diagnostic 2: same set of IoVs for all Payloads.'
+            itemStatus+='Diagnostic 2: same set of IoVs for all Payloads.<br/>'
     else:
-        itemStatus = format_html('Diagnostic 1: different number of IoVs for some Payloads.')
-            
-    return itemStatus
+        itemStatus = 'Diagnostic 1: different number of IoVs for some Payloads.<br/>'
+
+        
+    the_payloads	= allGtps.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
+    # print('+++', len(the_payloads))
+    selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
+    basf2modules	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name')# .values_list('basf2_module_id', flat=True)
+
+    #print('!!!!', len(basf2modules))
+    #print(basf2modules)
+
+    faultyList = []
+    faultyNames = []
+    
+    for b in basf2modules:
+        payloads4basf = Payload.objects.filter(payload_id__in=the_payloads).filter(basf2_module_id=b.basf2_module_id)
+        gts4basf = allGtps.filter(payload_id__in=payloads4basf).values_list('global_tag_payload_id', flat=True)
+        iovs = PayloadIov.objects.filter(global_tag_payload_id__in=gts4basf)
+        
+        run_starts = []
+        run_ends = []
+        
+        #print('---------------------------------')
+        
+        for i in iovs:
+            # print(i.exp_start, i.exp_end, i.run_start, i.run_end )
+            run_starts.append(i.run_start)
+            run_ends.append(i.run_end)
+
+        #run_starts.sort()
+        #run_ends.sort()
+        #print(b.name,'!', run_starts, run_ends)
+        
+        #print('---------------------------------')
+
+        for runEnd in run_ends:
+            if(runEnd==-1 or runEnd==0): continue
+            if((runEnd+1) in run_starts):
+                pass # print('OK')
+            else:
+                if(b.basf2_module_id in faultyList):
+                    pass
+                else:
+                    faultyList.append(b.basf2_module_id)
+                    faultyNames.append(b.name)
+                    
+    if(len(faultyNames))>0:
+        itemStatus+='<hr/>Potential IoV continuity problem for module(s)<br/>'+'<br/>'.join(faultyNames)
+
+    return format_html(itemStatus)
+
 
 #########################################################    
 def index(request):

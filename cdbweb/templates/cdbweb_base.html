@@ -54,13 +54,18 @@
       </center>
       {% endif %}
       
-      {% if status %}
-      <center>{{ status }}</center>
-      {% endif %}
-      
+    {% if status %}
+    <center>See the bottom of the page for the IoV diagnostics</center>
+    {% endif %}
     <hr/>
 
-  {% block content %}
-  {% endblock %}
+    {% block content %}
+    {% endblock %}
+
+    <hr/>
+    {% if status %}
+    <center>{{ status }}</center>
+    {% endif %}
+      
   </body>
 </html>
