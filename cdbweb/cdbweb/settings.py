@@ -13,8 +13,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import os
 
 # ---
-from local import DBUSER, DBPASS
-
+# Optional
 try:
     from local import SNAPSHOT
 except:
@@ -25,6 +24,13 @@ try:
     from local import STATUS
 except:
     pass
+
+# ---
+# This is mandatory
+try:
+    from local import DBSERVER, DBUSER, DBPASS
+except:
+    STATUS='maintenance'
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -95,16 +101,16 @@ WSGI_APPLICATION = 'cdbweb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'conditions',
-        'USER': DBUSER,
-        'PASSWORD': DBPASS,
-        'HOST': '',
+        'ENGINE':	'django.db.backends.postgresql',
+        'NAME':		'conditions',
+        'USER':		DBUSER,
+        'PASSWORD':	DBPASS,
+        'HOST':		DBSERVER,
         'PORT': '',
     },
     'auth_db': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE':	'django.db.backends.sqlite3',
+        'NAME':		os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
