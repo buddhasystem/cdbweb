@@ -4,11 +4,19 @@ class AuthRouter:
     A router to control all database operations on models in the
     auth application.
     """
+
+    APP_LIST = ('admin',
+                'auth',
+                'contenttypes',
+                'sessions',
+                'messages',
+    )
+    
     def db_for_read(self, model, **hints):
         """
         Attempts to read auth models go to auth_db.
         """
-        if model._meta.app_label in ('auth','admin'):
+        if model._meta.app_label in self.APP_LIST:
             return 'auth_db'
         return None
 
@@ -16,7 +24,7 @@ class AuthRouter:
         """
         Attempts to write auth models go to auth_db.
         """
-        if model._meta.app_label in ('auth','admin'):
+        if model._meta.app_label in self.APP_LIST:
             return 'auth_db'
         return None
 
@@ -24,8 +32,8 @@ class AuthRouter:
         """
         Allow relations if a model in the auth app is involved.
         """
-        if obj1._meta.app_label in ('auth','admin') or \
-           obj2._meta.app_label in ('auth','admin'):
+        if obj1._meta.app_label in self.APP_LIST or \
+           obj2._meta.app_label in self.APP_LIST:
            return True
         return None
 
@@ -34,7 +42,7 @@ class AuthRouter:
         Make sure the auth app only appears in the 'auth_db'
         database.
         """
-        if app_label in ('auth','admin'):
+        if app_label in self.APP_LIST:
             return db == 'auth_db'
         return None
 
