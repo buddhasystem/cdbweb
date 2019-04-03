@@ -115,7 +115,7 @@ DATABASES = {
 }
 
 
-DATABASE_ROUTERS = ['routers.AuthRouter.AuthRouter.AuthRouter','routers.PrimaryRouter.PrimaryRouter.PrimaryRouter',]
+DATABASE_ROUTERS = ['routers.Routers.AuthRouter','routers.Routers.PrimaryRouter',]
 
 
 # DATABASES = {
