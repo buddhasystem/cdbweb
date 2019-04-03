@@ -26,6 +26,10 @@
     
       <center>
 	CDBweb test service running at {{ domain }}
+	{% if dbserver %}
+	, DB server: {{ dbserver }}
+	{% endif %}
+	
 	{% if snapshot %}
 	&nbsp;
 	&nbsp;
@@ -34,7 +38,7 @@
 	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
 	Database shapshot taken on {{ snapshot }}
 	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
-      {% endif %}
+	{% endif %}
 	&nbsp;
 	&nbsp;
 	&nbsp;

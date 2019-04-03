@@ -144,6 +144,7 @@ def index(request):
     except:
         d['what']='Welcome to CDBweb!'
 
+    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
         
     return render(request, template, d)
 
@@ -444,6 +445,7 @@ def data_handler(request, what):
         except:
             pass
         
+        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
         return render(request, template, d)
 
     ##########################################################################
@@ -485,6 +487,7 @@ def data_handler(request, what):
         banner	= 'No '+what+' database entries were found using your selection criteria'
         template= 'cdbweb_general_table_empty.html'
         d = dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
+        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
         return render(request, template, d)
 
     # AUTO-CREATE APPROPRIATE TABLE
@@ -514,6 +517,7 @@ def data_handler(request, what):
     # *******> TEMPLATE <*******
     template = 'cdbweb_general_table.html'
 
+    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
     return render(request, template, d)
 
 
@@ -612,6 +616,7 @@ def gtcompare(request):
 
             d['gtTable'] = gtTable
             
+            if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
             return render(request, template, d)
         else:
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
@@ -666,6 +671,8 @@ def gtcompare(request):
             d['snapshot']=settings.SNAPSHOT
         except:
             pass
+        
+        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
         return render(request, template, d)
     #---
        
@@ -712,6 +719,7 @@ def gtcompare(request):
     except:
         pass
     
+    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
     return render(request, template, d)
 
 
