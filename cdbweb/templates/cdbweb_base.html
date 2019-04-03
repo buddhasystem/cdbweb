@@ -24,28 +24,25 @@
     <!-- can reduce the size here, disabled for beta so people can see the snapshot better -->
     <!-- div style="font-size:50%"; -->
     
-      <center>
+    <center>
 	CDBweb test service running at {{ domain }}
 	{% if dbserver %}
 	, DB server: {{ dbserver }}
 	{% endif %}
-	
-	{% if snapshot %}
-	&nbsp;
-	&nbsp;
-	&nbsp;
-	&nbsp;
+    </center>
+    
+    {% if snapshot %}
+    <center>
 	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
 	Database shapshot taken on {{ snapshot }}
 	<img src="static/images/warning-icon-md.png" alt="Smiley face" height="20" width="20">
-	{% endif %}
-	&nbsp;
-	&nbsp;
-	&nbsp;
-	&nbsp;
-	<em>Questions? Write to</em>
-	<a href="mailto:potekhin@bnl.gov?Subject=CDBweb%20question" target="_top"><em>potekhin@bnl.gov</em></a>
-      </center>
+    </center>
+    {% endif %}
+    <center>
+      <em>Questions? Write to</em>
+      <a href="mailto:potekhin@bnl.gov?Subject=CDBweb%20question" target="_top"><em>potekhin@bnl.gov</em></a>
+    </center>
+    
       <!-- /div -->
       <hr/>
       {% include "linkbar.html" %}
