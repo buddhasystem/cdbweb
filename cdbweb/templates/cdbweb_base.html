@@ -25,10 +25,8 @@
     <!-- div style="font-size:50%"; -->
     
     <center>
-	CDBweb test service running at {{ domain }}
-	{% if dbserver %}
-	, DB server: {{ dbserver }}
-	{% endif %}
+	CDBweb service running at {{ domain }}
+	{% if dbserver %}, DB server: {{ dbserver }}{% endif %}
     </center>
     
     {% if snapshot %}
