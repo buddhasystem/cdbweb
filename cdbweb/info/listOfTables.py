@@ -1,9 +1,9 @@
 listOfTables = [ # this is for the navigation bar
-    'Basf2Module',
     'GlobalTag',
     'GlobalTagPayload',
     'Payload',
     'PayloadIov',
+    'Basf2Module',
 ]
 
 listOfLinks = [ # this includes "hidden" links accessible on the page

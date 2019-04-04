@@ -15,7 +15,7 @@ from .models		import *
 from .cdbwebTables	import *
 
 
-from utils.selectorUtils import dropDownGeneric, oneFieldGeneric
+from utils.selectorUtils import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector
 
 
 #########################################################    
@@ -197,6 +197,7 @@ def data_handler(request, what):
     gttype	= rg.get('gttype','All')
     basf2	= rg.get('basf2','')
     modifiedby	= rg.get('modifiedby','')
+    validate	= rg.get('validate','0')
 
     ##################################################################
     ####################      POST      ##############################
@@ -251,6 +252,11 @@ def data_handler(request, what):
         modifiedBySelector	= oneFieldGeneric(request.POST, label="Modified by", field="modifiedby", init=modifiedby)
         if modifiedBySelector.is_valid(): modifiedby=modifiedBySelector.getval("modifiedby")
         if(modifiedby!=''): q+= 'modifiedby='+modifiedby+'&'
+
+
+        validateSelector = boolSelector(request.POST, label='Run Validation?', what='validate', init=(validate=='1'))
+        if validateSelector.is_valid():
+            q+='validate='+validateSelector.getval()+'&'
         
         # --- entries per page
         perPageSelector	= dropDownGeneric(request.POST,
@@ -332,6 +338,11 @@ def data_handler(request, what):
                                       choices	= PAGECHOICES,
                                       tag	= 'perpage')
     selectors.append(perPageSelector)
+
+    if(what=='GlobalTag' and pk!=''):
+        validateSelector = boolSelector(label='Run Validation?', what='validate', init=(validate=='1'))
+        selectors.append(validateSelector)
+
     
     selwidth=15*(len(selectors)+1)
     if(selwidth>100):
@@ -379,7 +390,7 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            itemStatus = gtValidation(objects) # global tag payloads
+            if(validate=='1'): itemStatus = gtValidation(objects) # global tag payloads
             
             comment = ''
             if(basf2!=''): # selection for auxiliary tables

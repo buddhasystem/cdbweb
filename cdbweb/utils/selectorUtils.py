@@ -3,14 +3,30 @@ from django import forms
 widgetSizes = {'run':'8', 'subrun':'4', 'dl':'3'}
 
 #########################################################    
-class boxSelector(forms.Form):
-
+class boolSelector(forms.Form):
     def __init__(self, *args, **kwargs):
-       self.what = kwargs.pop('what')
-       self.states = kwargs.pop('states')
-       self.label = kwargs.pop('label')
+       self.what	= kwargs.pop('what')
+       self.label	= kwargs.pop('label')
+       self.init	= kwargs.pop('init')
+       
+       super(boolSelector, self).__init__(*args, **kwargs)
+       # print(self.init)
+       self.fields['check'] = forms.BooleanField(required=False, initial=self.init, label=self.label)
+
+    def getval(self):
+        check = self.cleaned_data['check']
+        # print(check)
+        return ('0','1')[check]
+        
+#########################################################    
+class boxSelector(forms.Form):
+    def __init__(self, *args, **kwargs):
+       self.what	= kwargs.pop('what')
+       self.states	= kwargs.pop('states')
+       self.label	= kwargs.pop('label')
 
        super(boxSelector, self).__init__(*args, **kwargs)
+       
        self.fields['stateChoice'].choices	= self.states # SELECTORS[self.what]['states']
        self.fields['stateChoice'].label		= self.label  # SELECTORS[self.what]['stateLabel']
 
