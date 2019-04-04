@@ -254,7 +254,7 @@ def data_handler(request, what):
         if(modifiedby!=''): q+= 'modifiedby='+modifiedby+'&'
 
 
-        validateSelector = boolSelector(request.POST, label='Run Validation?', what='validate', init=(validate=='1'))
+        validateSelector = boolSelector(request.POST, label='Run IoV diagnostics', what='validate', init=(validate=='1'))
         if validateSelector.is_valid():
             q+='validate='+validateSelector.getval()+'&'
         
@@ -340,7 +340,7 @@ def data_handler(request, what):
     selectors.append(perPageSelector)
 
     if(what=='GlobalTag' and pk!=''):
-        validateSelector = boolSelector(label='Run Validation?', what='validate', init=(validate=='1'))
+        validateSelector = boolSelector(label='Run IoV diagnostics', what='validate', init=(validate=='1'))
         selectors.append(validateSelector)
 
     
@@ -390,7 +390,7 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
-            if(validate=='1'): itemStatus = gtValidation(objects) # global tag payloads
+            if(validate=='1'): itemStatus = gtValidation(objects)
             
             comment = ''
             if(basf2!=''): # selection for auxiliary tables
