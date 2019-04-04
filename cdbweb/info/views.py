@@ -88,20 +88,36 @@ def gtValidation(allGtps):
         run_starts = []
         run_ends = []
         
+        # if(len(iovs)==1 and iovs[0].run_start==iovs[0].run_end): continue
+
         #print('---------------------------------')
+
+        trivial = True
         
         for i in iovs:
             # print(i.exp_start, i.exp_end, i.run_start, i.run_end )
+            
             run_starts.append(i.run_start)
             run_ends.append(i.run_end)
 
+            if(i.run_start!=0 or i.run_end!=-1): trivial=False
+            #if(i.run_end==-1):
+            #    print('!', b.name,'!', i.run_start, i.run_end)
+
+        #print(b.name,'trivial:', trivial)
+        if(trivial): continue
+        
         #run_starts.sort()
         #run_ends.sort()
-        #print(b.name,'!', run_starts, run_ends)
+        #print(b.name,'!', run_ends)
         
         #print('---------------------------------')
 
+        mxRun = max(run_ends)
         for runEnd in run_ends:
+            if(len(run_starts)==1 and len(run_ends)==1):
+                if(run_starts[0]==run_ends[0]): continue
+                
             if(runEnd==-1 or runEnd==0): continue
             if((runEnd+1) in run_starts):
                 pass # print('OK')
@@ -109,8 +125,12 @@ def gtValidation(allGtps):
                 if(b.basf2_module_id in faultyList):
                     pass
                 else:
-                    faultyList.append(b.basf2_module_id)
-                    faultyNames.append(b.name)
+                    # print('!', b.name, runEnd,mxRun)
+                    if(runEnd==mxRun): # or ((-1) in run_ends)):
+                        pass
+                    else:
+                        faultyList.append(b.basf2_module_id)
+                        faultyNames.append(b.name)
                     
     if(len(faultyNames))>0:
         itemStatus+='<hr/>Potential IoV continuity problem for module(s)<br/>'+'<br/>'.join(faultyNames)
