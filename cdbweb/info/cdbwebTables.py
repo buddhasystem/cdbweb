@@ -177,6 +177,18 @@ class GlobalTagPayloadTable(CdbWebTable):
         
         return makeIDlink('Basf2Module', p.basf2_module_id, m.name)
 
+    def order_basf2module(self, QuerySet, is_descending):
+        #ordered = sorted(QuerySet, key=basf2module)
+        # for x in ordered:
+        #    print(x, x.global_tag_id, numberOfModules(x))
+        return (QuerySet, True)
+    
+    def order_nIoVs(self, QuerySet, is_descending):
+        #ordered = sorted(QuerySet, key=basf2module)
+        # for x in ordered:
+        #    print(x, x.global_tag_id, numberOfModules(x))
+        return (QuerySet, True)
+    
     class Meta(CdbWebTable.Meta):
         exclude = ('global_tag_id', )
         sequence = ('global_tag_payload_id', 'gtName', 'payload_id', 'basf2module', '...')
