@@ -64,6 +64,15 @@ class GlobalTagPayload(models.Model):
     dtm_ins = models.DateTimeField(verbose_name='Inserted')
     dtm_mod = models.DateTimeField(blank=True, null=True, verbose_name='Modified')
 
+    def basf2module(self):
+        the_payloads	= Payload.objects.filter(payload_id=self.payload_id)
+        if(len(the_payloads)==0): return ''
+
+        p = the_payloads[0]
+        the_modules	= Basf2Module.objects.filter(basf2_module_id=p.basf2_module_id)
+        m = the_modules[0]
+        return m.name
+
     class Meta:
         managed = False
         db_table = 'global_tag_payload'

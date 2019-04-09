@@ -1,8 +1,9 @@
 import	django_tables2	as tables
 
-from django.urls	import reverse
 from django.utils.safestring		import mark_safe
+from django.urls	import reverse
 from django.conf	import settings
+from django.db.models	import Case, When
 
 from .models		import *
 
@@ -177,11 +178,28 @@ class GlobalTagPayloadTable(CdbWebTable):
         
         return makeIDlink('Basf2Module', p.basf2_module_id, m.name)
 
+    def value_basf2module(self, record):
+        
+        the_payloads	= Payload.objects.filter(payload_id=record.payload_id)
+        if(len(the_payloads)==0):
+           return 'Not Found'
+
+        p = the_payloads[0]
+        the_modules	= Basf2Module.objects.filter(basf2_module_id=p.basf2_module_id)
+        m = the_modules[0]
+        
+        return m.name
+
     def order_basf2module(self, QuerySet, is_descending):
-        #ordered = sorted(QuerySet, key=basf2module)
-        # for x in ordered:
-        #    print(x, x.global_tag_id, numberOfModules(x))
-        return (QuerySet, True)
+ 
+        ordered = sorted(QuerySet, key=lambda x: (x.basf2module()), reverse=is_descending)
+        pk_list = []
+        for o in ordered: pk_list.append(o.global_tag_payload_id)
+        
+        preserved	= Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+        ordered_qs	= GlobalTagPayload.objects.filter(pk__in=pk_list).order_by(preserved)
+
+        return (ordered_qs, True)
     
     def order_nIoVs(self, QuerySet, is_descending):
         #ordered = sorted(QuerySet, key=basf2module)
