@@ -25,7 +25,7 @@
     <!-- div style="font-size:50%"; -->
     
     <center>
-	CDBweb service running at {{ domain }}{% if dbserver %}, DB server: {{ dbserver }}{% endif %}. Time zone: UTC.
+	CDBweb service running at {{ domain }}{% if dbserver %}, streaming replica DB server{% endif %}. Time zone: UTC.
     </center>
     
     {% if snapshot %}
