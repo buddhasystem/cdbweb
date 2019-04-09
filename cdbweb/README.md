@@ -1,7 +1,8 @@
 # The web project folder
 
-## Caveat
-Some of the SQL here is kept for reference purposes to facilitate development, it's not used directly.
+## Caveats
+* Some of the SQL here is kept for reference purposes to facilitate development, it's not used directly.
+* the "static" directory is a replica of what needs to be under /var/www or a similar location
 
 ## Restoring the DB content from a snapshot (dump)
 pg_restore -d myDB -U user DUMP_FILE_NAME
