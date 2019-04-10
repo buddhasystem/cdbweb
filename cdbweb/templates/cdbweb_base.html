@@ -25,7 +25,11 @@
     <!-- div style="font-size:50%"; -->
     
     <center>
-	CDBweb service running at {{ domain }}{% if dbserver %}, streaming replica DB server{% endif %}. Time zone: UTC.
+      <table width="100%">
+	<tr>
+	  <td align="center"><img src="static/images/belle2-logo.png" alt="Smiley face" height="52" width="64"></td>
+	  <td align="center">CDBweb service running at {{ domain }}{% if dbserver %}, streaming replica DB server{% endif %}. Time zone: UTC.</td>
+	  <td align="center"><img src="static/images/belle2-logo.png" alt="Smiley face" height="52" width="64"></td>
     </center>
     
     {% if snapshot %}
