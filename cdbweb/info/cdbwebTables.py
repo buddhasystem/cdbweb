@@ -222,9 +222,9 @@ class GlobalTagTypeTable(CdbWebTable):
 #########################################################
 class PayloadTable(CdbWebTable):
     def render_basf2_module_id(self, value):
-        basf2link = makelink('Basf2Module', 'id', value)
+        # can add this to the string if needed: basf2link = makelink('Basf2Module', 'id', value)
         basf2name = Basf2Module.objects.get(pk=value).name
-        return mark_safe(basf2link+': '+makeIDlink('Basf2Module', value, basf2name))
+        return mark_safe(makeIDlink('Basf2Module', value, basf2name)) # basf2link used to prepend
 
     def render_payload_status_id(self, value):
         return PayloadStatus.objects.get(pk=value).name

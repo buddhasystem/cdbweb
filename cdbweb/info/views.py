@@ -29,7 +29,11 @@ PAGECHOICES	= [('25','25'),('50','50'),('100','100'),('200','200'),('400','400')
 GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVALID','Invalid'),]
 GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 
-EXCLUDE_ID = {'GlobalTagPayload':('global_tag_payload_id',)}
+EXCLUDE_ID = {
+    'GlobalTagPayload':	{'pk':('global_tag_payload_id',)},
+    'GlobalTag':	{'all':('global_tag_id',)},
+    'Payload':		{'all':('payload_id',)},
+}
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
 
@@ -346,7 +350,7 @@ def data_handler(request, what):
         nameSelector	= oneFieldGeneric(label="GT Name (Can be partial)", field="name", init=name)
         selectors.append(nameSelector)
 
-        basf2Selector = oneFieldGeneric(label="Basf2Module name (can be partial)", field="basf2", init=basf2)
+        basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
         
@@ -356,7 +360,7 @@ def data_handler(request, what):
     #     selectors.append(gtpidSelector)
 
     if(what=='Payload' and pk==''):
-        basf2Selector = oneFieldGeneric(label="Basf2Module name (can be partial)", field="basf2", init=basf2)
+        basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
     perPageSelector = dropDownGeneric(initial	= {'perpage':perpage},
@@ -402,7 +406,7 @@ def data_handler(request, what):
         RequestConfig(request).configure(table)
 
         try:
-            table.exclude = EXCLUDE_ID[what]
+            table.exclude = EXCLUDE_ID[what]['pk']
         except:
             pass
         
@@ -531,8 +535,14 @@ def data_handler(request, what):
 
     # AUTO-CREATE APPROPRIATE TABLE
     table = eval(what+'Table')(objects)
-    
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
+    
+    try:
+        table.exclude = EXCLUDE_ID[what]['all']
+    except:
+        pass
+    
+
 
 
     # We reserve space on top of the table for the selectors + the submit
