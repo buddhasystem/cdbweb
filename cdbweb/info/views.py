@@ -4,6 +4,11 @@ from django.http	import HttpResponse, HttpResponseRedirect
 from django.conf	import settings
 from django.utils.html	import format_html
 
+# time
+from django.utils			import timezone
+from django.utils.timezone		import utc
+from django.utils.timezone		import activate
+
 # tables
 from	django_tables2	import RequestConfig
 
@@ -149,7 +154,8 @@ def index(request):
     navtable	= TopTable(domain, 'Home')
     banner	= "Welcome to CDBweb! Please make your selection above..."
 
-    d = dict(domain=domain, host=host, what=banner, navtable=navtable)
+    now = timezone.now()
+    d = dict(domain=domain, host=host, what=banner, navtable=navtable, now=now)
 
     try:
         if(settings.STATUS=='maintenance'):
@@ -460,6 +466,7 @@ def data_handler(request, what):
             aux_tables.append(tableDict)
             
            
+        now = timezone.now()
         d = dict(domain		=	domain,
                  host		=	host,
                  what		=	banner,
@@ -469,6 +476,7 @@ def data_handler(request, what):
                  aux_tables	=	aux_tables,
                  selectors	=	selectors,
                  selwidth	=	selwidth,
+                 now		=	now,
         )
         
         try:
@@ -532,6 +540,7 @@ def data_handler(request, what):
     
     banner = what+': '+str(Nfound)+' items found'
     
+    now = timezone.now()
     d = dict(domain=	domain,
              host=	host,
              what=	banner,
@@ -539,6 +548,7 @@ def data_handler(request, what):
              table=	table,
              selectors=	selectors,
              selwidth=	selwidth,
+             now=	now,
     )
 
     try:
@@ -613,6 +623,7 @@ def gtcompare(request):
     selectors	= []
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
 
+    now = timezone.now()
     
     if(gtid1=='' or gtid2==''): # some IDs missing, try names
         
@@ -632,7 +643,7 @@ def gtcompare(request):
             selwidth=100
             
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
-	             selectors=selectors,		selwidth=selwidth
+	             selectors=selectors,		selwidth=selwidth, now=now,
             )
             
             try:
@@ -695,7 +706,7 @@ def gtcompare(request):
     if(gt1 is None or gt2 is None):
         error='Check values: last query did not produce valid results.'
         d = dict(domain=domain,	host=host, what=what, error=error, navtable=navtable,
-	         selectors=selectors,	selwidth=selwidth
+	         selectors=selectors,	selwidth=selwidth, now=now,
         )
 
         try:
@@ -737,7 +748,9 @@ def gtcompare(request):
     aux_table2.exclude = gtp_exclude
     RequestConfig(request).configure(aux_table2)
 
+    now = timezone.now()
     d = dict(domain=domain, host=host, what=what, navtable=navtable,
+             now=now,
 	     selectors	= selectors,	selwidth=selwidth,
              th1	= th1,		th2	= th2,
              desc1	= desc1,	desc2	= desc2,
