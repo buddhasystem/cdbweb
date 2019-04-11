@@ -221,10 +221,14 @@ class GlobalTagTypeTable(CdbWebTable):
         model = GlobalTagType
 #########################################################
 class PayloadTable(CdbWebTable):
-    def render_basf2_module_id(self, value):
-        # can add this to the string if needed: basf2link = makelink('Basf2Module', 'id', value)
-        basf2name = Basf2Module.objects.get(pk=value).name
-        return mark_safe(makeIDlink('Basf2Module', value, basf2name)) # basf2link used to prepend
+    def render_basf2_module_id(self, record):
+        basf2name = Basf2Module.objects.get(pk=record.basf2_module_id).name
+        
+        return  mark_safe(makeIDlink('Payload', record.payload_id, basf2name+':'+str(record.revision)))
+    
+        ## can add this to the string if needed: basf2link = makelink('Basf2Module', 'id', value)
+        #basf2name = Basf2Module.objects.get(pk=value).name
+        #return mark_safe(makeIDlink('Basf2Module', value, basf2name)) # basf2link used to prepend
 
     def render_payload_status_id(self, value):
         return PayloadStatus.objects.get(pk=value).name
@@ -234,14 +238,16 @@ class PayloadTable(CdbWebTable):
         sequence = (
             'payload_id',
             'basf2_module_id',
-            'revision', 'is_default',
-            'deleted', 'payload_url',
+            'checksum',
+            'is_default',
+            'deleted',
+            'payload_url',
             'payload_status_id',
             'dtm_ins',
             'dtm_mod',
             '...')
         
-        exclude = ('modified_by', 'description', 'base_url', )
+        exclude = ('modified_by', 'description', 'base_url', 'revision',)
 #########################################################
 class PayloadStatusTable(CdbWebTable):
     class Meta(CdbWebTable.Meta):
