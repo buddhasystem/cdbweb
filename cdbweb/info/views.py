@@ -32,7 +32,7 @@ GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 EXCLUDE_ID = {
     'GlobalTagPayload':	{'pk':('global_tag_payload_id',)},
     'GlobalTag':	{'all':('global_tag_id',)},
-    'Payload':		{'all':('payload_id',)},
+    'Payload':		{'all':('payload_id', 'payload_url',)},
 }
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')

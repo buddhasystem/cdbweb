@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.safestring		import mark_safe
 from django.utils.html			import format_html
 
+basf2cache = {}
+
 # ---
 class AppMessage(models.Model):
     app_message_id	= models.AutoField(primary_key=True, verbose_name="ID")
@@ -103,7 +105,7 @@ class GlobalTagType(models.Model):
         managed		= False
         db_table	= 'global_tag_type'
 
-# ---        
+# ---
 class Payload(models.Model):
     payload_id		= models.AutoField(primary_key=True,  verbose_name="ID")
     
@@ -125,12 +127,23 @@ class Payload(models.Model):
     dtm_mod		= models.DateTimeField(blank=True, null=True, verbose_name='Modified')
     modified_by		= models.TextField(verbose_name='Modified by')
 
+    def basf2moduleRev(self):
+        name = None
+        try:
+            name    = basf2cache[self.basf2_module_id]
+            return name+('%08d' % self.revision)
+        except:
+            m = Basf2Module.objects.get(basf2_module_id=self.basf2_module_id)
+            name = m.name
+            basf2cache[self.basf2_module_id]=name
+            return name+('%08d' % self.revision)
+
     class Meta:
         managed		= False
         db_table	= 'payload'
         unique_together = (('payload_id', 'revision'), ('basf2_module_id', 'revision'),)
 
-
+# ---        
 class PayloadIov(models.Model):
     payload_iov_id	= models.AutoField(primary_key=True, verbose_name="ID")
     
@@ -150,7 +163,7 @@ class PayloadIov(models.Model):
         db_table	= 'payload_iov'
         unique_together = (('global_tag_payload_id', 'exp_start', 'run_start', 'exp_end', 'run_end'),)
 
-
+# ---
 class PayloadIovRpt(models.Model):
     payload_iov_rpt_id	= models.AutoField(primary_key=True)
     global_tag_payload_id = models.IntegerField(blank=True, null=True)
@@ -170,6 +183,7 @@ class PayloadIovRpt(models.Model):
         managed		= False
         db_table	= 'payload_iov_rpt'
 
+# ---        
 class PayloadStatus(models.Model):
     payload_status_id	= models.AutoField(primary_key=True, verbose_name="ID")
     name		= models.TextField(unique=True)

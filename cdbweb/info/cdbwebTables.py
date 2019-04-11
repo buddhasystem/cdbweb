@@ -230,6 +230,22 @@ class PayloadTable(CdbWebTable):
         #basf2name = Basf2Module.objects.get(pk=value).name
         #return mark_safe(makeIDlink('Basf2Module', value, basf2name)) # basf2link used to prepend
 
+
+
+    def order_basf2_module_id(self, QuerySet, is_descending):
+
+        # print(QuerySet.count())
+ 
+        ordered = sorted(QuerySet, key=lambda x: (x.basf2moduleRev()), reverse=is_descending)
+        pk_list = []
+        for o in ordered: pk_list.append(o.payload_id)
+        
+        preserved	= Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+        ordered_qs	= Payload.objects.filter(pk__in=pk_list).order_by(preserved)
+
+        return (ordered_qs, True)
+    
+        
     def render_payload_status_id(self, value):
         return PayloadStatus.objects.get(pk=value).name
         
