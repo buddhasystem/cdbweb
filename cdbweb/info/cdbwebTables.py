@@ -39,26 +39,26 @@ def numberOfModules(gt):
 class CdbWebTable(tables.Table):
     def render_id(self, value):
         thisItemName = self.Meta.model.__name__
-        return makelink(thisItemName,	'id',	value)
+        return makelink(thisItemName,	'id',		value)
     
     def render_as_id(self, id_value, value):
         thisItemName = self.Meta.model.__name__
-        return makeIDlink(thisItemName, id_value,value)
+        return makeIDlink(thisItemName, id_value,	value)
     
     def render_global_tag_id(self, value):
-        return makelink('GlobalTag', 'gtid',	value)
+        return makelink('GlobalTag', 'gtid',		value)
     
     def render_global_tag_payload_id(self, value):
         return makelink('GlobalTagPayload', 'id',	value)
     
     def render_payload_id(self, value):
-        return makelink('Payload', 'id',	value)
+        return makelink('Payload', 'id',		value)
     
     def render_payload_iov_id(self, value):
-        return makelink('PayloadIov', 'id',	value)
+        return makelink('PayloadIov', 'id',		value)
     
     def render_basf2_module_id(self, value):
-        return makelink('Basf2Module', 'id',	value)
+        return makelink('Basf2Module', 'id',		value)
 
     def render_modified_by(self, value):
         thisItemName = self.Meta.model.__name__
@@ -87,7 +87,7 @@ class Basf2ModuleTable(CdbWebTable):
 #########################################################
 class GlobalTagTable(CdbWebTable):
     numberOfGlobalTagPayloads	= tables.Column(verbose_name='# GT Payloads', empty_values=())
-    basf2modules		= tables.Column(verbose_name='# Modules',
+    basf2modules		= tables.Column(verbose_name='Distinct Payloads Names',
                                                 empty_values=(),
                                                 attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
     )
@@ -224,7 +224,7 @@ class PayloadTable(CdbWebTable):
     def render_basf2_module_id(self, record):
         basf2name = Basf2Module.objects.get(pk=record.basf2_module_id).name
         
-        return  mark_safe(makeIDlink('Payload', record.payload_id, basf2name+':'+str(record.revision)))
+        return  mark_safe(makeIDlink('Payload', record.payload_id, basf2name)) # +':'+str(record.revision)
     
         ## can add this to the string if needed: basf2link = makelink('Basf2Module', 'id', value)
         #basf2name = Basf2Module.objects.get(pk=value).name
@@ -232,18 +232,18 @@ class PayloadTable(CdbWebTable):
 
 
 
-    def order_basf2_module_id(self, QuerySet, is_descending):
+    # Retire this after initial experimentation as for large sets this is not performant
+    # Effectively revert to separate sort on basf2 (payload name) and its revision
+    # def order_basf2_module_id(self, QuerySet, is_descending):
 
-        # print(QuerySet.count())
- 
-        ordered = sorted(QuerySet, key=lambda x: (x.basf2moduleRev()), reverse=is_descending)
-        pk_list = []
-        for o in ordered: pk_list.append(o.payload_id)
+    #     ordered = sorted(QuerySet, key=lambda x: (x.basf2moduleRev()), reverse=is_descending)
+    #     pk_list = []
+    #     for o in ordered: pk_list.append(o.payload_id)
         
-        preserved	= Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
-        ordered_qs	= Payload.objects.filter(pk__in=pk_list).order_by(preserved)
+    #     preserved	= Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(pk_list)])
+    #     ordered_qs	= Payload.objects.filter(pk__in=pk_list).order_by(preserved)
 
-        return (ordered_qs, True)
+    #     return (ordered_qs, True)
     
         
     def render_payload_status_id(self, value):
@@ -254,6 +254,7 @@ class PayloadTable(CdbWebTable):
         sequence = (
             'payload_id',
             'basf2_module_id',
+            'revision',
             'checksum',
             'is_default',
             'deleted',
@@ -263,7 +264,7 @@ class PayloadTable(CdbWebTable):
             'dtm_mod',
             '...')
         
-        exclude = ('modified_by', 'description', 'base_url', 'revision',)
+        exclude = ('modified_by', 'description', 'base_url', )
 #########################################################
 class PayloadStatusTable(CdbWebTable):
     class Meta(CdbWebTable.Meta):

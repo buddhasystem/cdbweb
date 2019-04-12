@@ -29,10 +29,16 @@ PAGECHOICES	= [('25','25'),('50','50'),('100','100'),('200','200'),('400','400')
 GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVALID','Invalid'),]
 GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 
-EXCLUDE_ID = {
+EXCLUDE_SELECTORS = {
+    'GlobalTag':('ID',),
+    'Payload':('ID',),
+    }
+
+
+EXCLUDE_COLUMNS = {
     'GlobalTagPayload':	{'pk':('global_tag_payload_id',)},
-    'GlobalTag':	{'all':('global_tag_id',)},
-    'Payload':		{'all':('payload_id', 'payload_url',)},
+    'GlobalTag':	{'all':('global_tag_id', 'dtm_ins',)},
+    'Payload':		{'all':('payload_id', 'payload_url', 'dtm_ins',)},
 }
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
@@ -229,6 +235,13 @@ def data_handler(request, what):
     modifiedby	= rg.get('modifiedby','')
     validate	= rg.get('validate','0')
 
+    excluded_selectors = []
+    try:
+        excluded_selectors = EXCLUDE_SELECTORS[what]
+    except:
+        pass
+
+    print('!!!',excluded_selectors)
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
@@ -236,9 +249,10 @@ def data_handler(request, what):
         q = ''
 
         # General ID selector
-        idSelector	= oneFieldGeneric(request.POST, label="ID", field="id", init=pk)
-        if idSelector.is_valid(): pk=idSelector.getval("id")
-        if(pk!=''): q+= 'id='+pk+'&'
+        if('ID' not in excluded_selectors):
+            idSelector	= oneFieldGeneric(request.POST, label="ID", field="id", init=pk)
+            if idSelector.is_valid(): pk=idSelector.getval("id")
+            if(pk!=''): q+= 'id='+pk+'&'
 
         # Global Tag ID
         gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid)
@@ -311,8 +325,9 @@ def data_handler(request, what):
 
     selectors = [] # The request was GET - populate the selectors
 
-    idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
-    selectors.append(idSelector)
+    if('ID' not in excluded_selectors):
+        idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
+        selectors.append(idSelector)
         
     if(what=='Basf2Module'):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
@@ -406,7 +421,7 @@ def data_handler(request, what):
         RequestConfig(request).configure(table)
 
         try:
-            table.exclude = EXCLUDE_ID[what]['pk']
+            table.exclude = EXCLUDE_COLUMNS[what]['pk']
         except:
             pass
         
@@ -538,7 +553,7 @@ def data_handler(request, what):
     RequestConfig(request, paginate={'per_page': int(perpage)}).configure(table)
     
     try:
-        table.exclude = EXCLUDE_ID[what]['all']
+        table.exclude = EXCLUDE_COLUMNS[what]['all']
     except:
         pass
     
@@ -549,6 +564,7 @@ def data_handler(request, what):
     # button, estimate how much is needed here (in percent of the page width)
     
     banner = what+': '+str(Nfound)+' items found'
+    note = 'Click on items for more details'
     
     now = timezone.now()
     d = dict(domain=	domain,
@@ -559,6 +575,7 @@ def data_handler(request, what):
              selectors=	selectors,
              selwidth=	selwidth,
              now=	now,
+             note=	note,
     )
 
     try:

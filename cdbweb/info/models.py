@@ -109,7 +109,7 @@ class GlobalTagType(models.Model):
 class Payload(models.Model):
     payload_id		= models.AutoField(primary_key=True,  verbose_name="ID")
     
-    basf2_module_id	= models.IntegerField(verbose_name='Name:Revision')
+    basf2_module_id	= models.IntegerField(verbose_name='Name')
     # WAS auto-generated as: basf2_module = models.ForeignKey(Basf2Module, models.DO_NOTHING)
     
     revision		= models.IntegerField(verbose_name="Rev.")
