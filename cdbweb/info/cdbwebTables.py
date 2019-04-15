@@ -146,6 +146,9 @@ class GlobalTagTable(CdbWebTable):
     
     class Meta(CdbWebTable.Meta):
         model = GlobalTag
+        sequence = (
+            'name',
+            '...')
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
     gtName	= tables.Column(verbose_name='Global Tag ID and Name', empty_values=())

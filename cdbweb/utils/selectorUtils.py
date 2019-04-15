@@ -58,7 +58,7 @@ class dropDownGeneric(forms.Form):
 
     def handleDropSelector(self):
         selection = self.cleaned_data[self.fieldname]
-        if(selection=='All'):
+        if(selection=='All' or selection==''):
             return ''
         else:
             return self.tag+'='+selection+'&'

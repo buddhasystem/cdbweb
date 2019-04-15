@@ -30,14 +30,14 @@ GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVAL
 GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 
 EXCLUDE_SELECTORS = {
-    'GlobalTag':('ID',),
+#    'GlobalTag':('ID',),
     'Payload':('ID',),
     }
 
 
 EXCLUDE_COLUMNS = {
     'GlobalTagPayload':	{'pk':('global_tag_payload_id',)},
-    'GlobalTag':	{'all':('global_tag_id', 'dtm_ins',)},
+    'GlobalTag':	{'all':('dtm_ins', 'dtm_mod',)},
     'Payload':		{'all':('payload_id', 'payload_url', 'dtm_ins',)},
 }
 
@@ -241,7 +241,7 @@ def data_handler(request, what):
     except:
         pass
 
-    print('!!!',excluded_selectors)
+    # print('!!!',excluded_selectors)
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
@@ -283,7 +283,9 @@ def data_handler(request, what):
                                        label	= 'Type',
                                        choices	= GTTYPECHOICES,
                                        tag	= 'gttype')
-        if typeSelector.is_valid(): q+=typeSelector.handleDropSelector()
+        if typeSelector.is_valid():
+            gtValue = typeSelector.handleDropSelector()
+            if(gtValue!=''): q+=gtValue
         
         # Basf2Module selector
         basf2Selector	= oneFieldGeneric(request.POST, label='Basf2Module ("Global Tag Payload filter", can be partial)',
@@ -325,10 +327,6 @@ def data_handler(request, what):
 
     selectors = [] # The request was GET - populate the selectors
 
-    if('ID' not in excluded_selectors):
-        idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
-        selectors.append(idSelector)
-        
     if(what=='Basf2Module'):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
@@ -336,6 +334,10 @@ def data_handler(request, what):
     if(what=='GlobalTag' and pk==''):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
+        
+        if('ID' not in excluded_selectors):
+            idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
+            selectors.append(idSelector)
         
         statusSelector = dropDownGeneric(initial= {'status':status},
                                          label	= 'Status',
@@ -358,6 +360,10 @@ def data_handler(request, what):
                                             field="basf2", init=basf2)
             selectors.append(basf2Selector)
 
+            if('ID' not in excluded_selectors):
+                idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
+                selectors.append(idSelector)
+            
     if(what=='GlobalTagPayload') and pk=='':
         gtidSelector	= oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
