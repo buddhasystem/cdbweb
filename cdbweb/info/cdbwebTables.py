@@ -152,7 +152,7 @@ class GlobalTagTable(CdbWebTable):
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
     gtName	= tables.Column(verbose_name='Global Tag ID and Name', empty_values=())
-    basf2module	= tables.Column(verbose_name='Basf2Module', empty_values=())
+    basf2module	= tables.Column(verbose_name='Payload Name', empty_values=())
     nIoVs	= tables.Column(verbose_name='# of IoVs', empty_values=())
     
     def render_global_tag_payload_id(self, value):

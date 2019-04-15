@@ -36,9 +36,14 @@ EXCLUDE_SELECTORS = {
 
 
 EXCLUDE_COLUMNS = {
-    'GlobalTagPayload':	{'pk':('global_tag_payload_id',)},
-    'GlobalTag':	{'all':('dtm_ins', 'dtm_mod',)},
-    'Payload':		{'all':('payload_id', 'payload_url', 'dtm_ins',)},
+    'GlobalTagPayload':	{
+        'pk':	('global_tag_payload_id',),
+    },
+    'GlobalTag':	{
+        'all':	('dtm_ins', 'dtm_mod', 'numberOfGlobalTagPayloads', 'basf2modules')
+    },
+    'Payload':		{
+        'all':	('payload_id', 'payload_url', 'dtm_ins',)},
 }
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
@@ -288,7 +293,7 @@ def data_handler(request, what):
             if(gtValue!=''): q+=gtValue
         
         # Basf2Module selector
-        basf2Selector	= oneFieldGeneric(request.POST, label='Basf2Module ("Global Tag Payload filter", can be partial)',
+        basf2Selector	= oneFieldGeneric(request.POST, label='Payload Name ("Global Tag Payload filter", can be partial)',
                                           field="basf2", init=basf2)
         
         if basf2Selector.is_valid(): basf2=basf2Selector.getval("basf2")
@@ -356,7 +361,7 @@ def data_handler(request, what):
         selectors.append(modifiedBySelector)
 
     if(what=='GlobalTag' and pk!=''):
-            basf2Selector = oneFieldGeneric(label='Basf2Module ("Global Tag Payload" filter, can be partial)',
+            basf2Selector = oneFieldGeneric(label='Payload Name ("Global Tag Payload" filter, can be partial)',
                                             field="basf2", init=basf2)
             selectors.append(basf2Selector)
 
@@ -371,7 +376,7 @@ def data_handler(request, what):
         nameSelector	= oneFieldGeneric(label="GT Name (Can be partial)", field="name", init=name)
         selectors.append(nameSelector)
 
-        basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
+        basf2Selector = oneFieldGeneric(label="Payload Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
         
