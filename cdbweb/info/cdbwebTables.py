@@ -19,14 +19,14 @@ def makeIDlink(what, id_value, value):
                      % (settings.domain, reverse(what), id_value,  value))
 
 def numberOfModules(gt):
-    print(gt.global_tag_id)
+    # print(gt.global_tag_id)
     the_payloads	= GlobalTagPayload.objects.filter(global_tag_id=gt.global_tag_id).values_list('payload_id')
     the_modules		= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
 
 
     howMany		= len(list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct()))
     
-    print(gt.global_tag_id, howMany)
+    # print(gt.global_tag_id, howMany)
     return howMany
 
 #########################################################
@@ -86,8 +86,8 @@ class Basf2ModuleTable(CdbWebTable):
         model = Basf2Module
 #########################################################
 class GlobalTagTable(CdbWebTable):
-    numberOfGlobalTagPayloads	= tables.Column(verbose_name='# GT Payloads', empty_values=())
-    basf2modules		= tables.Column(verbose_name='Distinct Payloads Names',
+    numberOfGlobalTagPayloads	= tables.Column(verbose_name='Total Payloads', empty_values=())
+    basf2modules		= tables.Column(verbose_name='Distinct Payloads',
                                                 empty_values=(),
                                                 attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
     )
@@ -124,15 +124,17 @@ class GlobalTagTable(CdbWebTable):
         module_names	= list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct())
         # separator = ','
         # joined =  separator.join(module_names)
+        return str(len(module_names))
+
+    # Decided to revert to the dumb display (above) since we are changing the navigation logic
+        # id_link = self.render_as_id(record.global_tag_id, str(len(module_names)))
         
-        id_link = self.render_as_id(record.global_tag_id, str(len(module_names)))
+        # info = id_link # +":"+joined    ; see comment above
         
-        info = id_link # +":"+joined    ; see comment above
+        # # info = info[:100] + (info[100:] and '...') ; see comment above
         
-        # info = info[:100] + (info[100:] and '...') ; see comment above
-        
-        rendered_value = info
-        return mark_safe('<div style="max-width: 700px;">'+rendered_value+"</div>")
+        # rendered_value = info
+        # return mark_safe('<div style="max-width: 700px;">'+rendered_value+"</div>")
     
 
         
@@ -149,6 +151,14 @@ class GlobalTagTable(CdbWebTable):
         sequence = (
             'name',
             '...')
+#########################################################
+class PayloadListTable(CdbWebTable):
+#    basf2module	= tables.Column(verbose_name='Payload Name', empty_values=())
+    
+    class Meta(CdbWebTable.Meta):
+        model = Basf2Module
+        exclude = ('basf2_module_id', 'next_revision', 'description', 'dtm_ins', 'dtm_mod', 'modified_by',)
+
 #########################################################
 class GlobalTagPayloadTable(CdbWebTable):
     gtName	= tables.Column(verbose_name='Global Tag ID and Name', empty_values=())

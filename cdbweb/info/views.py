@@ -90,12 +90,10 @@ def gtValidation(allGtps):
 
         
     the_payloads	= allGtps.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
-    # print('+++', len(the_payloads))
-    selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
-    basf2modules	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name')# .values_list('basf2_module_id', flat=True)
 
-    #print('!!!!', len(basf2modules))
-    #print(basf2modules)
+    selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
+
+    basf2modules	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name')# .values_list('basf2_module_id', flat=True)
 
     faultyList = []
     faultyNames = []
@@ -246,7 +244,6 @@ def data_handler(request, what):
     except:
         pass
 
-    # print('!!!',excluded_selectors)
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
@@ -293,7 +290,7 @@ def data_handler(request, what):
             if(gtValue!=''): q+=gtValue
         
         # Basf2Module selector
-        basf2Selector	= oneFieldGeneric(request.POST, label='Payload Name ("Global Tag Payload filter", can be partial)',
+        basf2Selector	= oneFieldGeneric(request.POST, label='Payload Name, can be partial',
                                           field="basf2", init=basf2)
         
         if basf2Selector.is_valid(): basf2=basf2Selector.getval("basf2")
@@ -361,7 +358,7 @@ def data_handler(request, what):
         selectors.append(modifiedBySelector)
 
     if(what=='GlobalTag' and pk!=''):
-            basf2Selector = oneFieldGeneric(label='Payload Name ("Global Tag Payload" filter, can be partial)',
+            basf2Selector = oneFieldGeneric(label='Payload Name filter, can be partial',
                                             field="basf2", init=basf2)
             selectors.append(basf2Selector)
 
@@ -400,9 +397,7 @@ def data_handler(request, what):
         selectors.append(validateSelector)
 
     
-    selwidth=15*(len(selectors)+1)
-    if(selwidth>100):
-        selwidth=100
+    selwidth=min(100, 15*(len(selectors)+1))
     
     # --- END building selectors
     #################################################################################################
@@ -436,32 +431,42 @@ def data_handler(request, what):
         except:
             pass
         
-        banner=what+' '+str(pk)
+        banner=what+' '+str(pk)+' detail'
 
         ##########################################################################
         #      Now fetch related items depending on the primary object type:
         ##########################################################################
         ### GLOBAL TAG
         if what=='GlobalTag': # list Global Tag Payloads
+            theGt	= GlobalTag.objects.get(global_tag_id=pk)
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
 
             if(validate=='1'): itemStatus = gtValidation(objects)
             
             comment = ''
+            the_payloads	= objects.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
+
             if(basf2!=''): # selection for auxiliary tables
-                the_payloads		= objects.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
-                selected_basf2		= Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
-                # JOIN
-                selected_payloads	= Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
+                matching_basf2	= Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
+                selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=matching_basf2).values_list('basf2_module_id', flat=True)
+            else:
+                selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
                 
-                objects = objects.filter(payload_id__in=selected_payloads)
-                comment = ', selected '+str(len(objects))+' based on the basf2 module name pattern "'+basf2+'"'
-                                                                                                                                   
-            theGt = GlobalTag.objects.get(global_tag_id=pk)
-            aux_title	= 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
-            aux_table	= GlobalTagPayloadTable(objects)
-            aux_table.exclude = ('global_tag_id', 'gtName')
+            payloadNames	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name')
+            if(basf2!=''):
+                comment = ', found '+str(len(payloadNames))+' matching the name pattern "'+basf2+'"'
+
+            #    gtps = objects.filter(payload_id__in=selected_payloads)
+            
+            aux_title = 'Payloads associated with the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
+#            aux_title = 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
+
+            aux_table	= PayloadListTable(payloadNames)
+            # aux_table	= GlobalTagPayloadTable(objects) #  aux_table.exclude = ('global_tag_id', 'gtName')
+            
+            # </mxp>
+            
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
             
             tableDict	= {'title':aux_title, 'table':aux_table}
