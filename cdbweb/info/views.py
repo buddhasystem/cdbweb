@@ -304,7 +304,8 @@ def data_handler(request, what):
 
         validateSelector = boolSelector(request.POST, label='Run IoV diagnostics', what='validate', init=(validate=='1'))
         if validateSelector.is_valid():
-            q+='validate='+validateSelector.getval()+'&'
+            wantValidate = validateSelector.getval()
+            if(wantValidate!='0'): q+='validate='+wantValidate+'&'
         
         # --- entries per page
         perPageSelector	= dropDownGeneric(request.POST,
@@ -409,6 +410,9 @@ def data_handler(request, what):
     template = 'cdbweb_general_table.html'
     aux_tables = []
 
+    ################################################################
+    ################################################################
+    ################################################################
 
     ### PRIMARY KEY ON OBJECTS TAKES PRECEDENCE
     if(pk!=''):
@@ -422,16 +426,19 @@ def data_handler(request, what):
             d		= dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
             return render(request, template, d)
 
-        # create a table for the object fetched by the primary key
-        table = eval(what+'Table')([theObject,])
+        table = eval(what+'Table')([theObject,]) # create a table for the object fetched by the primary key
         RequestConfig(request).configure(table)
 
         try:
             table.exclude = EXCLUDE_COLUMNS[what]['pk']
         except:
             pass
-        
-        banner=what+' '+str(pk)+' detail'
+
+        banner = ''
+        try:
+            banner='Detail for '+what+' "'+theObject.name+'" (ID: '+str(pk)+')'
+        except:
+            banner='Detail for '+what+' '+str(pk)
 
         ##########################################################################
         #      Now fetch related items depending on the primary object type:
@@ -453,19 +460,25 @@ def data_handler(request, what):
             else:
                 selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
                 
-            payloadNames	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name')
+            relevantBasf2	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name').values_list('basf2_module_id', flat=True)
+
+
+            listOfPayloads = []
+            for item in relevantBasf2:
+                b = Basf2Module.objects.get(pk=item)
+                payloadSelection = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id=item)
+                stringArray = []
+                for pl in payloadSelection: stringArray.append(str(pl.payload_id))
+                stringified = ",".join(stringArray)
+                myDict = {'name':b.name, 'payload_ids':stringified}
+                listOfPayloads.append(myDict)
+
             if(basf2!=''):
-                comment = ', found '+str(len(payloadNames))+' matching the name pattern "'+basf2+'"'
+                comment = ', found '+str(len(relevantBasf2))+' matching the name pattern "'+basf2+'"'
 
-            #    gtps = objects.filter(payload_id__in=selected_payloads)
-            
-            aux_title = 'Payloads associated with the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
-#            aux_title = 'Found a total of '+str(Nobj)+' "Global Tag Payload" items for the Global Tag '+str(pk)+' "'+theGt.name+'" '+comment
-
-            aux_table	= PayloadListTable(payloadNames)
-            # aux_table	= GlobalTagPayloadTable(objects) #  aux_table.exclude = ('global_tag_id', 'gtName')
-            
-            # </mxp>
+            aux_title	= 'Payloads associated with the Global Tag "'+theGt.name+'" (ID ' +str(pk)+')'+comment
+            aux_table = PayloadLinkTable(listOfPayloads)
+            # aux_table	= PayloadListTable(payloadNames)
             
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
             
@@ -488,7 +501,7 @@ def data_handler(request, what):
 
         ##########################################################################
         ### PAYLOAD
-        if what=='Payload': # list gt gt payloads
+        if what=='Payload': # list payloads
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
             
@@ -527,8 +540,11 @@ def data_handler(request, what):
     ##########################################################################
     else:
         objects = eval(what).objects.order_by('-pk') # newest on top
+        
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
+        
         if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
+        
         if(name!=''):
             if(what!='GlobalTagPayload'):
                 objects = objects.filter(name__icontains=name)
@@ -544,9 +560,11 @@ def data_handler(request, what):
         if(status!='All' and status!=''):
             gtStatus	= GlobalTagStatus.objects.filter(name=status)[0]
             objects	= objects.filter(global_tag_status_id=gtStatus.pk)
+            
         if(gttype!='All' and gttype!=''):
             gtType	= GlobalTagType.objects.filter(name=gttype)[0]
             objects	= objects.filter(global_tag_type_id=gtType.pk)
+            
         if(modifiedby!=''):
             objects	= objects.filter(modified_by=modifiedby)
         else:

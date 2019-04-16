@@ -26,8 +26,23 @@ def numberOfModules(gt):
 
     howMany		= len(list(Basf2Module.objects.filter(basf2_module_id__in=the_modules).values_list('name', flat=True).distinct()))
     
-    # print(gt.global_tag_id, howMany)
     return howMany
+
+
+#########################################################
+# Prototyping area
+
+class PayloadLinkTable(tables.Table):
+    name	= tables.Column(empty_values=())
+    payload_ids	= tables.Column()
+
+    def render_name(self, bound_row):
+        # print(bound_row.record)
+        return bound_row.record['name'] # +bound_row.record['payload_ids']
+   
+    class Meta:
+        attrs	= {'class': 'paleblue'}
+        exclude = ('payload_ids',)
 
 #########################################################
 # Base abstract class for all the "general" tables in
@@ -37,6 +52,15 @@ def numberOfModules(gt):
 
 
 class CdbWebTable(tables.Table):
+    def __init__(self, *args, **kwargs):
+        try:
+            self.extra=kwargs.pop('extra')
+            print(self.extra)
+        except:
+            pass
+
+        super(CdbWebTable, self).__init__(*args, **kwargs)
+         
     def render_id(self, value):
         thisItemName = self.Meta.model.__name__
         return makelink(thisItemName,	'id',		value)
@@ -153,7 +177,8 @@ class GlobalTagTable(CdbWebTable):
             '...')
 #########################################################
 class PayloadListTable(CdbWebTable):
-#    basf2module	= tables.Column(verbose_name='Payload Name', empty_values=())
+    def render_name(self, value):
+        return value
     
     class Meta(CdbWebTable.Meta):
         model = Basf2Module
