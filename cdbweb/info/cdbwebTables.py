@@ -14,6 +14,10 @@ def makelink(what, key, value):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, value))
 
+def makeTaglink(what, msg, key, value, tag):
+    return mark_safe('<a href="http://%s%s?msg=%s&%s=%s">%s</a>'
+                     % (settings.domain, reverse(what), msg, key, value, tag))
+
 def makeIDlink(what, id_value, value):
     return mark_safe('<a href="http://%s%s?id=%s">%s</a>'
                      % (settings.domain, reverse(what), id_value,  value))
@@ -34,15 +38,16 @@ def numberOfModules(gt):
 
 class PayloadLinkTable(tables.Table):
     name	= tables.Column(empty_values=())
+    count	= tables.Column()
     payload_ids	= tables.Column()
+    msg		= tables.Column()
 
     def render_name(self, bound_row):
-        # print(bound_row.record)
-        return bound_row.record['name'] # +bound_row.record['payload_ids']
+        return makeTaglink('Payload', 'msg', 'ids', bound_row.record['payload_ids'], bound_row.record['name'])
    
     class Meta:
         attrs	= {'class': 'paleblue'}
-        exclude = ('payload_ids',)
+        exclude = ('payload_ids', 'msg',)
 
 #########################################################
 # Base abstract class for all the "general" tables in

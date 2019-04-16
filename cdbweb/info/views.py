@@ -238,6 +238,9 @@ def data_handler(request, what):
     modifiedby	= rg.get('modifiedby','')
     validate	= rg.get('validate','0')
 
+    ids		= rg.get('ids','')
+
+    
     excluded_selectors = []
     try:
         excluded_selectors = EXCLUDE_SELECTORS[what]
@@ -467,10 +470,11 @@ def data_handler(request, what):
             for item in relevantBasf2:
                 b = Basf2Module.objects.get(pk=item)
                 payloadSelection = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id=item)
+                cnt = len(payloadSelection)
                 stringArray = []
                 for pl in payloadSelection: stringArray.append(str(pl.payload_id))
                 stringified = ",".join(stringArray)
-                myDict = {'name':b.name, 'payload_ids':stringified}
+                myDict = {'name':b.name, 'count':cnt, 'payload_ids':stringified}
                 listOfPayloads.append(myDict)
 
             if(basf2!=''):
@@ -539,7 +543,13 @@ def data_handler(request, what):
     ##################SELECTION OTHER THAN PRIMARY KEY########################
     ##########################################################################
     else:
-        objects = eval(what).objects.order_by('-pk') # newest on top
+        if(what=='Payload' and ids!=''):
+            strArray=ids.split(',')
+            intArray=[]
+            for s in strArray: intArray.append(int(s))
+            objects = Payload.objects.filter(payload_id__in=intArray)
+        else:
+            objects = eval(what).objects.order_by('-pk') # newest on top
         
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
         
