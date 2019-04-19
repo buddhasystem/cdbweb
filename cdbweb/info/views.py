@@ -439,7 +439,7 @@ def data_handler(request, what):
 
         banner = ''
         banner_tag=what
-        if(what=='Basf2Module'): banner_tag='Pyaload Type'
+        if(what=='Basf2Module'): banner_tag='Payload Type'
         try:
             banner='Detail for '+banner_tag+' "'+theObject.name+'" (ID: '+str(pk)+')'
         except:
