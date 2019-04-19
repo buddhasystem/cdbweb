@@ -23,7 +23,7 @@ class AppMessage(models.Model):
 class Basf2Module(models.Model):
     basf2_module_id	= models.AutoField(primary_key=True, verbose_name="ID")
     name		= models.TextField(unique=True)
-    next_revision	= models.IntegerField()
+    next_revision	= models.IntegerField(verbose_name='Next rev.')
     description		= models.TextField(blank=True, null=True)
     dtm_ins		= models.DateTimeField(verbose_name='Inserted')
     dtm_mod		= models.DateTimeField(blank=True, null=True, verbose_name='Modified')

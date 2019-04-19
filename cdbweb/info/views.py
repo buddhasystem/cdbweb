@@ -606,8 +606,10 @@ def data_handler(request, what):
 
     # We reserve space on top of the table for the selectors + the submit
     # button, estimate how much is needed here (in percent of the page width)
-    
-    banner = what+': '+str(Nfound)+' items found'
+
+    banner_tag = what
+    if(what=='Basf2Module'): banner_tag='Types of Payload'
+    banner = banner_tag+': '+str(Nfound)+' items found'
     note = 'Click on items for more details'
     
     now = timezone.now()

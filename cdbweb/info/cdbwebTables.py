@@ -112,6 +112,7 @@ class Basf2ModuleTable(CdbWebTable):
         return makeIDlink('Basf2Module', record.basf2_module_id, record.name)
     
     class Meta(CdbWebTable.Meta):
+        exclude = ('modified_by', 'description', )
         model = Basf2Module
 #########################################################
 class GlobalTagTable(CdbWebTable):

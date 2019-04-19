@@ -21,7 +21,7 @@
 
   </head>
 
-  <body>
+  <body bgcolor="#EDF3FE">
     <!-- can reduce the size here, disabled for beta so people can see the snapshot better -->
     <!-- div style="font-size:50%"; -->
     
@@ -29,7 +29,7 @@
       <table width="100%">
 	<tr>
 	  <td align="center"><img src="static/images/belle2-logo.png" alt="Smiley face" height="52" width="64"></td>
-	  <td align="center">Belle II <em>CDBweb</em> service running at {{ domain }}{% if dbserver %}, using a streaming replica DB{% endif %}. The time zone used in this service is UTC, and the current time is {{ now }}
+	  <td align="center">Belle II <em>CDBweb</em> service is running at {{ domain }}{% if dbserver %}, using a streaming replica DB{% endif %}. The time zone is UTC, and the current time is {{ now }}
 	    <br/>
       <em>Questions? Write to</em>
       <a href="mailto:potekhin@bnl.gov?Subject=CDBweb%20question" target="_top"><em>potekhin@bnl.gov</em></a>
