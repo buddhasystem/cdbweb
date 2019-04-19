@@ -16,7 +16,9 @@ def NavBarData(domain, what):
 
     i=1
     for t in listOfTables:
-        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+styles[what==t]+'>'+t+'</a>')
+        tag=t
+        if(t=='Basf2Module'): tag='Types of Payload'
+        myDict['col'+str(i)] = mark_safe('<a href="http://'+domain+'/'+t+'"'+styles[what==t]+'>'+tag+'</a>')
         i+=1
 
     gtc='Global Tag Comparison'
