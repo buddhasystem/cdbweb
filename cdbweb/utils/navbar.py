@@ -35,7 +35,7 @@ class NavTable(tables.Table):
     def set_site(self, site=''):
         self.site=site
     class Meta:
-        attrs	= {'class': 'paleblue'}
+        attrs	= {'class': 'new_paleblue'}
 
 ####
 def TopTable(domain, what=None):
