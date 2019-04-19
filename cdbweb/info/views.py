@@ -438,10 +438,12 @@ def data_handler(request, what):
             pass
 
         banner = ''
+        banner_tag=what
+        if(what=='Basf2Module'): banner_tag='Pyaload Type'
         try:
-            banner='Detail for '+what+' "'+theObject.name+'" (ID: '+str(pk)+')'
+            banner='Detail for '+banner_tag+' "'+theObject.name+'" (ID: '+str(pk)+')'
         except:
-            banner='Detail for '+what+' '+str(pk)
+            banner='Detail for '+banner_tag+' '+str(pk)
 
         ##########################################################################
         #      Now fetch related items depending on the primary object type:
