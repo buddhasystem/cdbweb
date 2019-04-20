@@ -23,7 +23,6 @@ def makeIDlink(what, id_value, value):
                      % (settings.domain, reverse(what), id_value,  value))
 
 def numberOfModules(gt):
-    # print(gt.global_tag_id)
     the_payloads	= GlobalTagPayload.objects.filter(global_tag_id=gt.global_tag_id).values_list('payload_id')
     the_modules		= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
 
@@ -34,7 +33,8 @@ def numberOfModules(gt):
 
 
 #########################################################
-# Prototyping area
+# Need a custom table for aggregated payloads since it's
+# not based on a model
 
 class PayloadLinkTable(tables.Table):
     name	= tables.Column(empty_values=())
@@ -182,15 +182,6 @@ class GlobalTagTable(CdbWebTable):
             'name',
             '...')
 #########################################################
-class PayloadListTable(CdbWebTable):
-    def render_name(self, value):
-        return value
-    
-    class Meta(CdbWebTable.Meta):
-        model = Basf2Module
-        exclude = ('basf2_module_id', 'next_revision', 'description', 'dtm_ins', 'dtm_mod', 'modified_by',)
-
-#########################################################
 class GlobalTagPayloadTable(CdbWebTable):
     gtName	= tables.Column(verbose_name='Global Tag ID and Name', empty_values=())
     basf2module	= tables.Column(verbose_name='Payload Name', empty_values=())
@@ -265,6 +256,22 @@ class GlobalTagTypeTable(CdbWebTable):
         model = GlobalTagType
 #########################################################
 class PayloadTable(CdbWebTable):
+    iov = tables.Column(verbose_name='I0V:Exp.Start,Run.Start,Exp.End,Run.End', empty_values=())
+
+    def render_iov(self, record):
+        retString=''
+        gtps = GlobalTagPayload.objects.filter(payload_id=record.payload_id)
+        if(gtps is None): return ''
+
+        for gtp in gtps:
+            iovs=PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)
+            if(iovs is None): return ''
+            for iov in iovs:
+                retString+=' |  '+str(iov.exp_start)+','+str(iov.run_start)+','+str(iov.exp_end)+','+str(iov.run_end)
+
+        retString+='  |'
+        return retString
+    
     def render_basf2_module_id(self, record):
         basf2name = Basf2Module.objects.get(pk=record.basf2_module_id).name
         
@@ -306,6 +313,7 @@ class PayloadTable(CdbWebTable):
             'payload_status_id',
             'dtm_ins',
             'dtm_mod',
+            'iov',
             '...')
         
         exclude = ('modified_by', 'description', 'base_url', )
