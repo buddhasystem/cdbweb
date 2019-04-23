@@ -1,8 +1,8 @@
 listOfTables = [ # this is for the navigation bar
     'GlobalTag',
-    'GlobalTagPayload',
+#    'GlobalTagPayload',
     'Payload',
-    'PayloadIov',
+#    'PayloadIov',
     'Basf2Module',
 ]
 
