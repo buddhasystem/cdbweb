@@ -43,7 +43,9 @@ EXCLUDE_COLUMNS = {
         'all':	('dtm_ins', 'dtm_mod', 'numberOfGlobalTagPayloads', 'basf2modules')
     },
     'Payload':		{
-        'all':	('payload_id', 'payload_url', 'dtm_ins', 'dtm_mod', 'iov',)},
+        'all':	('payload_id', 'payload_url', 'dtm_ins', 'dtm_mod', 'iov',),
+        'pk':	('payload_url',),
+    },
 }
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')

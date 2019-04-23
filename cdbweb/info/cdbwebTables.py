@@ -1,6 +1,8 @@
 import	django_tables2	as tables
 
 from django.utils.safestring		import mark_safe
+from django.utils.html			import format_html
+
 from django.urls	import reverse
 from django.conf	import settings
 from django.db.models	import Case, When
@@ -13,6 +15,10 @@ import operator
 def makelink(what, key, value):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, value))
+
+def makeNamedLink(what, key, value, name):
+    return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
+                     % (settings.domain, reverse(what), key, value, name))
 
 def makeTaglink(what, msg, key, value, tag):
     return mark_safe('<a href="http://%s%s?msg=%s&%s=%s">%s</a>'
@@ -256,7 +262,7 @@ class GlobalTagTypeTable(CdbWebTable):
         model = GlobalTagType
 #########################################################
 class PayloadTable(CdbWebTable):
-    iov = tables.Column(verbose_name='I0V:Exp.Start,Run.Start,Exp.End,Run.End', empty_values=())
+    iov = tables.Column(verbose_name='I0V:GT,Exp.Start,Run.Start,Exp.End,Run.End', empty_values=())
 
     def render_iov(self, record):
         retString=''
@@ -264,13 +270,17 @@ class PayloadTable(CdbWebTable):
         if(gtps is None): return ''
 
         for gtp in gtps:
+            gtn=GlobalTag.objects.get(global_tag_id=gtp.global_tag_id).name
             iovs=PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)
             if(iovs is None): return ''
+            retString+=makeNamedLink('GlobalTag', 'gtid', gtp.global_tag_id, gtn)+'<br/>|  '
+            #retString+='<b>'+gtn+'</b> ('+str(gtp.global_tag_id)+')<br/>|  '
             for iov in iovs:
-                retString+=' |  '+str(iov.exp_start)+','+str(iov.run_start)+','+str(iov.exp_end)+','+str(iov.run_end)
+                retString+=str(iov.exp_start)+','+str(iov.run_start)+','+str(iov.exp_end)+','+str(iov.run_end)+'  |  '
 
-        retString+='  |'
-        return retString
+            retString+='<hr/>'
+
+        return format_html(retString)
     
     def render_basf2_module_id(self, record):
         basf2name = Basf2Module.objects.get(pk=record.basf2_module_id).name
