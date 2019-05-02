@@ -444,10 +444,14 @@ def data_handler(request, what):
         banner_tag	= what
         
         if(what=='Basf2Module'): banner_tag='Payload Type'
+        if(what=='Payload'):
+            name	= Basf2Module.objects.get(pk=theObject.basf2_module_id).name
+            banner_tag += ' '+name+' rev.'+str(theObject.revision)
+        
         try:
             banner='Detail for '+banner_tag+' "'+theObject.name+'" (ID: '+str(pk)+')'
         except:
-            banner='Detail for '+banner_tag+' '+str(pk)
+            banner='Detail for '+banner_tag+' (ID:'+str(pk)+')'
 
         ##########################################################################
         #      Now fetch related items depending on the primary object type:
