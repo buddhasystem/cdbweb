@@ -231,6 +231,7 @@ def data_handler(request, what):
     
     perpage	= rg.get('perpage','25')
     gtid	= rg.get('gtid','')		# GT ID
+    gt4pl	= rg.get('gt4pl','')		# some GT detail supplied for the payload screen
     gtpid	= rg.get('gtpid','')		# GT payload ID
     pk		= rg.get('id','')
     name	= rg.get('name','')
@@ -439,8 +440,9 @@ def data_handler(request, what):
         except:
             pass
 
-        banner = ''
-        banner_tag=what
+        banner		= ''
+        banner_tag	= what
+        
         if(what=='Basf2Module'): banner_tag='Payload Type'
         try:
             banner='Detail for '+banner_tag+' "'+theObject.name+'" (ID: '+str(pk)+')'
@@ -472,13 +474,21 @@ def data_handler(request, what):
 
             listOfPayloads = []
             for item in relevantBasf2:
-                b = Basf2Module.objects.get(pk=item)
-                payloadSelection = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id=item)
-                cnt = len(payloadSelection)
+                b		= Basf2Module.objects.get(pk=item)
+                payloadSelection= Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id=item) # payload IDs were fetched above based on the GT/GTP query
+                cnt		= len(payloadSelection)
+                
                 stringArray = []
-                for pl in payloadSelection: stringArray.append(str(pl.payload_id))
-                stringified = ",".join(stringArray)
-                myDict = {'name':b.name, 'count':cnt, 'payload_ids':stringified}
+                
+                for pl in payloadSelection: stringArray.append(str(pl.payload_id)) # string values of int IDs of payloads
+                
+                myDict		= {
+                    'name':	b.name,
+                    'count':	cnt,
+                    'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
+                    'payload_ids':(",".join(stringArray))
+                }
+                
                 listOfPayloads.append(myDict)
 
             if(basf2!=''):
@@ -613,12 +623,13 @@ def data_handler(request, what):
     banner_tag = what
     if(what=='Basf2Module'): banner_tag='Types of Payload'
     banner = banner_tag+': '+str(Nfound)+' items found'
+    if(gt4pl!=''): banner+='<br/>for Global Tag '+gt4pl
     note = 'Click on items for more details'
     
     now = timezone.now()
     d = dict(domain=	domain,
              host=	host,
-             what=	banner,
+             what=	format_html(banner),
              navtable=	navtable,
              table=	table,
              selectors=	selectors,

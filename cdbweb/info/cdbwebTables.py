@@ -20,9 +20,9 @@ def makeNamedLink(what, key, value, name):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, name))
 
-def makeTaglink(what, msg, key, value, tag):
-    return mark_safe('<a href="http://%s%s?msg=%s&%s=%s">%s</a>'
-                     % (settings.domain, reverse(what), msg, key, value, tag))
+def makeTaglink(what, gtid, key, value, tag):
+    return mark_safe('<a href="http://%s%s?gt4pl=%s&%s=%s">%s</a>'
+                     % (settings.domain, reverse(what), gtid, key, value, tag))
 
 def makeIDlink(what, id_value, value):
     return mark_safe('<a href="http://%s%s?id=%s">%s</a>'
@@ -46,14 +46,14 @@ class PayloadLinkTable(tables.Table):
     name	= tables.Column(empty_values=())
     count	= tables.Column()
     payload_ids	= tables.Column()
-    msg		= tables.Column()
+    gt		= tables.Column()
 
     def render_name(self, bound_row):
-        return makeTaglink('Payload', 'msg', 'ids', bound_row.record['payload_ids'], bound_row.record['name'])
+        return makeTaglink('Payload', bound_row.record['gt'], 'ids', bound_row.record['payload_ids'], bound_row.record['name'])
    
     class Meta:
         attrs	= {'class': 'paleblue'}
-        exclude = ('payload_ids', 'msg',)
+        exclude = ('payload_ids', 'gt',)
 
 #########################################################
 # Base abstract class for all the "general" tables in
