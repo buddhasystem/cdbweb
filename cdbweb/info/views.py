@@ -442,11 +442,11 @@ def data_handler(request, what):
 
         banner		= ''
         banner_tag	= what
-        
+
         if(what=='Basf2Module'): banner_tag='Payload Type'
         if(what=='Payload'):
             name	= Basf2Module.objects.get(pk=theObject.basf2_module_id).name
-            banner_tag += ' '+name+' rev.'+str(theObject.revision)
+            banner_tag += ' "'+name+' rev.'+str(theObject.revision)+'"'
         
         try:
             banner='Detail for '+banner_tag+' "'+theObject.name+'" (ID: '+str(pk)+')'
@@ -526,7 +526,7 @@ def data_handler(request, what):
             objects	= GlobalTagPayload.objects.filter(payload_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
             
-            aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the Payload '+str(pk)
+            aux_title	= 'Found '+str(Nobj)+' "Global Tag Payload" items for the '+ banner_tag # +' (ID: '+str(pk)+')'
             aux_table	= GlobalTagPayloadTable(objects)
             aux_table.exclude = ('payload_id', )
             RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
