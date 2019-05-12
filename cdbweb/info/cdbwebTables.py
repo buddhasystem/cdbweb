@@ -100,7 +100,7 @@ class CdbWebTable(tables.Table):
         return makelink(thisItemName,	'modifiedby',	value)
     
     class Meta:
-        attrs	= {'class': 'paleblue','width':'110%'}
+        attrs	= {'class': 'paleblue','width':'120%'}
         abstract=True # <------
 #-------------------------------------------------------
 
