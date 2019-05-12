@@ -40,7 +40,7 @@ EXCLUDE_COLUMNS = {
         'pk':	('global_tag_payload_id',),
     },
     'GlobalTag':	{
-        'all':	('dtm_ins', 'dtm_mod', 'numberOfGlobalTagPayloads', 'basf2modules')
+        'all':	('dtm_ins', 'numberOfGlobalTagPayloads', 'basf2modules')
     },
     'Payload':		{
         'all':	('payload_id', 'payload_url', 'dtm_ins', 'dtm_mod', 'iov',),
