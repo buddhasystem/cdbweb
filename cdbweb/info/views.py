@@ -803,22 +803,15 @@ def gtcompare(request):
         return render(request, template, d)
     #---
        
-    table1 = GlobalTagTable([gt1,])
-    table2 = GlobalTagTable([gt2,])
+    table1, table2 = GlobalTagTable([gt1,]), GlobalTagTable([gt2,])
     
-    table1.exclude = ('global_tag_id', 'name', 'description',)
-    table2.exclude = ('global_tag_id', 'name', 'description',)
+    table1.exclude, table2.exclude = ('global_tag_id', 'name', 'description',), ('global_tag_id', 'name', 'description',)
     
     RequestConfig(request).configure(table1)
     RequestConfig(request).configure(table2)
         
-    
-    th1		= str(gtid1)+': "'+gtname1+'"'
-    th2		= str(gtid2)+': "'+gtname2+'"'
-
-    desc1	= gt1.description
-    desc2	= gt2.description
-
+    th1,   th2	= str(gtid1)+': "'+gtname1+'"', str(gtid2)+': "'+gtname2+'"'
+    desc1, desc2= gt1.description, gt2.description
 
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
     gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
