@@ -20,7 +20,7 @@ from .models		import *
 from .cdbwebTables	import *
 
 
-from utils.selectorUtils import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector
+from utils.selectorUtils import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
 
 
 #########################################################    
@@ -28,6 +28,12 @@ from utils.selectorUtils import dropDownGeneric, oneFieldGeneric, boxSelector, b
 PAGECHOICES	= [('25','25'),('50','50'),('100','100'),('200','200'),('400','400'),('800','800'),]
 GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVALID','Invalid'),]
 GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
+
+GTCOMPCHOICES	= [
+    ('sidebyside',	'Display side by side'),
+    ('runexp',		'Limit by exp and run'),
+]
+
 
 EXCLUDE_SELECTORS = {
 #    'GlobalTag':('ID',),
@@ -716,6 +722,13 @@ def gtcompare(request):
 
     now = timezone.now()
     
+
+    compSelector= None # radioSelector(what='test', #initial={'stateChoice':stateD},
+                       #       states=GTCOMPCHOICES,
+                       #       label='test')
+
+    # selectors.append(compSelector)
+        
     if(gtid1=='' or gtid2==''): # some IDs missing, try names
         
         if(gtname1=='' or gtname2==''): # try names
@@ -734,7 +747,9 @@ def gtcompare(request):
             selwidth=100
             
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
-	             selectors=selectors,		selwidth=selwidth, now=now,
+	             selectors=selectors,		selwidth=selwidth,
+                     options=compSelector,
+                     now=now,
             )
             
             try:
@@ -797,7 +812,9 @@ def gtcompare(request):
     if(gt1 is None or gt2 is None):
         error='Check values: last query did not produce valid results.'
         d = dict(domain=domain,	host=host, what=what, error=error, navtable=navtable,
-	         selectors=selectors,	selwidth=selwidth, now=now,
+	         selectors=selectors,	selwidth=selwidth,
+                 options=compSelector,
+                 now=now,
         )
 
         try:
@@ -843,6 +860,7 @@ def gtcompare(request):
     d = dict(domain=domain, host=host, what=what, navtable=navtable,
              now=now,
 	     selectors	= selectors,	selwidth=selwidth,
+             options=compSelector,
              th1	= th1,		th2	= th2,
              desc1	= desc1,	desc2	= desc2,
              table1	= table1,	table2	= table2,
