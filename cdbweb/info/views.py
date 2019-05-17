@@ -20,8 +20,8 @@ from .models		import *
 from .cdbwebTables	import *
 
 
-from utils.selectorUtils import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
-
+from utils.selectorUtils	import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
+from utils.selectorWrappers	import *
 
 #########################################################    
 
@@ -260,43 +260,27 @@ def data_handler(request, what):
     ####################      POST      ##############################
     ##################################################################
     if request.method == 'POST':
-        q = ''
+        q = '' # stub for the query, which will augmented as needed
 
-        # General ID selector
+        # Generif ID selector (for any object)
         if('ID' not in excluded_selectors):
             idSelector	= oneFieldGeneric(request.POST, label="ID", field="id", init=pk)
             if idSelector.is_valid(): pk=idSelector.getval("id")
             if(pk!=''): q+= 'id='+pk+'&'
 
-        # Global Tag ID
-        gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid)
-        if gtidSelector.is_valid(): gtid=gtidSelector.getval("gtid")
-        if(gtid!=''): q+= 'gtid='+gtid+'&'
+        gtidSelector	= oneFieldGeneric(request.POST, label="Global Tag ID", field="gtid", init=gtid) # Global Tag ID
+        q=checkAndAdd(q, gtidSelector, 'gtid')
         
-        # Global Tag Payload ID
-        gtpidSelector	= oneFieldGeneric(request.POST, label="Global Tag Payload ID", field="gtpid", init=gtpid)
-        if gtpidSelector.is_valid(): gtpid=gtpidSelector.getval("gtpid")
-        if(gtpid!=''): q+= 'gtpid='+gtpid+'&'
+        gtpidSelector	= oneFieldGeneric(request.POST, label="Global Tag Payload ID", field="gtpid", init=gtpid) # Global Tag Payload ID
+        q=checkAndAdd(q, gtpidSelector, 'gtpid')
 
-        # General name selector
-        nameSelector	= oneFieldGeneric(request.POST, label="Name", field="name", init=name)
-        if nameSelector.is_valid(): name=nameSelector.getval("name")
-        if(name!=''): q+= 'name='+name+'&'
+        nameSelector	= oneFieldGeneric(request.POST, label="Name", field="name", init=name) # Generic name selector
+        q=checkAndAdd(q, nameSelector, 'name')
 
-        # gt status selector
-        statusSelector = dropDownGeneric(request.POST,
-                                         initial={'status':status},
-                                         label	= 'Status',
-                                         choices= GTSTATUSCHOICES,
-                                         tag	= 'status')
+        statusSelector = gtStatusSelector(request, status, GTSTATUSCHOICES)
         if statusSelector.is_valid(): q+=statusSelector.handleDropSelector()
         
-        # gt type selector
-        typeSelector = dropDownGeneric(request.POST,
-                                       initial	={'gttype':gttype},
-                                       label	= 'Type',
-                                       choices	= GTTYPECHOICES,
-                                       tag	= 'gttype')
+        typeSelector = gtTypeSelector(request, gttype, GTTYPECHOICES)
         if typeSelector.is_valid():
             gtValue = typeSelector.handleDropSelector()
             if(gtValue!=''): q+=gtValue
@@ -320,10 +304,7 @@ def data_handler(request, what):
             if(wantValidate!='0'): q+='validate='+wantValidate+'&'
         
         # --- entries per page
-        perPageSelector	= dropDownGeneric(request.POST,
-                                          initial={'perpage':perpage},
-                                          label='# per page',
-                                          choices = PAGECHOICES, tag='perpage')
+        perPageSelector	= pageSelector(request, perpage, PAGECHOICES)
         if perPageSelector.is_valid(): q += perPageSelector.handleDropSelector()
         
         # We have built a query and will come to same page/view with a GET query
@@ -332,13 +313,14 @@ def data_handler(request, what):
     ##################################################################
     ########################    GET    ###############################
     ##################################################################
-    # prepare the top nav bar and other attributes no matter what...
-    
-    host	= rg.get('host','')
-    domain	= request.get_host()
-    settings.domain = domain # replaces  table.set_site below
-    navtable = TopTable(domain, what)
 
+    
+    # prepare the top nav bar and other attributes...
+    
+    host		= rg.get('host','')
+    domain		= request.get_host()
+    settings.domain	= domain # replaces  table.set_site below
+    navtable		= TopTable(domain, what)
 
     selectors = [] # The request was GET - populate the selectors
 
@@ -354,17 +336,8 @@ def data_handler(request, what):
             idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
             selectors.append(idSelector)
         
-        statusSelector = dropDownGeneric(initial= {'status':status},
-                                         label	= 'Status',
-                                         choices= GTSTATUSCHOICES,
-                                         tag	= 'status')
-        selectors.append(statusSelector)
-
-        typeSelector = dropDownGeneric(initial	={'gttype':gttype},
-                                       label	= 'Type',
-                                       choices	= GTTYPECHOICES,
-                                       tag	= 'gttype')
-        selectors.append(typeSelector)
+        selectors.append(gtStatusSelector(None,	status, GTSTATUSCHOICES))
+        selectors.append(gtTypeSelector(None,	gttype, GTTYPECHOICES))
 
         
         modifiedBySelector = oneFieldGeneric(label="Modified by",	field="modifiedby", init=modifiedby)
@@ -399,11 +372,7 @@ def data_handler(request, what):
         basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
-    perPageSelector = dropDownGeneric(initial	= {'perpage':perpage},
-                                      label	= 'items per page',
-                                      choices	= PAGECHOICES,
-                                      tag	= 'perpage')
-    selectors.append(perPageSelector)
+    selectors.append(pageSelector(None, perpage, PAGECHOICES))
 
     if(what=='GlobalTag' and pk!=''):
         validateSelector = boolSelector(label='Run IoV diagnostics', what='validate', init=(validate=='1'))
@@ -563,7 +532,7 @@ def data_handler(request, what):
         return render(request, template, d)
 
     ##########################################################################
-    ##################SELECTION OTHER THAN PRIMARY KEY########################
+    ################# SELECTION OTHER THAN PRIMARY KEY #######################
     ##########################################################################
     else:
         if(what=='Payload' and ids!=''):
