@@ -47,25 +47,19 @@ class boxSelector(forms.Form):
 #########################################################    
 class radioSelector(forms.Form):
     def __init__(self, *args, **kwargs):
-       self.what	= kwargs.pop('what')
        self.states	= kwargs.pop('states')
        self.label	= kwargs.pop('label')
 
        super(radioSelector, self).__init__(*args, **kwargs)
        
-       self.fields['stateChoice'].choices	= self.states # SELECTORS[self.what]['states']
-       self.fields['stateChoice'].label		= self.label  # SELECTORS[self.what]['stateLabel']
+       self.fields['compChoice'].choices	= self.states
+       self.fields['compChoice'].label		= self.label
 
     def handleRadioSelector(self):
-        selectedStates = self.cleaned_data['stateChoice']
-        if len(selectedStates):
-            if('all' in selectedStates):
-                return ''
-            else:
-                return 'state='+",".join(selectedStates)+'&'
-        return ''
+        choice = self.cleaned_data['compChoice']
+        return choice
 
-    stateChoice = forms.ChoiceField(label='DUMMY',
+    compChoice = forms.ChoiceField(label='DUMMY',
                                     required=False,
                                     widget=forms.RadioSelect,
                                     choices=[('place', 'holder'),])

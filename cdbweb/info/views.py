@@ -42,7 +42,7 @@ EXCLUDE_SELECTORS = {
 
 
 EXCLUDE_COLUMNS = {
-    'GlobalTagPayload':	{
+   'GlobalTagPayload':	{
         'pk':	('global_tag_payload_id',),
     },
     'GlobalTag':	{
@@ -699,8 +699,16 @@ def gtcompare(request):
                 else:
                     q+= 'gtname2='+idname2+'&'
 
-        # We have built a query and will come to same page/view with a GET query
+        compSelector =  radioSelector(request.POST,
+                                      states=GTCOMPCHOICES,
+                                      label='Choose an option')
+        if compSelector.is_valid():
+            choice = compSelector.handleRadioSelector()
+            q+='gtcompchoice='+choice+'&'
+
+        
         return makeQuery('gtcompare', q)
+        # We have built a query and will come to same page/view with a GET query (below)
 
     ##################################################################
     ####################      GET       ##############################
@@ -714,6 +722,8 @@ def gtcompare(request):
     gtname1	= request.GET.get('gtname1','')
     gtname2	= request.GET.get('gtname2','')
 
+    gtcompchoice= request.GET.get('gtcompchoice','sidebyside')
+
     gt1, gt2 = None, None
 
     # --- Populate the selector section!
@@ -723,12 +733,10 @@ def gtcompare(request):
     now = timezone.now()
     
 
-    compSelector= None # radioSelector(what='test', #initial={'stateChoice':stateD},
-                       #       states=GTCOMPCHOICES,
-                       #       label='test')
+    compSelector =  radioSelector(initial={'compChoice':gtcompchoice},
+                                  states=GTCOMPCHOICES,
+                                  label='Choose an option (UNDER CONSTRUCTION)')
 
-    # selectors.append(compSelector)
-        
     if(gtid1=='' or gtid2==''): # some IDs missing, try names
         
         if(gtname1=='' or gtname2==''): # try names
