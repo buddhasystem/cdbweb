@@ -67,6 +67,19 @@ def makeQuery(page, q=''):
 
 #########################################################    
 # ---
+def addIdOrName(query, id_or_name, one_or_two):
+    addition = ''
+    
+    if(id_or_name!=''):
+        if(id_or_name.isdigit()):
+            addition = 'gtid'+one_or_two+'='+id_or_name+'&'
+        else:
+            addition = 'gtname'+one_or_two+'='+id_or_name+'&'
+            
+    return query+addition
+
+#########################################################    
+# ---
 def gtValidation(allGtps):
     itemStatus = None
     
@@ -627,55 +640,33 @@ def data_handler(request, what):
     if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
     return render(request, template, d)
 
-
-
-######################################################### . . . . . . . . . . . . .
 ######################################################### . . . . . . . . . . . . .
 ####################  GTCOMPARE  ######################## . . . . . . . . . . . . .
 ######################################################### . . . . . . . . . . . . .
-######################################################### . . . . . . . . . . . . .
-#
 def gtcompare(request):
     domain		= request.get_host()
-    navtable		= TopTable(domain, 'Global Tag Comparison')
-    
     settings.domain	= domain
-    
+    navtable		= TopTable(domain, 'Global Tag Comparison')
     template		= 'gtcompare.html'
 
     ##################################################################
     ####################      POST      ##############################
     ##################################################################
     if request.method == 'POST':
-        q = '' # placeholder for potential query
+        q = '' # placeholder for the query
 
         # Generic ID selectors
         gtSelector1 = oneFieldGeneric(request.POST, label="Id/Name 1", field="idname1", init='')
-        if gtSelector1.is_valid():
-            idname1=gtSelector1.getval("idname1")
-            if(idname1!=''):
-                if(idname1.isdigit()):
-                    q+= 'gtid1='+idname1+'&'
-                else:
-                    q+= 'gtname1='+idname1+'&'
-
+        if gtSelector1.is_valid(): q=addIdOrName(q, gtSelector1.getval("idname1"), '1')
+            
         gtSelector2 = oneFieldGeneric(request.POST, label="Id/Name 2", field="idname2", init='')
-        if gtSelector2.is_valid():
-            idname2=gtSelector2.getval("idname2")
-            if(idname2!=''):
-                if(idname2.isdigit()):
-                    q+= 'gtid2='+idname2+'&'
-                else:
-                    q+= 'gtname2='+idname2+'&'
+        if gtSelector2.is_valid(): q=addIdOrName(q, gtSelector2.getval("idname2"), '2')
 
-        compSelector =  radioSelector(request.POST,
-                                      states=GTCOMPCHOICES,
-                                      label='Choose an option')
+        compSelector =  radioSelector(request.POST, states=GTCOMPCHOICES, label='Choose an option')
         if compSelector.is_valid():
             choice = compSelector.handleRadioSelector()
             q+='gtcompchoice='+choice+'&'
 
-        
         return makeQuery('gtcompare', q)
         # We have built a query and will come to same page/view with a GET query (below)
 
@@ -706,21 +697,13 @@ def gtcompare(request):
                                   states=GTCOMPCHOICES,
                                   label='Choose an option (UNDER CONSTRUCTION)')
 
-    if(gtid1=='' or gtid2==''): # some IDs missing, try names
-        
-        if(gtname1=='' or gtname2==''): # try names
+    if(gtid1=='' or gtid2==''): # one of the IDs is missing, try names
+        if(gtname1=='' or gtname2==''): # do not compare, just display GTs
 
-            gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init='')
-            selectors.append(gtSelector1)
-
+            selectors.append(oneFieldGeneric(label="ID/NAME 1", field="idname1", init=''))
             selectors.append(COMPARISON_PROMPT)
-    
-            gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init='')
-            selectors.append(gtSelector2)
+            selectors.append(oneFieldGeneric(label="ID/NAME 2", field="idname2", init=''))
         
-            # selwidth=30*(len(selectors)+1)
-            # if(selwidth>100):
-
             selwidth=100
             
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
@@ -743,7 +726,8 @@ def gtcompare(request):
             
             if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
             return render(request, template, d)
-        else:
+        
+        else: # both names are not blank
             gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtname1)
             selectors.append(gtSelector1)
     
@@ -752,7 +736,7 @@ def gtcompare(request):
             gtSelector2 = oneFieldGeneric(label="ID/NAME 2", field="idname2", init=gtname2)
             selectors.append(gtSelector2)
 
-            try:
+            try: # reconstruct the IDs from names
                 gt1 = GlobalTag.objects.using('default').filter(name=gtname1)[0]
                 gt2 = GlobalTag.objects.using('default').filter(name=gtname2)[0]
                 gtid1=gt1.global_tag_id
@@ -761,7 +745,7 @@ def gtcompare(request):
                 pass
 
             
-    else: # proceed with search on IDs
+    else: # proceed with search on IDs, because we checked that they were provided
         
         gtSelector1 = oneFieldGeneric(label="ID/NAME 1", field="idname1", init=gtid1)
         selectors.append(gtSelector1)
@@ -779,11 +763,6 @@ def gtcompare(request):
         except:
             pass
 
-
-    # disables in the template, comment this out for now
-    # selwidth=30*(len(selectors)+1)
-    # if(selwidth>100):
-    
     selwidth=100
     
     if(gt1 is None or gt2 is None):
@@ -799,20 +778,20 @@ def gtcompare(request):
         except:
             pass
         
-        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
+        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER # purely for display
         return render(request, template, d)
-    #---
-       
+    
+    # OK, we got both tags and are ready to proceed
     table1, table2 = GlobalTagTable([gt1,]), GlobalTagTable([gt2,])
-    
-    table1.exclude, table2.exclude = ('global_tag_id', 'name', 'description',), ('global_tag_id', 'name', 'description',)
-    
-    RequestConfig(request).configure(table1)
-    RequestConfig(request).configure(table2)
+
+    for t12 in ('table1', 'table2'):
+        eval(t12).exclude = ('global_tag_id', 'name', 'description',)
+        RequestConfig(request).configure(eval(t12))
         
     th1,   th2	= str(gtid1)+': "'+gtname1+'"', str(gtid2)+': "'+gtname2+'"'
     desc1, desc2= gt1.description, gt2.description
 
+    # GlobalTagPayloads for each GT, note the ordering
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
     gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
 
