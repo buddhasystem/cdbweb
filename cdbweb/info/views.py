@@ -21,10 +21,13 @@ from .cdbwebTables	import *
 
 # UI choices
 from .choices		import *
+from .PayloadInformation import PayloadInformation
 
 
 from utils.selectorUtils	import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
 from utils.selectorWrappers	import *
+
+import difflib
 
 #########################################################    
 
@@ -184,23 +187,6 @@ def index(request):
     return render(request, template, d)
 
 #########################################################    
-def test(request):
-    template = 'cdbweb_base.html'
-    
-    host	= request.GET.get('host','')
-    domain	= request.get_host()
-    settings.domain = domain # replaces  table.set_site below
-    navtable	= TopTable(domain, 'test')
-    
-    d = dict(domain=	domain,
-             host=	host,
-             what=	'test',
-             navtable=	navtable,
-    )
-
-    return render(request, template, d)
-
-#########################################################    
 def iovcheck(request):
     template = 'cdbweb_iov_chart.html'
     
@@ -223,19 +209,21 @@ def iovcheck(request):
 def data_handler(request, what):
     rg = request.GET
     
-    perpage	= rg.get('perpage','25')
-    gtid	= rg.get('gtid','')		# GT ID
-    gt4pl	= rg.get('gt4pl','')		# some GT detail supplied for the payload screen
-    gtpid	= rg.get('gtpid','')		# GT payload ID
-    pk		= rg.get('id','')
-    name	= rg.get('name','')
-    status	= rg.get('status','All')
-    gttype	= rg.get('gttype','All')
-    basf2	= rg.get('basf2','')
-    modifiedby	= rg.get('modifiedby','')
-    validate	= rg.get('validate','0')
+    perpage	= rg.get('perpage',	'25')
+    gtid	= rg.get('gtid',	'')	# GT ID
+    gt4pl	= rg.get('gt4pl',	'')	# some GT detail supplied for the payload screen
+    gtpid	= rg.get('gtpid',	'')	# GT payload ID
+    pk		= rg.get('id',		'')
+    name	= rg.get('name',	'')
+    
+    status	= rg.get('status',	'All')
+    gttype	= rg.get('gttype',	'All')
+    
+    basf2	= rg.get('basf2',	'')
+    modifiedby	= rg.get('modifiedby',	'')
+    validate	= rg.get('validate',	'0')
 
-    ids		= rg.get('ids','')
+    ids		= rg.get('ids',		'')
 
     
     excluded_selectors = []
@@ -301,76 +289,64 @@ def data_handler(request, what):
     ##################################################################
     ########################    GET    ###############################
     ##################################################################
-
-    
-    # prepare the top nav bar and other attributes...
     
     host		= rg.get('host','')
     domain		= request.get_host()
     settings.domain	= domain # replaces  table.set_site below
     navtable		= TopTable(domain, what)
 
-    selectors = [] # The request was GET - populate the selectors
+    # ------------------------------ BEGIN building selectors
+    selectors = []
 
     if(what=='Basf2Module'):
         nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
         selectors.append(nameSelector)
 
-    if(what=='GlobalTag' and pk==''):
-        nameSelector = oneFieldGeneric(label="Name (can be partial)",	field="name", init=name)
-        selectors.append(nameSelector)
-        
+    # --- GLOBAL TAG
+    if what=='GlobalTag':
         if('ID' not in excluded_selectors):
             idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
             selectors.append(idSelector)
         
-        selectors.append(gtStatusSelector(None,	status, GTSTATUSCHOICES))
-        selectors.append(gtTypeSelector(None,	gttype, GTTYPECHOICES))
+        if pk=='':
+            nameSelector = oneFieldGeneric(label="Name (can be partial)", field="name", init=name)
+            selectors.append(nameSelector)
+        
+            selectors.append(gtStatusSelector(None,	status, GTSTATUSCHOICES))
+            selectors.append(gtTypeSelector(None,	gttype, GTTYPECHOICES))
 
         
-        modifiedBySelector = oneFieldGeneric(label="Modified by",	field="modifiedby", init=modifiedby)
-        selectors.append(modifiedBySelector)
-
-    if(what=='GlobalTag' and pk!=''):
+            modifiedBySelector = oneFieldGeneric(label="Modified by", field="modifiedby",
+                                                 init=modifiedby)
+            selectors.append(modifiedBySelector)
+        else:
             basf2Selector = oneFieldGeneric(label='Payload Name filter, can be partial',
                                             field="basf2", init=basf2)
             selectors.append(basf2Selector)
-
-            if('ID' not in excluded_selectors):
-                idSelector = oneFieldGeneric(label="ID", field="id", init=pk)
-                selectors.append(idSelector)
-            
+            validateSelector = boolSelector(label='Run IoV diagnostics', what='validate',
+                                            init=(validate=='1'))
+            selectors.append(validateSelector)
+    # ---
+    # --- GTP
+    # Note that this page is effectively removed so this stanza doesn't count 20190520
     if(what=='GlobalTagPayload') and pk=='':
         gtidSelector	= oneFieldGeneric(label="Global Tag ID", field="gtid", init=gtid)
         selectors.append(gtidSelector)
-
         nameSelector	= oneFieldGeneric(label="GT Name (Can be partial)", field="name", init=name)
         selectors.append(nameSelector)
-
-        basf2Selector = oneFieldGeneric(label="Payload Name (can be partial)", field="basf2", init=basf2)
+        basf2Selector = oneFieldGeneric(label="Payload Name (can be partial)",field="basf2",init=basf2)
         selectors.append(basf2Selector)
 
-        
-    # Keep for later...
-    # if(what=='Payload'):
-    #     gtpidSelector = oneFieldGeneric(label="Global Tag Payload ID", field="gtpid", init=gtpid)
-    #     selectors.append(gtpidSelector)
-
+    # ---
     if(what=='Payload' and pk==''):
         basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
     selectors.append(pageSelector(None, perpage, PAGECHOICES))
 
-    if(what=='GlobalTag' and pk!=''):
-        validateSelector = boolSelector(label='Run IoV diagnostics', what='validate', init=(validate=='1'))
-        selectors.append(validateSelector)
-
-    
     selwidth=min(100, 15*(len(selectors)+1))
-    
-    # --- END building selectors
-    #################################################################################################
+  
+    # ------------------------------ END building selectors
     
     objects	= None
     itemStatus	= None
@@ -387,13 +363,16 @@ def data_handler(request, what):
     if(pk!=''):
         theObject  = None
 
+        # -----------------------------------
         try:
             theObject = eval(what).objects.get(pk=pk)
         except:
             banner	= 'No '+what+' database entries were found using your selection criteria'
             template	= 'cdbweb_general_table_empty.html' # custom template for empty set
             d		= dict(domain=domain, host=host, what=banner, selectors=selectors, navtable=navtable)
-            return render(request, template, d)
+            return render(request, template, d)  # bail...
+        # -----------------------------------
+        
 
         table = eval(what+'Table')([theObject,]) # create a table for the object fetched by the primary key
         RequestConfig(request).configure(table)
@@ -661,7 +640,7 @@ def gtcompare(request):
 
     gt1, gt2 = None, None
 
-    # --- Populate the selector section!
+    # --- Populate the selector section
     selectors	= []
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
 
@@ -756,7 +735,9 @@ def gtcompare(request):
         if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER # purely for display
         return render(request, template, d)
     
+    ####################################################################
     # OK, we got both tags and are ready to proceed
+    
     table1, table2 = GlobalTagTable([gt1,]), GlobalTagTable([gt2,])
 
     for t12 in ('table1', 'table2'):
@@ -770,6 +751,15 @@ def gtcompare(request):
     gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
     gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
 
+
+    testVar = PayloadInformation(gtp1[0])
+    # print(testVar)
+    
+    payloads1	= gtp1.values_list('payload_id', flat=True)
+    payloads2	= gtp2.values_list('payload_id', flat=True)
+
+    # print(payloads1, payloads2)
+  
     gtp_exclude = ('global_tag_id', 'gtName', 'dtm_ins', 'dtm_mod',)
 
     aux_table1	= GlobalTagPayloadTable(gtp1)
