@@ -19,40 +19,15 @@ from utils.navbar	import TopTable
 from .models		import *
 from .cdbwebTables	import *
 
+# UI choices
+from .choices		import *
+
 
 from utils.selectorUtils	import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
 from utils.selectorWrappers	import *
 
 #########################################################    
 
-PAGECHOICES	= [('25','25'),('50','50'),('100','100'),('200','200'),('400','400'),('800','800'),]
-GTSTATUSCHOICES	= [('All','All'),('NEW','New'),('PUBLISHED','Published'),('INVALID','Invalid'),]
-GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
-
-GTCOMPCHOICES	= [
-    ('sidebyside',	'Display side by side'),
-    ('runexp',		'Limit by exp and run'),
-]
-
-
-EXCLUDE_SELECTORS = {
-#    'GlobalTag':('ID',),
-    'Payload':('ID',),
-    }
-
-
-EXCLUDE_COLUMNS = {
-   'GlobalTagPayload':	{
-        'pk':	('global_tag_payload_id',),
-    },
-    'GlobalTag':	{
-        'all':	('dtm_ins', 'numberOfGlobalTagPayloads', 'basf2modules')
-    },
-    'Payload':		{
-        'all':	('payload_id', 'payload_url', 'dtm_ins', 'dtm_mod', 'iov',),
-        'pk':	('payload_url',),
-    },
-}
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
 
