@@ -46,23 +46,15 @@
 
   <!-- the following line displays summary for both global tags -->
   <tr><td>{% render_table table1 %}</td><td>{% render_table table2 %}</td></tr>
-  
-  <tr><td align="center">Global Tag Payloads</td><td align="center">Global Tag Payloads</td> </tr>
-  
-  <tr>
-    {% if aux_table1 %}
-    <td align="center">{% render_table aux_table1 %}</td>
-    {% endif %}
 
-    {% if aux_table2 %}
-    <td align="center">{% render_table aux_table2 %}</td>
-    {% endif %}
-  </tr>
   
 </table>
+
+  <h3>test</h3>
+
 <p/>
 <center>
-  Click on the Global Tag Payload ID to get detailed information on the IoVs and modification timestamps.
+test footer
 </center>
 {% endif %}
 {% endblock %}

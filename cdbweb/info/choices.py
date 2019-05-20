@@ -6,8 +6,15 @@ GTTYPECHOICES	= [('All','All'),('RELEASE','Release'),('DEV','Dev'),]
 # ---
 GTCOMPCHOICES	= [
     ('sidebyside',	'Display side by side'),
+    ('diff',		'Diff'),
     ('runexp',		'Limit by exp and run'),
 ]
+
+GTCOMPTEMPLATES = {
+    'sidebyside':'gtcompare.html',
+    'diff':'gtdiff.html',
+    'runexp':'gtcompare.html',
+    }
 
 # ---
 EXCLUDE_SELECTORS = {

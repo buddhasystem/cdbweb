@@ -2,36 +2,42 @@ from .models		import *
 
 class PayloadInformation:
     """
-    Adapted (with changes) from b2s):
-    A container class for efficient comparison between global tags"""
-    
+    Adapted (with changes) from b2s:
+    A container class for efficient comparison between global tags
+    """
+    # ---
     def __init__(self, gtp):
         
         payload = Payload.objects.get(pk=gtp.payload_id)
         
         self.name = Basf2Module.objects.get(pk=payload.basf2_module_id).name
         self.checksum = payload.checksum
+        self.rev = payload.revision
             
         iov = PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)[0]
         self.iov = iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
         
+    # ---
     def __str__(self):
         stringifyIovs = ' '.join(map(str, self.iov))
         return self.name+' '+self.checksum+' '+stringifyIovs
-        
 
+    # ---
     def __hash__(self):
         """Make object hashable"""
         return hash((self.name, self.checksum, self.iov))
 
+    # ---
     def __eq__(self, other):
         """Check if two payloads are equal"""
         return (self.name, self.checksum, self.iov) == (other.name, other.checksum, other.iov)
 
+    # ---
     def __lt__(self, other):
         """Sort payloads by name, iov, revision"""
         return (self.name.lower(), self.iov, self.rev) < (other.name.lower(), other.iov, other.rev)
 
+    # ---
     def readable_iov(self):
         """return a human readable name for the IoV"""
         if self.iov == (0, 0, -1, -1):
@@ -55,6 +61,7 @@ class PayloadInformation:
             else:
                 return "exp {e1}, run {r1} - exp {e2}, run {r2}"
 
+##################################################################################################
 # Original:        
     # def __init__(self, payload, iov):
     #     """Set all internal members from the json information of the payload and the iov.

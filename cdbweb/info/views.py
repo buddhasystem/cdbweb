@@ -42,7 +42,16 @@ def makeQuery(page, q=''):
 
     if(q==''): return HttpResponseRedirect(gUrl)
     return HttpResponseRedirect(qUrl+q)
-
+#########################################################    
+# ---
+def addSnapshot(d):
+    try:
+        d['snapshot']=settings.SNAPSHOT
+    except:
+        pass
+        
+    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER # purely for display
+    return d
 #########################################################    
 # ---
 def addIdOrName(query, id_or_name, one_or_two):
@@ -176,14 +185,10 @@ def index(request):
     except:
         pass
 
-    try:
-        d['snapshot']=settings.SNAPSHOT
-        d['what']='Welcome to CDBweb! This test service reflects the DB snapshot taken on '+settings.SNAPSHOT+'.'
-    except:
-        d['what']='Welcome to CDBweb!'
+    d['what']='Welcome to CDBweb!'
 
-    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
-        
+    d=addSnapshot(d)
+
     return render(request, template, d)
 
 #########################################################    
@@ -489,13 +494,8 @@ def data_handler(request, what):
                  selwidth	=	selwidth,
                  now		=	now,
         )
-        
-        try:
-            d['snapshot']=settings.SNAPSHOT
-        except:
-            pass
-        
-        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
+
+        d=addSnapshot(d)
         return render(request, template, d)
 
     ##########################################################################
@@ -584,14 +584,9 @@ def data_handler(request, what):
              note=	note,
     )
 
-    try:
-        d['snapshot']=settings.SNAPSHOT
-    except:
-        pass
-    # *******> TEMPLATE <*******
+    f=addSnapshot(d)
     template = 'cdbweb_general_table.html'
 
-    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
     return render(request, template, d)
 
 ######################################################### . . . . . . . . . . . . .
@@ -601,7 +596,6 @@ def gtcompare(request):
     domain		= request.get_host()
     settings.domain	= domain
     navtable		= TopTable(domain, 'Global Tag Comparison')
-    template		= 'gtcompare.html'
 
     ##################################################################
     ####################      POST      ##############################
@@ -644,6 +638,7 @@ def gtcompare(request):
     selectors	= []
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
 
+    template	= GTCOMPTEMPLATES[gtcompchoice]
     now = timezone.now()
     
 
@@ -666,19 +661,15 @@ def gtcompare(request):
                      now=now,
             )
             
-            try:
-                d['snapshot']=settings.SNAPSHOT
-            except:
-                pass
-
             # CREATE the global tag table
             allGts = GlobalTag.objects.order_by('-pk') # newest on top
             gtTable = GlobalTagTable(allGts)
             RequestConfig(request, paginate={'per_page': 25}).configure(gtTable)
 
             d['gtTable'] = gtTable
-            
-            if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
+
+            d=addSnapshot(d)
+
             return render(request, template, d)
         
         else: # both names are not blank
@@ -727,12 +718,7 @@ def gtcompare(request):
                  now=now,
         )
 
-        try:
-            d['snapshot']=settings.SNAPSHOT
-        except:
-            pass
-        
-        if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER # purely for display
+        d=addSnapshot(d)
         return render(request, template, d)
     
     ####################################################################
@@ -747,16 +733,39 @@ def gtcompare(request):
     th1,   th2	= str(gtid1)+': "'+gtname1+'"', str(gtid2)+': "'+gtname2+'"'
     desc1, desc2= gt1.description, gt2.description
 
+
     # GlobalTagPayloads for each GT, note the ordering
-    gtp1	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
-    gtp2	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
+    gtp1 = GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
+    gtp2 = GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
 
-
-    testVar = PayloadInformation(gtp1[0])
-    # print(testVar)
+    if gtcompchoice=='diff':
+        payloads4comp1, payloads4comp2 = [], []
     
-    payloads1	= gtp1.values_list('payload_id', flat=True)
-    payloads2	= gtp2.values_list('payload_id', flat=True)
+        for gtp in gtp1: payloads4comp1.append(PayloadInformation(gtp))
+        payloads4comp1.sort()
+        for gtp in gtp2: payloads4comp2.append(PayloadInformation(gtp))
+        payloads4comp2.sort()
+        
+        diff = difflib.SequenceMatcher(a=payloads4comp1, b=payloads4comp2)
+
+        # for x in diff.get_opcodes(): print(x)
+
+        d = dict(domain=domain, host=host, what=what, navtable=navtable,
+                 now=now,
+	         selectors	= selectors,	selwidth=selwidth,
+                 options=compSelector,
+                 th1	= th1,		th2	= th2,
+                 desc1	= desc1,	desc2	= desc2,
+                 table1	= table1,	table2	= table2,
+    )
+
+        d=addSnapshot(d)
+        return render(request, template, d)
+
+    
+        
+#    payloads1	= gtp1.values_list('payload_id', flat=True)
+#    payloads2	= gtp2.values_list('payload_id', flat=True)
 
     # print(payloads1, payloads2)
   
@@ -770,7 +779,6 @@ def gtcompare(request):
     aux_table2.exclude = gtp_exclude
     RequestConfig(request).configure(aux_table2)
 
-    now = timezone.now()
     d = dict(domain=domain, host=host, what=what, navtable=navtable,
              now=now,
 	     selectors	= selectors,	selwidth=selwidth,
@@ -781,12 +789,7 @@ def gtcompare(request):
              aux_table1	= aux_table1,	aux_table2=aux_table2
     )
 
-    try:
-        d['snapshot']=settings.SNAPSHOT
-    except:
-        pass
-    
-    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER
+    d=addSnapshot(d)
     return render(request, template, d)
 
 
