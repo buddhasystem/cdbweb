@@ -30,11 +30,6 @@
 {% endif %}
 <!---   SELECTORS     --->
 
-
-{% if gtTable %}
-<center> <h3>Global Tags</h3>{% render_table gtTable %}</center>
-{% endif %}
-
 {% if table1 and table2 %}
 <table border="1" width="100%">
   <tr><th>{{ th1 }}</th><th>{{ th2 }}</th></tr>
@@ -46,15 +41,16 @@
 
   <!-- the following line displays summary for both global tags -->
   <tr><td>{% render_table table1 %}</td><td>{% render_table table2 %}</td></tr>
-
-  
 </table>
 
-  <h3>test</h3>
-
 <p/>
+
 <center>
-test footer
+  <b>Global Tag "diff"</b>
 </center>
+<center>
+{% render_table gtdifftable %}
+</center>
+
 {% endif %}
 {% endblock %}

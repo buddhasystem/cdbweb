@@ -738,7 +738,7 @@ def gtcompare(request):
     gtp1 = GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid1).order_by('-pk')
     gtp2 = GlobalTagPayload.objects.using('default').filter(global_tag_id=gtid2).order_by('-pk')
 
-    if gtcompchoice=='diff':
+    if gtcompchoice in ('diff', 'fulldiff'):
         payloads4comp1, payloads4comp2 = [], []
     
         for gtp in gtp1: payloads4comp1.append(PayloadInformation(gtp))
@@ -748,8 +748,28 @@ def gtcompare(request):
         
         diff = difflib.SequenceMatcher(a=payloads4comp1, b=payloads4comp2)
 
-        # for x in diff.get_opcodes(): print(x)
+        list4diff = []
+        for diff_tag, i1, i2, j1, j2 in diff.get_opcodes():
+            if diff_tag == "equal":
+                if gtcompchoice!='fulldiff': continue
+                for p in payloads4comp2[j1:j2]:
+                    myDict = {'name':p.name, 'rev':p.rev}
+                    list4diff.append(myDict)
 
+        gtDiffTable = GtDiffTable(list4diff)
+            # myDict		= {
+            #     'name':	b.name,
+            #     'count':	cnt,
+            #     'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
+            #     'payload_ids':(",".join(stringArray))
+            # }
+                
+            # listOfPayloads.append(myDict)
+
+            # aux_table = PayloadLinkTable(listOfPayloads)
+            
+            # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+        
         d = dict(domain=domain, host=host, what=what, navtable=navtable,
                  now=now,
 	         selectors	= selectors,	selwidth=selwidth,
@@ -757,7 +777,8 @@ def gtcompare(request):
                  th1	= th1,		th2	= th2,
                  desc1	= desc1,	desc2	= desc2,
                  table1	= table1,	table2	= table2,
-    )
+                 gtdifftable=gtDiffTable,
+        )
 
         d=addSnapshot(d)
         return render(request, template, d)

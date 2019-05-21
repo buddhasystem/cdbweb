@@ -38,10 +38,25 @@ def numberOfModules(gt):
     return howMany
 
 
-#########################################################
-# Need a custom table for aggregated payloads since it's
-# not based on a model
 
+#########################################################
+########### Custom Tables (not model-based) #############
+#########################################################
+# ---
+# Custom table for GT diffs
+class GtDiffTable(tables.Table):
+    name	= tables.Column()
+    rev		= tables.Column()
+#    exp_start	= tables.Column()
+#    run_start	= tables.Column()
+#    exp_end	= tables.Column()
+#    run_end	= tables.Column()
+
+    class Meta:
+        attrs	= {'class': 'paleblue'}
+
+# ---
+# Custom table for aggregated payloads
 class PayloadLinkTable(tables.Table):
     name	= tables.Column(empty_values=())
     count	= tables.Column()
