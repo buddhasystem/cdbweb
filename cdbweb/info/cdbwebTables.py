@@ -45,8 +45,10 @@ def numberOfModules(gt):
 # ---
 # Custom table for GT diffs
 class GtDiffTable(tables.Table):
+    diff	= tables.Column(empty_values=())
     name	= tables.Column()
     rev		= tables.Column()
+    
 #    exp_start	= tables.Column()
 #    run_start	= tables.Column()
 #    exp_end	= tables.Column()
@@ -138,9 +140,9 @@ class Basf2ModuleTable(CdbWebTable):
 #########################################################
 class GlobalTagTable(CdbWebTable):
     numberOfGlobalTagPayloads	= tables.Column(verbose_name='Total Payloads', empty_values=())
-    basf2modules		= tables.Column(verbose_name='Distinct Payloads',
-                                                empty_values=(),
-                                                attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
+    basf2modules = tables.Column(verbose_name='Distinct Payloads',
+                                 empty_values=(),
+                                 attrs={'td': {'width': '"20%"'}, 'th': {'width': '"20%"'}}
     )
 
     def order_numberOfGlobalTagPayloads(self, QuerySet, is_descending):

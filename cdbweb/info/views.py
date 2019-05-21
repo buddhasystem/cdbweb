@@ -67,6 +67,18 @@ def addIdOrName(query, id_or_name, one_or_two):
 
 #########################################################    
 # ---
+def add_payloads(opcode, list4diff, payloads):
+    for p in payloads:
+        myDict = {
+            'diff':opcode,
+            'name':p.name,
+            'rev': p.rev,
+        }
+        list4diff.append(myDict)
+
+    return list4diff
+#########################################################    
+# ---
 def gtValidation(allGtps):
     itemStatus = None
     
@@ -752,23 +764,14 @@ def gtcompare(request):
         for diff_tag, i1, i2, j1, j2 in diff.get_opcodes():
             if diff_tag == "equal":
                 if gtcompchoice!='fulldiff': continue
-                for p in payloads4comp2[j1:j2]:
-                    myDict = {'name':p.name, 'rev':p.rev}
-                    list4diff.append(myDict)
+                list4diff = add_payloads(' ', list4diff, payloads4comp2[j1:j2])
+            if diff_tag in ['delete', 'replace']:
+                list4diff = add_payloads('-', list4diff, payloads4comp1[i1:i2])
+            if diff_tag in ['insert', 'replace']:
+                list4diff = add_payloads('+', list4diff, payloads4comp2[j1:j2])
 
         gtDiffTable = GtDiffTable(list4diff)
-            # myDict		= {
-            #     'name':	b.name,
-            #     'count':	cnt,
-            #     'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
-            #     'payload_ids':(",".join(stringArray))
-            # }
-                
-            # listOfPayloads.append(myDict)
-
-            # aux_table = PayloadLinkTable(listOfPayloads)
-            
-            # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
+        # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(gtDiffTable)
         
         d = dict(domain=domain, host=host, what=what, navtable=navtable,
                  now=now,
@@ -783,13 +786,8 @@ def gtcompare(request):
         d=addSnapshot(d)
         return render(request, template, d)
 
-    
-        
-#    payloads1	= gtp1.values_list('payload_id', flat=True)
-#    payloads2	= gtp2.values_list('payload_id', flat=True)
-
-    # print(payloads1, payloads2)
-  
+    # Assume 'side by side'
+    # ---
     gtp_exclude = ('global_tag_id', 'gtName', 'dtm_ins', 'dtm_mod',)
 
     aux_table1	= GlobalTagPayloadTable(gtp1)
@@ -828,3 +826,9 @@ def gtcompare(request):
 # aux_tables.append(tableDict)
 
 
+    
+# Example of a payload ID list        
+#    payloads1	= gtp1.values_list('payload_id', flat=True)
+
+
+  
