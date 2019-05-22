@@ -12,6 +12,8 @@ from .models		import *
 import operator
 
 #########################################################
+############## Links formatters #########################
+#########################################################
 def makelink(what, key, value):
     return mark_safe('<a href="http://%s%s?%s=%s">%s</a>'
                      % (settings.domain, reverse(what), key, value, value))
@@ -28,6 +30,7 @@ def makeIDlink(what, id_value, value):
     return mark_safe('<a href="http://%s%s?id=%s">%s</a>'
                      % (settings.domain, reverse(what), id_value,  value))
 
+#########################################################
 def numberOfModules(gt):
     the_payloads	= GlobalTagPayload.objects.filter(global_tag_id=gt.global_tag_id).values_list('payload_id')
     the_modules		= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
@@ -72,6 +75,9 @@ class PayloadLinkTable(tables.Table):
         attrs	= {'class': 'paleblue'}
         exclude = ('payload_ids', 'gt',)
 
+
+#########################################################
+################# "Main" tables #########################
 #########################################################
 # Base abstract class for all the "general" tables in
 # CDBweb. Due to the original naming convention where

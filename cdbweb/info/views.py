@@ -21,9 +21,14 @@ from .cdbwebTables	import *
 
 # UI choices
 from .choices		import *
+
+# Container class to make GT content sortable
 from .PayloadInformation import PayloadInformation
 
+# general view utilities
+from .viewsUtils		import *
 
+# selector utilities
 from utils.selectorUtils	import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
 from utils.selectorWrappers	import *
 
@@ -42,41 +47,6 @@ def makeQuery(page, q=''):
 
     if(q==''): return HttpResponseRedirect(gUrl)
     return HttpResponseRedirect(qUrl+q)
-#########################################################    
-# ---
-def addSnapshot(d):
-    try:
-        d['snapshot']=settings.SNAPSHOT
-    except:
-        pass
-        
-    if(settings.DBSERVER!=''): d['dbserver']=settings.DBSERVER # purely for display
-    return d
-#########################################################    
-# ---
-def addIdOrName(query, id_or_name, one_or_two):
-    addition = ''
-    
-    if(id_or_name!=''):
-        if(id_or_name.isdigit()):
-            addition = 'gtid'+one_or_two+'='+id_or_name+'&'
-        else:
-            addition = 'gtname'+one_or_two+'='+id_or_name+'&'
-            
-    return query+addition
-
-#########################################################    
-# ---
-def add_payloads(opcode, list4diff, payloads):
-    for p in payloads:
-        myDict = {
-            'diff':opcode,
-            'name':p.name,
-            'rev': p.rev,
-        }
-        list4diff.append(myDict)
-
-    return list4diff
 #########################################################    
 # ---
 def gtValidation(allGtps):
@@ -109,7 +79,7 @@ def gtValidation(allGtps):
         itemStatus = 'Diagnostic 1: different number of IoVs for some Payloads.<br/>'
 
         
-    the_payloads	= allGtps.values_list('payload_id', flat=True) # payload numbers for the GT we are handling
+    the_payloads	= allGtps.values_list('payload_id', flat=True) # payload numbers for this GT
 
     selected_basf2	= Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
 
@@ -359,6 +329,7 @@ def data_handler(request, what):
         basf2Selector = oneFieldGeneric(label="Name (can be partial)", field="basf2", init=basf2)
         selectors.append(basf2Selector)
 
+    # -- Pagination selector:
     selectors.append(pageSelector(None, perpage, PAGECHOICES))
 
     selwidth=min(100, 15*(len(selectors)+1))
@@ -514,10 +485,12 @@ def data_handler(request, what):
     ################# SELECTION OTHER THAN PRIMARY KEY #######################
     ##########################################################################
     else:
+        # special treatment for payloads since the DB key is int but we have str
         if(what=='Payload' and ids!=''):
             strArray=ids.split(',')
             intArray=[]
-            for s in strArray: intArray.append(int(s))
+            
+            for s in strArray: intArray.append(int(s)) # should use map here
             objects = Payload.objects.filter(payload_id__in=intArray)
         else:
             objects = eval(what).objects.order_by('-pk') # newest on top
@@ -550,7 +523,6 @@ def data_handler(request, what):
             objects	= objects.filter(modified_by=modifiedby)
         else:
             pass
-
 
     ### TAKE STOCK OF WHAT'S BEEN FOUND
     if objects is not None and len(objects)!=0:
@@ -813,20 +785,7 @@ def gtcompare(request):
 
 
 #################################################################################################
-# DeferredRPT
-# objects	= PayloadIovRpt.objects.filter(global_tag_payload_id=pk).order_by('-pk') # newest on top
-# Nobj	= len(objects)
-
-# aux_title	= 'Found '+str(Nobj)+' "PayloadIovRpt" items for the Global Tag Payload '+str(pk)
-# aux_table	= PayloadIovRptTable(objects)
-# aux_table.exclude = ('global_tag_payload_id', 'payload_id', 'global_tag_id', 'gt_name', 'b2m_name',)
-# RequestConfig(request, paginate={'per_page': int(perpage)}).configure(aux_table)
-
-# tableDict	= {'title':aux_title, 'table':aux_table}
-# aux_tables.append(tableDict)
-
-
-    
+   
 # Example of a payload ID list        
 #    payloads1	= gtp1.values_list('payload_id', flat=True)
 
