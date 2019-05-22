@@ -33,6 +33,7 @@ def add_payloads(opcode, list4diff, payloads):
             'diff':opcode,
             'name':p.name,
             'rev': p.rev,
+            'iov': p.readable_iov(),
         }
         list4diff.append(myDict)
 

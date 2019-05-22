@@ -51,6 +51,7 @@ class GtDiffTable(tables.Table):
     diff	= tables.Column(empty_values=())
     name	= tables.Column()
     rev		= tables.Column()
+    iov		= tables.Column()
     
 #    exp_start	= tables.Column()
 #    run_start	= tables.Column()

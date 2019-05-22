@@ -10,12 +10,12 @@ class PayloadInformation:
         
         payload = Payload.objects.get(pk=gtp.payload_id)
         
-        self.name = Basf2Module.objects.get(pk=payload.basf2_module_id).name
-        self.checksum = payload.checksum
-        self.rev = payload.revision
+        self.name	= Basf2Module.objects.get(pk=payload.basf2_module_id).name
+        self.checksum	= payload.checksum
+        self.rev	= payload.revision
             
-        iov = PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)[0]
-        self.iov = iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
+        iov	= PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)[0]
+        self.iov= iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
         
     # ---
     def __str__(self):
@@ -48,18 +48,18 @@ class PayloadInformation:
             if r1 == 0 and r2 == -1:
                 return "exp {e1}"
             elif r2 == -1:
-                return "exp {e1}, runs {r1}+"
+                return "exp {}, runs {}+".format(e1,r1)
             elif r1 == r2:
-                return "exp {e1}, run {r1}"
+                return "exp {}, run {}".format(e1,r1)
             else:
-                return "exp {e1}, runs {r1} - {r2}"
+                return "exp {}, runs {} - {}".format(e1,r1,r1)
         else:
             if r1 == 0 and r2 == -1:
-                return "exp {e1}-{e2}, all runs"
+                return "exp {}-{}, all runs".format(e1,e2)
             elif r2 == -1:
-                return "exp {e1}, run {r1} - exp {e2}, all runs"
+                return "exp {}, run {} - exp {}, all runs".format(e1,r1,e2)
             else:
-                return "exp {e1}, run {r1} - exp {e2}, run {r2}"
+                return "exp {}, run {} - exp {}, run {}".format(e1,r1,e2,r2)
 
 ##################################################################################################
 # Original:        

@@ -732,13 +732,15 @@ def gtcompare(request):
         
         diff = difflib.SequenceMatcher(a=payloads4comp1, b=payloads4comp2)
 
-        list4diff = []
+        list4diff = [] # to build the table...
         for diff_tag, i1, i2, j1, j2 in diff.get_opcodes():
             if diff_tag == "equal":
                 if gtcompchoice!='fulldiff': continue
                 list4diff = add_payloads(' ', list4diff, payloads4comp2[j1:j2])
+                
             if diff_tag in ['delete', 'replace']:
                 list4diff = add_payloads('-', list4diff, payloads4comp1[i1:i2])
+                
             if diff_tag in ['insert', 'replace']:
                 list4diff = add_payloads('+', list4diff, payloads4comp2[j1:j2])
 
