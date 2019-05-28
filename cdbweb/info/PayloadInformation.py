@@ -60,7 +60,7 @@ class PayloadInformation:
         e1, r1, e2, r2 = self.iov
         if e1 == e2:
             if r1 == 0 and r2 == -1:
-                return "exp {e1}"
+                return "exp {}".format(e1)
             elif r2 == -1:
                 return "exp {}, runs {}+".format(e1,r1)
             elif r1 == r2:
@@ -69,7 +69,7 @@ class PayloadInformation:
                 return "exp {}, runs {} - {}".format(e1,r1,r1)
         else:
             if r1 == 0 and r2 == -1:
-                return "exp {}-{}, all runs".format(e1,e2)
+                return "exp {} - {}, all runs".format(e1,e2)
             elif r2 == -1:
                 return "exp {}, run {} - exp {}, all runs".format(e1,r1,e2)
             else:
