@@ -38,3 +38,5 @@ def add_payloads(opcode, list4diff, payloads):
         list4diff.append(myDict)
 
     return list4diff
+
+#########################################################    

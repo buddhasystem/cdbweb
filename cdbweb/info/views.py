@@ -36,14 +36,6 @@ from utils.selectorWrappers	import *
 import difflib
 
 #########################################################    
-
-
-COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
-
-RUNLABEL='Run'
-EXPLABEL='Exp'
-
-#########################################################    
 # ---
 def makeQuery(page, q=''):
     gUrl= '/'+page
@@ -627,6 +619,9 @@ def gtcompare(request):
     gtname1	= request.GET.get('gtname1','')
     gtname2	= request.GET.get('gtname2','')
 
+    exp		= request.GET.get('exp','')
+    run		= request.GET.get('run','')
+    
     gtcompchoice= request.GET.get('gtcompchoice','sidebyside')
 
     gt1, gt2 = None, None
@@ -642,11 +637,14 @@ def gtcompare(request):
                                   states=GTCOMPCHOICES,
                                   label='Choose an option')
 
-    runexpSelector = twoFieldGeneric(label1=RUNLABEL,	field1="run", init1='',
-                                     label2=EXPLABEL,	field2="exp", init2='')
-    
+    runexpSelector = twoFieldGeneric(label1=EXPLABEL,	field1="exp", init1=exp,
+                                     label2=RUNLABEL,	field2="run", init2=run)
+
+
+    ###############################################################################
+    ### FETCH THE GLOBAL TAGS, PROBING IDS AND/OR NAMES
     if(gtid1=='' or gtid2==''): # one of the IDs is missing, try names
-        if(gtname1=='' or gtname2==''): # do not compare, just display GTs
+        if(gtname1=='' or gtname2==''): # do not compare, just display all GTs
 
             selectors.append(oneFieldGeneric(label="ID/NAME 1", field="idname1", init=''))
             selectors.append(COMPARISON_PROMPT)
@@ -724,6 +722,8 @@ def gtcompare(request):
         return render(request, template, d)
     
     ####################################################################
+    ####################################################################
+    ####################################################################
     # OK, we got both tags and are ready to proceed
     
     table1, table2 = GlobalTagTable([gt1,]), GlobalTagTable([gt2,])
@@ -742,10 +742,33 @@ def gtcompare(request):
 
     if gtcompchoice in ('diff', 'fulldiff'):
         payloads4comp1, payloads4comp2 = [], []
-    
-        for gtp in gtp1: payloads4comp1.append(PayloadInformation(gtp))
+        # ---
+
+        exp2check, run2check = None, None
+        
+        if(exp!=''):
+            try:
+                exp2check=int(exp)
+            except:
+                pass
+            
+        if(run!=''):
+            try:
+                run2check=int(run)
+            except:
+                pass
+            
+        for gtp in gtp1:
+            payload2add = PayloadInformation(gtp)
+            if payload2add.check(exp2check, run2check): payloads4comp1.append(payload2add)
+            
         payloads4comp1.sort()
-        for gtp in gtp2: payloads4comp2.append(PayloadInformation(gtp))
+        
+        # ---
+        for gtp in gtp2:
+            payload2add = PayloadInformation(gtp)
+            if payload2add.check(exp2check, run2check): payloads4comp2.append(payload2add)
+
         payloads4comp2.sort()
         
         diff = difflib.SequenceMatcher(a=payloads4comp1, b=payloads4comp2)
@@ -780,8 +803,10 @@ def gtcompare(request):
         d=addSnapshot(d)
         return render(request, template, d)
 
-    # Assume 'side by side'
+    ############################################################################
+    # Important: assume the 'side by side' option (no automatic diff)
     # ---
+    
     gtp_exclude = ('global_tag_id', 'gtName', 'dtm_ins', 'dtm_mod',)
 
     aux_table1	= GlobalTagPayloadTable(gtp1)

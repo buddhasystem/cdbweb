@@ -2,8 +2,7 @@ from .models		import *
 
 class PayloadInformation:
     """
-    Adapted (with changes) from b2s:
-    A container class for efficient comparison between global tags
+    Adapted (with changes) from b2s: a container class for efficient GT comparison
     """
     # ---
     def __init__(self, gtp):
@@ -18,28 +17,43 @@ class PayloadInformation:
         self.iov= iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
         
     # ---
-    def __str__(self):
+    def check(self, exp, run):
+        expCheck, runCheck = False, False
+        expStart, runStart, expEnd, runEnd = self.iov
+
+        if exp is not None:
+            if(exp>=expStart and exp<=expEnd):	expCheck = True
+            if(exp>=expStart and expEnd==-1):	expCheck = True
+        else:
+            expCheck = True
+            
+        if run is not None:
+            if(run>=runStart and run<=runEnd):	runCheck = True
+            if(run>=runStart and runEnd==-1):	runCheck = True
+        else:
+            runCheck = True
+
+        return expCheck and runCheck
+    
+    # ---
+    def __str__(self):		# Stringify
         stringifyIovs = ' '.join(map(str, self.iov))
         return self.name+' '+self.checksum+' '+stringifyIovs
 
     # ---
-    def __hash__(self):
-        """Make object hashable"""
+    def __hash__(self):		# Make object hashable
         return hash((self.name, self.checksum, self.iov))
 
     # ---
-    def __eq__(self, other):
-        """Check if two payloads are equal"""
+    def __eq__(self, other):	# Check if two payloads are equal
         return (self.name, self.checksum, self.iov) == (other.name, other.checksum, other.iov)
 
     # ---
-    def __lt__(self, other):
-        """Sort payloads by name, iov, revision"""
+    def __lt__(self, other):	# Sort payloads by name, iov, revision
         return (self.name.lower(), self.iov, self.rev) < (other.name.lower(), other.iov, other.rev)
 
     # ---
-    def readable_iov(self):
-        """return a human readable name for the IoV"""
+    def readable_iov(self):	# Return a human readable name for the IoV
         if self.iov == (0, 0, -1, -1):
             return "always"
 
