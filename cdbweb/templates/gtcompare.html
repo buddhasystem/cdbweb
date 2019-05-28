@@ -19,7 +19,14 @@
       <!-- /td -->
     </tr>
     <tr>
-      {{ options }}
+      <td>
+	<table>{{ options }}</table>
+      </td>
+      {% if runexp %}
+      <td>
+	<table>{{ runexp }}</table>
+      </td>
+      {% endif %}
     </tr>
   </table>
   <center><input type="submit" value="Submit" /></center>

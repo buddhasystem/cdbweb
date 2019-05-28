@@ -29,7 +29,8 @@ from .PayloadInformation import PayloadInformation
 from .viewsUtils		import *
 
 # selector utilities
-from utils.selectorUtils	import dropDownGeneric, oneFieldGeneric, boxSelector, boolSelector, radioSelector
+from utils.selectorUtils	import oneFieldGeneric, twoFieldGeneric
+from utils.selectorUtils	import dropDownGeneric, boxSelector, boolSelector, radioSelector
 from utils.selectorWrappers	import *
 
 import difflib
@@ -38,6 +39,9 @@ import difflib
 
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
+
+RUNLABEL='Run'
+EXPLABEL='Exp'
 
 #########################################################    
 # ---
@@ -599,6 +603,15 @@ def gtcompare(request):
             choice = compSelector.handleRadioSelector()
             q+='gtcompchoice='+choice+'&'
 
+        runexpSelector = twoFieldGeneric(request.POST,
+                                         label1=RUNLABEL,	field1="run", init1='',
+                                         label2=EXPLABEL,	field2="exp", init2='')
+        if runexpSelector.is_valid():
+            run=runexpSelector.getval("run")
+            exp=runexpSelector.getval("exp")
+            if(run!=''): q+= 'run='+run+'&'
+            if(exp!=''): q+= 'exp='+exp+'&'
+
         return makeQuery('gtcompare', q)
         # We have built a query and will come to same page/view with a GET query (below)
 
@@ -621,15 +634,17 @@ def gtcompare(request):
     # --- Populate the selector section
     selectors	= []
     what	= 'Comparison of Global Tags. Specify a pair of IDs or a pair of names.'
-
     template	= GTCOMPTEMPLATES[gtcompchoice]
-    now = timezone.now()
+    now		= timezone.now()
     
 
     compSelector =  radioSelector(initial={'compChoice':gtcompchoice},
                                   states=GTCOMPCHOICES,
-                                  label='Choose an option (UNDER CONSTRUCTION)')
+                                  label='Choose an option')
 
+    runexpSelector = twoFieldGeneric(label1=RUNLABEL,	field1="run", init1='',
+                                     label2=EXPLABEL,	field2="exp", init2='')
+    
     if(gtid1=='' or gtid2==''): # one of the IDs is missing, try names
         if(gtname1=='' or gtname2==''): # do not compare, just display GTs
 
@@ -642,6 +657,7 @@ def gtcompare(request):
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
 	             selectors=selectors,		selwidth=selwidth,
                      options=compSelector,
+                     runexp=runexpSelector,
                      now=now,
             )
             
@@ -693,12 +709,14 @@ def gtcompare(request):
             pass
 
     selwidth=100
-    
+
+    # Catch the error condition:
     if(gt1 is None or gt2 is None):
         error='Check values: last query did not produce valid results.'
         d = dict(domain=domain,	host=host, what=what, error=error, navtable=navtable,
 	         selectors=selectors,	selwidth=selwidth,
                  options=compSelector,
+                 runexp=runexpSelector,              
                  now=now,
         )
 
@@ -711,7 +729,7 @@ def gtcompare(request):
     table1, table2 = GlobalTagTable([gt1,]), GlobalTagTable([gt2,])
 
     for t12 in ('table1', 'table2'):
-        eval(t12).exclude = ('global_tag_id', 'name', 'description',)
+        eval(t12).exclude = ('global_tag_id', 'name', 'description',) # pare down the tag table columns...
         RequestConfig(request).configure(eval(t12))
         
     th1,   th2	= str(gtid1)+': "'+gtname1+'"', str(gtid2)+': "'+gtname2+'"'
@@ -746,11 +764,13 @@ def gtcompare(request):
 
         gtDiffTable = GtDiffTable(list4diff)
         # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(gtDiffTable)
-        
+
+        # print('!', runexpSelector)
         d = dict(domain=domain, host=host, what=what, navtable=navtable,
                  now=now,
 	         selectors	= selectors,	selwidth=selwidth,
                  options=compSelector,
+                 runexp=runexpSelector,                 
                  th1	= th1,		th2	= th2,
                  desc1	= desc1,	desc2	= desc2,
                  table1	= table1,	table2	= table2,
@@ -776,6 +796,7 @@ def gtcompare(request):
              now=now,
 	     selectors	= selectors,	selwidth=selwidth,
              options=compSelector,
+             runexp=runexpSelector,
              th1	= th1,		th2	= th2,
              desc1	= desc1,	desc2	= desc2,
              table1	= table1,	table2	= table2,
