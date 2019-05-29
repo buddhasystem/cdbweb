@@ -4,8 +4,8 @@ from django.utils.html	import format_html
 
 COMPARISON_PROMPT = format_html('&lArr;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specify the tags to compare&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&rArr;')
 
-RUNLABEL='Run'
-EXPLABEL='Exp'
+RUNLABEL, EXPLABEL = 'Run', 'Exp'
+INCLABEL, EXCLABEL = 'Payload name includes', 'Payload name excludes'
 
 #########################################################    
 # ---

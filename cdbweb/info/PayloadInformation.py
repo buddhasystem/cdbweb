@@ -17,10 +17,13 @@ class PayloadInformation:
         self.iov= iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
         
     # ---
-    def check(self, exp, run):
-        expCheck, runCheck = False, False
-        expStart, runStart, expEnd, runEnd = self.iov
+    def check(self, exp, run, inc, exc):
+        expCheck, runCheck, incCheck, excCheck	= False, False, False, False
+        expStart, runStart, expEnd, runEnd	= self.iov
 
+        if inc=='' or (inc.lower() in self.name.lower()): incCheck = True
+        if exc=='' or (exc.lower() not in self.name.lower()): excCheck = True
+        
         if exp is not None:
             if(exp>=expStart and exp<=expEnd):	expCheck = True
             if(exp>=expStart and expEnd==-1):	expCheck = True
@@ -33,7 +36,7 @@ class PayloadInformation:
         else:
             runCheck = True
 
-        return expCheck and runCheck
+        return expCheck and runCheck and incCheck and excCheck
     
     # ---
     def __str__(self):		# Stringify

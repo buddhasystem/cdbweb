@@ -598,12 +598,17 @@ def gtcompare(request):
         runexpSelector = twoFieldGeneric(request.POST,
                                          label1=RUNLABEL,	field1="run", init1='',
                                          label2=EXPLABEL,	field2="exp", init2='')
-        if runexpSelector.is_valid():
-            run=runexpSelector.getval("run")
-            exp=runexpSelector.getval("exp")
-            if(run!=''): q+= 'run='+run+'&'
-            if(exp!=''): q+= 'exp='+exp+'&'
+        
+        q=checkAndAdd(q, runexpSelector, 'run')
+        q=checkAndAdd(q, runexpSelector, 'exp')
 
+        incexcSelector = twoFieldGeneric(request.POST,
+                                         label1=INCLABEL,	field1="inc", init1='',
+                                         label2=EXCLABEL,	field2="exc", init2='')
+
+        q=checkAndAdd(q, incexcSelector, 'inc')
+        q=checkAndAdd(q, incexcSelector, 'exc')
+        
         return makeQuery('gtcompare', q)
         # We have built a query and will come to same page/view with a GET query (below)
 
@@ -622,6 +627,9 @@ def gtcompare(request):
     exp		= request.GET.get('exp','')
     run		= request.GET.get('run','')
     
+    inc		= request.GET.get('inc','')
+    exc		= request.GET.get('exc','')
+    
     gtcompchoice= request.GET.get('gtcompchoice','sidebyside')
 
     gt1, gt2 = None, None
@@ -633,12 +641,15 @@ def gtcompare(request):
     now		= timezone.now()
     
 
-    compSelector =  radioSelector(initial={'compChoice':gtcompchoice},
-                                  states=GTCOMPCHOICES,
-                                  label='Choose an option')
+    compSelector	= radioSelector(initial={'compChoice':gtcompchoice},
+                                        states=GTCOMPCHOICES,
+                                        label='Choose an option')
 
-    runexpSelector = twoFieldGeneric(label1=EXPLABEL,	field1="exp", init1=exp,
-                                     label2=RUNLABEL,	field2="run", init2=run)
+    runexpSelector	= twoFieldGeneric(label1=EXPLABEL,	field1="exp", init1=exp,
+                                          label2=RUNLABEL,	field2="run", init2=run)
+
+    incexcSelector	= twoFieldGeneric(label1=INCLABEL,	field1="inc", init1=inc,
+                                          label2=EXCLABEL,	field2="exc", init2=exc)
 
 
     ###############################################################################
@@ -653,9 +664,8 @@ def gtcompare(request):
             selwidth=100
             
             d = dict(domain=domain,	host=host,	what=what,	navtable=navtable,
-	             selectors=selectors,		selwidth=selwidth,
-                     options=compSelector,
-                     runexp=runexpSelector,
+	             selectors=selectors, selwidth=selwidth,
+                     optional = [compSelector, runexpSelector, incexcSelector],
                      now=now,
             )
             
@@ -713,8 +723,7 @@ def gtcompare(request):
         error='Check values: last query did not produce valid results.'
         d = dict(domain=domain,	host=host, what=what, error=error, navtable=navtable,
 	         selectors=selectors,	selwidth=selwidth,
-                 options=compSelector,
-                 runexp=runexpSelector,              
+                 optional= [compSelector, runexpSelector, incexcSelector],
                  now=now,
         )
 
@@ -760,14 +769,14 @@ def gtcompare(request):
             
         for gtp in gtp1:
             payload2add = PayloadInformation(gtp)
-            if payload2add.check(exp2check, run2check): payloads4comp1.append(payload2add)
+            if payload2add.check(exp2check, run2check, inc, exc): payloads4comp1.append(payload2add)
             
         payloads4comp1.sort()
         
         # ---
         for gtp in gtp2:
             payload2add = PayloadInformation(gtp)
-            if payload2add.check(exp2check, run2check): payloads4comp2.append(payload2add)
+            if payload2add.check(exp2check, run2check, inc, exc): payloads4comp2.append(payload2add)
 
         payloads4comp2.sort()
         
@@ -792,8 +801,7 @@ def gtcompare(request):
         d = dict(domain=domain, host=host, what=what, navtable=navtable,
                  now=now,
 	         selectors	= selectors,	selwidth=selwidth,
-                 options=compSelector,
-                 runexp=runexpSelector,                 
+                 optional= [compSelector, runexpSelector, incexcSelector],
                  th1	= th1,		th2	= th2,
                  desc1	= desc1,	desc2	= desc2,
                  table1	= table1,	table2	= table2,
@@ -820,8 +828,7 @@ def gtcompare(request):
     d = dict(domain=domain, host=host, what=what, navtable=navtable,
              now=now,
 	     selectors	= selectors,	selwidth=selwidth,
-             options=compSelector,
-             runexp=runexpSelector,
+             optional= [compSelector, runexpSelector, incexcSelector],
              th1	= th1,		th2	= th2,
              desc1	= desc1,	desc2	= desc2,
              table1	= table1,	table2	= table2,
@@ -839,3 +846,16 @@ def gtcompare(request):
 
 
   
+        # if runexpSelector.is_valid():
+        #     run=runexpSelector.getval("run")
+        #     exp=runexpSelector.getval("exp")
+        #     if(run!=''): q+= 'run='+run+'&'
+        #     if(exp!=''): q+= 'exp='+exp+'&'
+
+        # if incexcSelector.is_valid():
+        #     inc=incexcSelector.getval("inc")
+        #     exc=incexcSelector.getval("exc")
+        #     if(inc!=''): q+= 'inc='+inc+'&'
+        #     if(exc!=''): q+= 'exc='+exc+'&'
+
+            
