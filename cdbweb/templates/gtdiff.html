@@ -19,14 +19,11 @@
       <!-- /td -->
     </tr>
     <tr>
+      {% for opt in optional %}
       <td>
-	<table>{{ options }}</table>
+	<table>{{ opt }}</table>
       </td>
-      {% if runexp %}
-      <td>
-	<table>{{ runexp }}</table>
-      </td>
-      {% endif %}
+      {% endfor %}      
     </tr>
     
   </table>
