@@ -37,6 +37,22 @@ import difflib
 
 #########################################################    
 # ---
+def findIovs(gtp):
+    payload	= Payload.objects.get(pk=gtp.payload_id)
+        
+    name	= Basf2Module.objects.get(pk=payload.basf2_module_id).name
+    checksum	= payload.checksum
+    rev		= str(payload.revision) # print('revision',  payload.revision)
+    
+    listOfIovs = []
+    Iovs = PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)
+    for iov in Iovs:
+        listOfIovs.append(PayloadInformation(name, checksum, rev, (iov.exp_start, iov.run_start, iov.exp_end, iov.run_end)))
+        
+    return listOfIovs
+
+#########################################################    
+# ---
 def makeQuery(page, q=''):
     gUrl= '/'+page
     qUrl= '/'+page+"?"
@@ -768,15 +784,19 @@ def gtcompare(request):
                 pass
             
         for gtp in gtp1:
-            payload2add = PayloadInformation(gtp)
-            if payload2add.check(exp2check, run2check, inc, exc): payloads4comp1.append(payload2add)
+            payloadsIovs = findIovs(gtp)
+            for payload2add  in payloadsIovs: # PayloadInformation(gtp)
+                # debug: if payload2add.name == 'CDCBadWires': print(gtname1, payload2add)
+                if payload2add.check(exp2check, run2check, inc, exc): payloads4comp1.append(payload2add)
             
         payloads4comp1.sort()
         
         # ---
         for gtp in gtp2:
-            payload2add = PayloadInformation(gtp)
-            if payload2add.check(exp2check, run2check, inc, exc): payloads4comp2.append(payload2add)
+            payloadsIovs = findIovs(gtp)
+            for payload2add  in payloadsIovs: # PayloadInformation(gtp)
+                # debug: if payload2add.name == 'CDCBadWires': print(gtname2, payload2add)
+                if payload2add.check(exp2check, run2check, inc, exc): payloads4comp2.append(payload2add)
 
         payloads4comp2.sort()
         
@@ -793,6 +813,7 @@ def gtcompare(request):
                 
             if diff_tag in ['insert', 'replace']:
                 list4diff = add_payloads('+', list4diff, payloads4comp2[j1:j2])
+
 
         gtDiffTable = GtDiffTable(list4diff)
         # RequestConfig(request, paginate={'per_page': int(perpage)}).configure(gtDiffTable)

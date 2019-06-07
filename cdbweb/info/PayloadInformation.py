@@ -5,16 +5,23 @@ class PayloadInformation:
     Adapted (with changes) from b2s: a container class for efficient GT comparison
     """
     # ---
-    def __init__(self, gtp):
+    def __init__(self, name, checksum, rev, iov):
         
-        payload = Payload.objects.get(pk=gtp.payload_id)
+        # payload = Payload.objects.get(pk=gtp.payload_id)
         
-        self.name	= Basf2Module.objects.get(pk=payload.basf2_module_id).name
-        self.checksum	= payload.checksum
-        self.rev	= payload.revision
-            
-        iov	= PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)[0]
-        self.iov= iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
+        self.name	= name
+        self.checksum	= checksum
+        self.rev	= rev
+        self.iov	= iov
+
+        # self.name	= Basf2Module.objects.get(pk=payload.basf2_module_id).name
+        # self.checksum	= payload.checksum
+        #self.rev	= str(payload.revision) # print('revision',  payload.revision)
+
+        # This is important - all IoVs need to be included, not just the first one! Bug here...
+        # iov	= PayloadIov.objects.filter(global_tag_payload_id=gtp.global_tag_payload_id)[0]
+        # self.iov= iov.exp_start, iov.run_start, iov.exp_end, iov.run_end
+        
         
     # ---
     def check(self, exp, run, inc, exc):
@@ -41,7 +48,7 @@ class PayloadInformation:
     # ---
     def __str__(self):		# Stringify
         stringifyIovs = ' '.join(map(str, self.iov))
-        return self.name+' '+self.checksum+' '+stringifyIovs
+        return self.name+' '+self.checksum+' '+self.rev+' '+stringifyIovs
 
     # ---
     def __hash__(self):		# Make object hashable
