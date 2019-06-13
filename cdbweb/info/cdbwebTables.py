@@ -63,18 +63,24 @@ class GtDiffTable(tables.Table):
 
 # ---
 # Custom table for aggregated payloads
+# First, the link generator
+def makeIOVlink(what, gtid, basf2, name):
+    return mark_safe('<a href="http://%s%s?gt4pl=%s&basf2=%s">%s</a>'
+                     % (settings.domain, reverse(what), gtid, basf2, name))
+
 class PayloadLinkTable(tables.Table):
     name	= tables.Column(empty_values=())
     count	= tables.Column()
-    payload_ids	= tables.Column()
     gt		= tables.Column()
+    basf2	= tables.Column()
 
+    
     def render_name(self, bound_row):
-        return makeTaglink('Payload', bound_row.record['gt'], 'ids', bound_row.record['payload_ids'], bound_row.record['name'])
+        return makeIOVlink('Payload', bound_row.record['gt'], bound_row.record['basf2'], bound_row.record['name'])
    
     class Meta:
         attrs	= {'class': 'paleblue'}
-        exclude = ('payload_ids', 'gt',)
+        exclude = ('gt', 'basf2',)
 
 
 #########################################################

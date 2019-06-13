@@ -403,8 +403,9 @@ def data_handler(request, what):
         ##########################################################################
         #      Now fetch RELATED items depending on the primary object type:     #
         ##########################################################################
+        
         ### GLOBAL TAG
-        if what=='GlobalTag': # list Global Tag Payloads
+        if what=='GlobalTag': # prepare data for the list of payloads on the bottom
             theGt	= GlobalTag.objects.get(global_tag_id=pk)
             objects	= GlobalTagPayload.objects.using('default').filter(global_tag_id=pk).order_by('-pk') # newest on top
             Nobj	= len(objects)
@@ -436,10 +437,14 @@ def data_handler(request, what):
                 myDict		= {
                     'name':	b.name,
                     'count':	cnt,
-                    'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
-                    'payload_ids':(",".join(stringArray))
+                    'gt':	str(pk),
+                    'basf2':	basf2,
+                    # Important - this column used to keep the GT verbose info, now
+                    # this has been changed to the GT (above)
+                    # 'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
+                    # 'payload_ids':(",".join(stringArray))
                 }
-                
+                print(myDict)
                 listOfPayloads.append(myDict)
 
             if(basf2!=''):
@@ -505,47 +510,45 @@ def data_handler(request, what):
     else:
         ### Special treatment for payloads since the DB key is int but we have str
         if what=='Payload':
-            if ids!='':
-                strArray=ids.split(',')
-                intArray=[]
+            if gt4pl!='':
+                objects = eval(what).objects.order_by('-pk') # newest on top
+            else:
+                objects = eval(what).objects.order_by('-pk') # newest on top
+
+        else:
+            ### Other stuff:
+            objects = eval(what).objects.order_by('-pk') # newest on top
             
-                for s in strArray: intArray.append(int(s)) # should use map here
-                objects = Payload.objects.filter(payload_id__in=intArray)
-            elif False:
+            if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
+        
+            if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
+        
+            if(name!=''):
+                if(what!='GlobalTagPayload'):
+                    objects = objects.filter(name__icontains=name)
+                else:
+                    gts = GlobalTag.objects.filter(name__icontains=name).values_list('global_tag_id', flat=True)
+                    objects = objects.filter(global_tag_id__in=gts)
+
+            if(status!='All' and status!=''):
+                gtStatus	= GlobalTagStatus.objects.filter(name=status)[0]
+                objects	= objects.filter(global_tag_status_id=gtStatus.pk)
+            
+            if(gttype!='All' and gttype!=''):
+                gtType	= GlobalTagType.objects.filter(name=gttype)[0]
+                objects	= objects.filter(global_tag_type_id=gtType.pk)
+            
+            if(modifiedby!=''):
+                objects	= objects.filter(modified_by=modifiedby)
+            else:
                 pass
-            else:
-                objects = Payload.objects.order_by('-pk') # newest on top
-        
-        ### Other stuff:
-        if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
-        
-        if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
-        
-        if(name!=''):
-            if(what!='GlobalTagPayload'):
-                objects = objects.filter(name__icontains=name)
-            else:
-                gts = GlobalTag.objects.filter(name__icontains=name).values_list('global_tag_id', flat=True)
-                objects = objects.filter(global_tag_id__in=gts)
 
         if(basf2!='' and (what=='Payload' or what=='GlobalTagPayload')):
             selected_basf2	= Basf2Module.objects.filter(name__istartswith=basf2).values_list('basf2_module_id', flat=True)
             selected_payloads	= Payload.objects.filter(basf2_module_id__in=selected_basf2).values_list('payload_id', flat=True)
             objects		= objects.filter(payload_id__in=selected_payloads)
         
-        if(status!='All' and status!=''):
-            gtStatus	= GlobalTagStatus.objects.filter(name=status)[0]
-            objects	= objects.filter(global_tag_status_id=gtStatus.pk)
             
-        if(gttype!='All' and gttype!=''):
-            gtType	= GlobalTagType.objects.filter(name=gttype)[0]
-            objects	= objects.filter(global_tag_type_id=gtType.pk)
-            
-        if(modifiedby!=''):
-            objects	= objects.filter(modified_by=modifiedby)
-        else:
-            pass
-
     ### TAKE STOCK OF WHAT'S BEEN FOUND
     if objects is not None and len(objects)!=0:
         Nfound = len(objects)
