@@ -90,7 +90,7 @@ class CdbWebTable(tables.Table):
     def __init__(self, *args, **kwargs):
         try:
             self.extra=kwargs.pop('extra')
-            print(self.extra)
+            # print(self.extra)
         except:
             pass
 

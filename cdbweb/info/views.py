@@ -359,7 +359,9 @@ def data_handler(request, what):
     ################################################################
     ################################################################
 
-    ### PRIMARY KEY ON OBJECTS TAKES PRECEDENCE
+    ### PRIMARY KEY ON OBJECTS TAKES PRECEDENCE -
+    ### Consder it first, then other options
+    
     if(pk!=''):
         theObject  = None
 
@@ -395,8 +397,11 @@ def data_handler(request, what):
         except:
             banner='Detail for '+banner_tag+' (ID:'+str(pk)+')'
 
+            
         ##########################################################################
-        #      Now fetch related items depending on the primary object type:
+        ##########################################################################
+        ##########################################################################
+        #      Now fetch RELATED items depending on the primary object type:     #
         ##########################################################################
         ### GLOBAL TAG
         if what=='GlobalTag': # list Global Tag Payloads
@@ -496,17 +501,22 @@ def data_handler(request, what):
     ##########################################################################
     ################# SELECTION OTHER THAN PRIMARY KEY #######################
     ##########################################################################
+    
     else:
-        # special treatment for payloads since the DB key is int but we have str
-        if(what=='Payload' and ids!=''):
-            strArray=ids.split(',')
-            intArray=[]
+        ### Special treatment for payloads since the DB key is int but we have str
+        if what=='Payload':
+            if ids!='':
+                strArray=ids.split(',')
+                intArray=[]
             
-            for s in strArray: intArray.append(int(s)) # should use map here
-            objects = Payload.objects.filter(payload_id__in=intArray)
-        else:
-            objects = eval(what).objects.order_by('-pk') # newest on top
+                for s in strArray: intArray.append(int(s)) # should use map here
+                objects = Payload.objects.filter(payload_id__in=intArray)
+            elif False:
+                pass
+            else:
+                objects = Payload.objects.order_by('-pk') # newest on top
         
+        ### Other stuff:
         if(gtid!=''):	objects = objects.filter(global_tag_id=gtid)
         
         if(gtpid!=''):	objects = objects.filter(global_tag_payload_id=gtpid)
