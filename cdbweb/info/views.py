@@ -438,13 +438,8 @@ def data_handler(request, what):
                     'name':	b.name,
                     'count':	cnt,
                     'gt':	str(pk),
-                    'basf2':	basf2,
-                    # Important - this column used to keep the GT verbose info, now
-                    # this has been changed to the GT (above)
-                    # 'gt':	theGt.name+' ('+str(pk)+') matching the name '+b.name,
-                    # 'payload_ids':(",".join(stringArray))
                 }
-                print(myDict)
+
                 listOfPayloads.append(myDict)
 
             if(basf2!=''):
@@ -508,10 +503,23 @@ def data_handler(request, what):
     ##########################################################################
     
     else:
-        ### Special treatment for payloads since the DB key is int but we have str
+        ### Special treatment for payloads: extra joins needed
         if what=='Payload':
             if gt4pl!='':
-                objects = eval(what).objects.order_by('-pk') # newest on top
+                theGt	= GlobalTag.objects.get(global_tag_id=gt4pl)
+                gtps	= GlobalTagPayload.objects.using('default').filter(global_tag_id=gt4pl).order_by('-pk')
+                
+                the_payloads = gtps.values_list('payload_id', flat=True) # payload IDs for the GT we are handling
+                
+                if(name!=''): # selection for auxiliary tables
+                    matching_basf2 = Basf2Module.objects.filter(name__istartswith=name).values_list('basf2_module_id', flat=True)
+                    selected_basf2 = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=matching_basf2).values_list('basf2_module_id', flat=True)
+                else:
+                    selected_basf2 = Payload.objects.filter(payload_id__in=the_payloads).values_list('basf2_module_id', flat=True)
+                
+                relevantBasf2	= Basf2Module.objects.filter(basf2_module_id__in=selected_basf2).distinct('name').values_list('basf2_module_id', flat=True)
+
+                objects = Payload.objects.filter(payload_id__in=the_payloads, basf2_module_id__in=relevantBasf2)
             else:
                 objects = eval(what).objects.order_by('-pk') # newest on top
 
